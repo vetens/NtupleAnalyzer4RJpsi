@@ -1,0 +1,6 @@
+/store/user/cgalloni/Ntuple_BPH_v0/BJpsiX_MuMu_031019/BJpsiX_MuMu_031019/191014_123225/0000/
+/store/user/cgalloni/Ntuple_BPH_v0/Charmonium/Charmonium_Run2018A-17Sep2018-v1/191014_123757/0000/
+/store/user/cgalloni/Ntuple_BPH_v0/Charmonium/Charmonium_Run2018B-17Sep2018-v1/191014_123757/0000/
+/store/user/cgalloni/Ntuple_BPH_v0/Charmonium/Charmonium_Run2018C-17Sep2018-v1/191014_123757/0000/
+/store/user/cgalloni/Ntuple_BPH_v0/Charmonium/Charmonium_Run2018D-PromptReco-v2/191014_123759/0000/
+/store/user/cgalloni/Ntuple_BPH_v0/BcJpsiMuNu_020519/BcJpsiMuNu_020519/191014_123225/0000/

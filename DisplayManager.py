@@ -50,13 +50,15 @@ def createRatioCanvas(name, errorBandFillColor=14, errorBandStyle=3354):
 
 class DisplayManager(object):
 
-    def __init__(self, name, isLog, ratio, xmin=0.42, ymin=0.6):
+    def __init__(self, name, isLog, ratio, logrange=0, xmin=0.42, ymin=0.6, isStack=False):
 
         if ratio:
             self.canvas = createRatioCanvas(name.replace('pdf', ''))
         else:
             self.canvas = ROOT.TCanvas(name.replace('.pdf', ''))
 
+        self.logrange = logrange
+        self.isStack = isStack
         self.isLog = isLog
         self.name = name
         self.draw_ratio = ratio
@@ -75,7 +77,7 @@ class DisplayManager(object):
 #    def __del__(self):
 #        self.canvas.Print(self.name + ']')
 
-    def Draw(self, histos, titles):
+    def Draw(self, histos, titles, isStack):
 
         self.histos = histos
         ymax = max(h.GetMaximum() for h in self.histos)
@@ -83,27 +85,39 @@ class DisplayManager(object):
 
         self.Legend.Clear()
         self.draw_ratioLegend.Clear()
+        if self.isStack:
+            hs = ROOT.THStack()
 
         for i, h in enumerate(self.histos):
             title = titles[i]
-            h.GetYaxis().SetRangeUser(0., ymax * 1.3)
+            if self.draw_legend:
+                h.GetYaxis().SetRangeUser(0., ymax * 1.3)
+            else:
+                h.GetYaxis().SetRangeUser(0, ymax * 1.05)
             
             if ymin < 0:
                 print 'set negative minimum ...'
-                h.GetYaxis().SetRangeUser(ymin*1.5, ymax * 1.3)
+                if self.draw_legend:
+                    h.GetYaxis().SetRangeUser(ymin*1.5, ymax * 1.3)
+                else:
+                    h.GetYaxis().SetRangeUser(ymin*1.05, ymax * 1.05)
 
             if self.isLog:
 #                h.GetYaxis().SetRangeUser(0.001, ymax * 100)
-                h.GetYaxis().SetRangeUser(0.5, ymax * 100)
+                h.GetYaxis().SetRangeUser((0.1)**(self.logrange), ymax * 2 )
             
             self.Legend.AddEntry(h, title, 'lp')
 #            self.Legend.AddEntry(h, title + ': ' + '{0:.1f}'.format(h.Integral()), 'lep')
 
-
-            if i == 0:
-                h.Draw('HIST E')
+            if self.isStack:
+                hs.Add(h)
             else:
-                h.Draw('SAME HIST E')
+                if i == 0:
+                    h.Draw('HIST E')
+                else:
+                    h.Draw('SAME HIST E')
+        if self.isStack:
+            hs.Draw()
 
         if self.draw_legend:
             self.Legend.Draw()

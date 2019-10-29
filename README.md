@@ -18,3 +18,10 @@ For the plotting, you can do,
 ``python compare.py``
 
 This compare.py will take, as an input, the flat n-tuple produced above. 
+
+Running on LXPLUS instead of psi
+--------------------------------
+
+First you must save your list of files to a .txt file, for example by using:
+
+``uberftp -ls gsiftp://<STORAGE SERVER>/<PATH TO FOLDER CONTAINING FILES> > list.txt``
