@@ -50,7 +50,7 @@ def createRatioCanvas(name, errorBandFillColor=14, errorBandStyle=3354):
 
 class DisplayManager(object):
 
-    def __init__(self, name, isLog, ratio, logrange=0, xmin=0.42, ymin=0.6, isStack=False):
+    def __init__(self, name, isLog, ratio, logrange=0, xmin=0.42, ymin=0.6):
 
         if ratio:
             self.canvas = createRatioCanvas(name.replace('pdf', ''))
@@ -58,7 +58,6 @@ class DisplayManager(object):
             self.canvas = ROOT.TCanvas(name.replace('.pdf', ''))
 
         self.logrange = logrange
-        self.isStack = isStack
         self.isLog = isLog
         self.name = name
         self.draw_ratio = ratio
@@ -77,7 +76,7 @@ class DisplayManager(object):
 #    def __del__(self):
 #        self.canvas.Print(self.name + ']')
 
-    def Draw(self, histos, titles, isStack):
+    def Draw(self, histos, titles):
 
         self.histos = histos
         ymax = max(h.GetMaximum() for h in self.histos)
@@ -85,8 +84,6 @@ class DisplayManager(object):
 
         self.Legend.Clear()
         self.draw_ratioLegend.Clear()
-        if self.isStack:
-            hs = ROOT.THStack()
 
         for i, h in enumerate(self.histos):
             title = titles[i]
@@ -109,15 +106,10 @@ class DisplayManager(object):
             self.Legend.AddEntry(h, title, 'lp')
 #            self.Legend.AddEntry(h, title + ': ' + '{0:.1f}'.format(h.Integral()), 'lep')
 
-            if self.isStack:
-                hs.Add(h)
+            if i == 0:
+                h.Draw('HIST E')
             else:
-                if i == 0:
-                    h.Draw('HIST E')
-                else:
-                    h.Draw('SAME HIST E')
-        if self.isStack:
-            hs.Draw()
+                h.Draw('SAME HIST E')
 
         if self.draw_legend:
             self.Legend.Draw()
