@@ -27,6 +27,7 @@ parser.add_option("-o", "--out", default='Myroot.root', type="string", help="out
 parser.add_option("-p", "--path", default='/pnfs/psi.ch/cms/trivcat/store/user/ytakahas/RJpsi_20191002_BcJpsiMuNu_020519/BcJpsiMuNu_020519/BcJpsiMuNu_020519_v1/191002_132739/0000/', type="string", help="path", dest="path")
 parser.add_option("-x", default=False, action="store_true", help="use this option if you are pulling a file from xrd. Otherwise file is pulled from psi", dest="xrd")
 parser.add_option("-t", default='list.txt', type="string", help="text file containing locations of input files", dest="filelist")
+parser.add_option("-e", default=False, action="store_true", help="Use this option if you are trying to get the efficiencies", dest="geteff")
 
 
 (options, args) = parser.parse_args()
@@ -49,8 +50,8 @@ chain = TChain('ntuplizer/tree')
 print "doing xrd?", options.xrd
 
 if options.xrd == False:
-    file2include = 'dcap://t3se01.psi.ch:22125/' + options.path + '/flatTuple*.root'
-    # file2include = 'root://cms-xrd-global.cern.ch/'+ options.path + '/flatTuple_11.root'
+    #file2include = 'dcap://t3se01.psi.ch:22125/' + options.path + '/flatTuple*.root'
+    file2include = 'root://cms-xrd-global.cern.ch/'+ options.path + '/flatTuple_11.root'
     print 'file2include = ', file2include 
     chain.Add(file2include)
 if options.xrd == True:
@@ -72,7 +73,8 @@ for var in outvars:
 # copy original tree
 otree = chain.CloneTree(0)
 
-
+if options.geteff:
+    cuthist = TH1F("cuthist", "cuthist", 2, 0, 2)
 
 # if you want to add additional variables (on top of the one already existing)
 # you can do followings 
@@ -89,6 +91,8 @@ evtid = 0
 
 for evt in xrange(Nevt):
     chain.GetEntry(evt)
+    if options.geteff:
+        cuthist.Fill(0)
 
     if evt%100000==0: print '{0:.2f}'.format(Double(evt)/Double(Nevt)*100.), '% processed'
   #  if evt>100: break
@@ -117,15 +121,20 @@ for evt in xrange(Nevt):
 
     if selectedjpsi == -1: continue
     evtid += 1
+    if options.geteff:
+        cuthist.Fill(1)
     #otree.Fill()
-    for var in outvars:
-        tmp = getattr(chain,var)[selectedjpsi]
-        getattr(chain,var).clear()
-        getattr(chain,var).push_back(tmp)
-    otree.Fill()
-
+    if not options.geteff:
+        for var in outvars:
+            tmp = getattr(chain,var)[selectedjpsi]
+            getattr(chain,var).clear()
+            getattr(chain,var).push_back(tmp)
+        otree.Fill()
+if options.geteff:
+    cuthist.Write()
 otree.Write()
 outputfile.Close()
 
 
 print Nevt, 'evt processed.', evtid, 'evt has matching'
+print "Efficiency: ", float(evtid)/Nevt
