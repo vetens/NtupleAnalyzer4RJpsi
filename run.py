@@ -35,7 +35,8 @@ parser.add_option("-l","--filelist",  default='', type="string", help="text file
 
 (options, args) = parser.parse_args()
 
-outfilename="./"+options.out
+#outfilename="./"+options.out
+outfilename=options.out
 
 print 'output file name = ', options.out
 
@@ -55,16 +56,16 @@ chain = TChain('ntuplizer/tree')
 print "doing xrd?", options.xrd
 
 if options.xrd == False:
-    #file2include = 'dcap://t3se01.psi.ch:22125/' + options.path + '/flatTuple*.root'
-    file2include = 'root://cms-xrd-global.cern.ch/'+ options.path + '/flatTuple_11.root'
+    file2include = 'dcap://t3se01.psi.ch:22125/' + options.path + '/flatTuple*.root'
+    #file2include = 'root://cms-xrd-global.cern.ch/'+ options.path + '/flatTuple_11.root'
     print 'file2include = ', file2include 
     chain.Add(file2include)
 if options.xrd == True:
 
     
-    file2include = 'root://cms-xrd-global.cern.ch/'+ options.path
-    print 'file2include = ', file2include 
-    chain.Add(file2include)
+    #file2include = 'root://cms-xrd-global.cern.ch/'+ options.path
+    #print 'file2include = ', file2include 
+    #chain.Add(file2include)
 
     if  options.filelist is not '':
         files = open(options.filelist, "r")
@@ -96,6 +97,8 @@ otree = chain.CloneTree(0)
 #    otree.Branch('tau_pt', tau_pt, 'tau_pt/D')
 #
 
+otree.SetDirectory(outputfile)
+
 cuthist = TH1F("cuthist", "cuthist", 3, 0, 3)
 
 weight_pu = num.zeros(1,dtype=float)
@@ -103,8 +106,6 @@ otree.Branch('weight_pu', weight_pu, 'weight_pu/D')
 
 weight_evt = num.zeros(1,dtype=float)
 otree.Branch('weight_evt', weight_evt, 'weight_evt/D') 
-
-otree.SetDirectory(outputfile)
 
 
 Nevt = chain.GetEntries()

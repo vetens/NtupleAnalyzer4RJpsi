@@ -36,7 +36,7 @@ while read dir; do
     awk '{printf("%s\n", $9)}' <list.txt | tr -d '\r'> list2.txt;
     sed -i '/log/d' list2.txt;
     rm list.txt;
-    sed -e "s&^&\"root://cms-xrd-global.cern.ch/$dir\"&" list2.txt > list.txt;
+    sed -e "s&^&root://cms-xrd-global.cern.ch/$dir&" list2.txt > list.txt;
     rm list2.txt;
     cd condorsplit;
     split -l $splitting -a 3 -d ../list.txt list;
@@ -52,6 +52,9 @@ while read dir; do
     fi
     if [ ! -d $target$run ]; then
         mkdir -p $target$run;
+    fi
+    if [ ! -d condor/outCondor$run ]; then
+        mkdir -p condor/outCondor$run;
     fi
     cd condor/condorscripts$run
     for (( i=$FirstRun; i<$LastRun; i++ ));
