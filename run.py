@@ -29,8 +29,6 @@ parser = OptionParser(usage)
 parser.add_option("-o", "--out", default='Myroot.root', type="string", help="output filename", dest="out")
 parser.add_option("-p", "--path", default='/pnfs/psi.ch/cms/trivcat/store/user/ytakahas/RJpsi_20191002_BcJpsiMuNu_020519/BcJpsiMuNu_020519/BcJpsiMuNu_020519_v1/191002_132739/0000/', type="string", help="path", dest="path")
 parser.add_option("-x", default=False, action="store_true", help="use this option if you are pulling a file from xrd. Otherwise file is pulled from psi", dest="xrd")
-
-parser.add_option("-t", default='list.txt', type="string", help="text file containing locations of input files", dest="filelist")
 parser.add_option("-l","--filelist",  default='', type="string", help="text file containing locations of input files", dest="filelist")
 
 
@@ -91,20 +89,22 @@ for var in evt_outvars:
 otree = chain.CloneTree(0)
 
 
-if options.geteff:
-    cuthist = TH1F("cuthist", "cuthist", 2, 0, 2)
-otree.SetDirectory(outputfile)
-
-# if you want to add additional variables (on top of the one already existing)
+# if you want to add additional variables (on top of the ones already existing)
 # you can do followings 
 #
 #    tau_pt = num.zeros(1, dtype=float)
 #    otree.Branch('tau_pt', tau_pt, 'tau_pt/D')
 #
 
+cuthist = TH1F("cuthist", "cuthist", 3, 0, 3)
+
 weight_pu = num.zeros(1,dtype=float)
 otree.Branch('weight_pu', weight_pu, 'weight_pu/D') 
 
+weight_evt = num.zeros(1,dtype=float)
+otree.Branch('weight_evt', weight_evt, 'weight_evt/D') 
+
+otree.SetDirectory(outputfile)
 
 
 Nevt = chain.GetEntries()
@@ -120,8 +120,7 @@ if not  isData:
 
 for evt in xrange(Nevt):
     chain.GetEntry(evt)
-    if options.geteff:
-        cuthist.Fill(0)
+    cuthist.Fill(0)
 
     if evt%100000==0: print '{0:.2f}'.format(Double(evt)/Double(Nevt)*100.), '% processed'
   #  if evt>100: break
@@ -138,6 +137,7 @@ for evt in xrange(Nevt):
     #
 
     weight_pu[0]=1
+    weight_evt[0]=1
 
     for v  in xrange(chain.nPuVtxTrue.size()):
         
@@ -145,6 +145,8 @@ for evt in xrange(Nevt):
             
             weight_pu[0] = puTool.getWeight(chain.nPuVtxTrue[v])
             #print " chain.nPuVtxTrue[v] %s, PV_N  %s, PUweight %s" %(chain.nPuVtxTrue[v],  chain.PV_N, weight_pu[0] )
+            #weight_evt will just be the product of all the other weights
+            weight_evt[0] = weight_pu[0]
  
            
 
@@ -165,24 +167,22 @@ for evt in xrange(Nevt):
 
     if selectedjpsi == -1: continue
     evtid += 1
-    if options.geteff:
-        cuthist.Fill(1)
+    cuthist.Fill(1)
+    cuthist.Fill(2, weight_evt)
     #otree.Fill()
 
-    if not options.geteff:
-        for var in outvars:
-            tmp = getattr(chain,var)[selectedjpsi]
-            getattr(chain,var).clear()
-            getattr(chain,var).push_back(tmp)
-        #for var in evt_outvars:
-        #    tmp = getattr(chain,var)[selectedjpsi]
-        #    getattr(chain,var).clear()
-        #    getattr(chain,var).push_back(tmp)
-        otree.Fill()
-if options.geteff:
-    cuthist.Write()
-outputfile.cd()
+    for var in outvars:
+        tmp = getattr(chain,var)[selectedjpsi]
+        getattr(chain,var).clear()
+        getattr(chain,var).push_back(tmp)
+    #for var in evt_outvars:
+    #    tmp = getattr(chain,var)[selectedjpsi]
+    #    getattr(chain,var).clear()
+    #    getattr(chain,var).push_back(tmp)
+    otree.Fill()
 
+outputfile.cd()
+cuthist.Write()
 otree.Write()
 outputfile.Write()
 outputfile.Close()
