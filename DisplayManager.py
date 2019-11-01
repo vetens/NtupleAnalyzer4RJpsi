@@ -87,21 +87,7 @@ class DisplayManager(object):
 
         for i, h in enumerate(self.histos):
             title = titles[i]
-            if self.draw_legend:
-                h.GetYaxis().SetRangeUser(0., ymax * 1.3)
-            else:
-                h.GetYaxis().SetRangeUser(0, ymax * 1.05)
             
-            if ymin < 0:
-                print 'set negative minimum ...'
-                if self.draw_legend:
-                    h.GetYaxis().SetRangeUser(ymin*1.5, ymax * 1.3)
-                else:
-                    h.GetYaxis().SetRangeUser(ymin*1.05, ymax * 1.05)
-
-            if self.isLog:
-#                h.GetYaxis().SetRangeUser(0.001, ymax * 100)
-                h.GetYaxis().SetRangeUser((0.1)**(self.logrange), ymax * 2 )
             
             self.Legend.AddEntry(h, title, 'lp')
 #            self.Legend.AddEntry(h, title + ': ' + '{0:.1f}'.format(h.Integral()), 'lep')
@@ -111,6 +97,20 @@ class DisplayManager(object):
             else:
                 h.Draw('SAME HIST E')
 
+        if self.draw_legend:
+            self.histos[0].GetYaxis().SetRangeUser(0., ymax * 1.3)
+        else:
+            self.histos[0].GetYaxis().SetRangeUser(0, ymax * 1.05)
+        if ymin < 0:
+            print 'set negative minimum ...'
+            if self.draw_legend:
+                self.histos[0].GetYaxis().SetRangeUser(ymin*1.5, ymax * 1.3)
+            else:
+                self.histos[0].GetYaxis().SetRangeUser(ymin*1.05, ymax * 1.05)
+
+        if self.isLog:
+#            h.GetYaxis().SetRangeUser(0.001, ymax * 100)
+            self.histos[0].GetYaxis().SetRangeUser((0.1)**(self.logrange), ymax * 2 )
         if self.draw_legend:
             self.Legend.Draw()
 
@@ -186,4 +186,4 @@ class DisplayManager(object):
 
         self.canvas.Update()
         self.canvas.Print(self.name)
-        self.canvas.Print(self.name.replace('.pdf', '.gif'))
+        self.canvas.Print(self.name.replace('.pdf', '.png'))

@@ -80,7 +80,7 @@ if options.xrd == True:
 isData = options.isdat 
 
 #outvars = ['EVENT_run', 'EVENT_lumiBlock']
-outvars = ['Jpsi_trimu_fl3d', 'Jpsi_trimu_lip', 'Jpsi_trimu_mass' ' jpsi_trimu_pt', 'Jpsi_trimu_eta', 'Jpsi_trimu_phi', 'Jpsi_trimu_maxdoca', 'Jpsi_maxdoca', 'Jpsi_pt', 'Jpsi_eta', 'Jpsi_phi', 'Jpsi_mu1_isSoft', 'Jpsi_mu2_isSoft', 'Jpsi_mu3_isGlobal', 'Jpsi_mu3_pt', 'Jpsi_mu3_eta', 'Jpsi_mu3_phi', 'Jpsi_trimu_alpha', 'Jpsi_vprob', 'Jpsi_trimu_vprob', 'Jpsi_unfit_vprob', 'Jpsi_trimu_unfit_vprob']# 'nPuVtxTrue', 'PV_N', 'bX']
+outvars = ['Jpsi_trimu_fl3d', 'Jpsi_trimu_lip', 'Jpsi_trimu_mass', 'Jpsi_trimu_pt', 'Jpsi_trimu_eta', 'Jpsi_trimu_phi', 'Jpsi_trimu_maxdoca', 'Jpsi_maxdoca', 'Jpsi_pt', 'Jpsi_eta', 'Jpsi_phi', 'Jpsi_mu1_isSoft', 'Jpsi_mu2_isSoft', 'Jpsi_mu3_isGlobal', 'Jpsi_mu3_pt', 'Jpsi_mu3_eta', 'Jpsi_mu3_phi', 'Jpsi_trimu_alpha', 'Jpsi_vprob', 'Jpsi_trimu_vprob', 'Jpsi_unfitvprob', 'Jpsi_trimu_unfitvprob']# 'nPuVtxTrue', 'PV_N', 'bX']
 evt_outvars = ['PV_N']
 mc_vars = ['nPuVtxTrue', 'bX']
 if not isData:
@@ -118,7 +118,7 @@ otree.Branch('mcorr', mcorr , 'mcorr/D')
 dphi_Jpsi_mu3 = num.zeros(1,dtype=float)
 otree.Branch('dphi_Jpsi_mu3', dphi_Jpsi_mu3, 'dphi_Jpsi_mu3/D') 
 cosdphi_Jpsi_mu3 = num.zeros(1,dtype=float)
-otree.Branch('cosdphi_Jpsi_mu3', Cos(dphi_Jpsi_mu3), 'cosdphi_Jpsi_mu3/D') 
+otree.Branch('cosdphi_Jpsi_mu3', cosdphi_Jpsi_mu3, 'cosdphi_Jpsi_mu3/D') 
 dR_Jpsi_mu3 = num.zeros(1,dtype=float)
 otree.Branch('dR_Jpsi_mu3', dR_Jpsi_mu3, 'dR_Jpsi_mu3/D') 
 
@@ -183,18 +183,19 @@ for evt in xrange(Nevt):
     if selectedjpsi == -1: continue
     evtid += 1
     #otree.Fill()
-    pJpsi = TLorentzVector()
-    ptrimu = TLorentzVector()
-    pmu3 = TLorentzVector()
-    PJpsi.SetPtEtaPhiM(chain.Jpsi_pt[selectedjpsi], chain.Jpsi_eta[selectedjpsi], chain.Jpsi_phi[selectedjpsi], MJpsi)
-    Ptrimu.SetPtEtaPhiM(chain.Jpsi_mu3_pt[selectedjpsi], chain.Jpsi_mu3_eta[selectedjpsi], chain.Jpsi_mu3_phi[selectedjpsi], MMu)
-    Pmu3.SetPtEtaPhiM(chain.Jpsi_trimu_pt[selectedjpsi], chain.Jpsi_trimu_eta[selectedjpsi], chain.Jpsi_trimu_phi[selectedjpsi], chain.Jpsi_trimu_mass[selectedjpsi])
+    pJpsi = TLorentzVector.TLorentzVector()
+    ptrimu = TLorentzVector.TLorentzVector()
+    pmu3 = TLorentzVector.TLorentzVector()
+    pJpsi.SetPtEtaPhiM(chain.Jpsi_pt[selectedjpsi], chain.Jpsi_eta[selectedjpsi], chain.Jpsi_phi[selectedjpsi], MJpsi)
+    ptrimu.SetPtEtaPhiM(chain.Jpsi_mu3_pt[selectedjpsi], chain.Jpsi_mu3_eta[selectedjpsi], chain.Jpsi_mu3_phi[selectedjpsi], MMu)
+    pmu3.SetPtEtaPhiM(chain.Jpsi_trimu_pt[selectedjpsi], chain.Jpsi_trimu_eta[selectedjpsi], chain.Jpsi_trimu_phi[selectedjpsi], chain.Jpsi_trimu_mass[selectedjpsi])
 
-    pperp = Ptrimu.P() * Sin(chain.Jpsi_trimu_alpha[selectedjpsi])
-    mcorr[0] = Sqrt( (chain.Jpsi_trimu_mass[selectedjpsi])**2 + pperp**2 ) + pperp
+    pperp = ptrimu.P() * TMath.Sin(chain.Jpsi_trimu_alpha[selectedjpsi])
+    mcorr[0] = TMath.Sqrt( (chain.Jpsi_trimu_mass[selectedjpsi])**2 + pperp**2 ) + pperp
 
     dphi_Jpsi_mu3[0] = pJpsi.DeltaPhi(pmu3)
     dR_Jpsi_mu3[0] = pJpsi.DeltaR(pmu3)
+    cosdphi_Jpsi_mu3[0] = TMath.Cos(dphi_Jpsi_mu3[0])
 
     for var in outvars:
         tmp = getattr(chain,var)[selectedjpsi]
