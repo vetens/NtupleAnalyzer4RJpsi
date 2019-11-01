@@ -118,7 +118,7 @@ otree.Branch('mcorr', mcorr , 'mcorr/D')
 dphi_Jpsi_mu3 = num.zeros(1,dtype=float)
 otree.Branch('dphi_Jpsi_mu3', dphi_Jpsi_mu3, 'dphi_Jpsi_mu3/D') 
 cosdphi_Jpsi_mu3 = num.zeros(1,dtype=float)
-otree.Branch('Cos(dphi_Jpsi_mu3)', Cos(dphi_Jpsi_mu3), 'Cos(dphi_Jpsi_mu3)/D') 
+otree.Branch('cosdphi_Jpsi_mu3', Cos(dphi_Jpsi_mu3), 'cosdphi_Jpsi_mu3/D') 
 dR_Jpsi_mu3 = num.zeros(1,dtype=float)
 otree.Branch('dR_Jpsi_mu3', dR_Jpsi_mu3, 'dR_Jpsi_mu3/D') 
 
@@ -161,14 +161,14 @@ for evt in xrange(Nevt):
                 
                 weight_pu[0] = puTool.getWeight(chain.nPuVtxTrue[v])
                 #print " chain.nPuVtxTrue[v] %s, PV_N  %s, PUweight %s" %(chain.nPuVtxTrue[v],  chain.PV_N, weight_pu[0] )
-                #weight_evt will just be the product of all the other weights
+            #weight_evt will just be the product of all the other weights
                 weight_evt[0] = weight_pu[0]
  
            
 
 
 
-    mu3pt = 2
+    mu3pt = 5
     selectedjpsi = -1
     for iJpsi in xrange(chain.Jpsi_mu3_pt.size()):
         if chain.Jpsi_pt[iJpsi] <= 8: continue
