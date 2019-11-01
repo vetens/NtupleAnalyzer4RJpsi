@@ -9,7 +9,7 @@
 
 
 import os, math, sys, re
-from ROOT import TFile, TH1F, gROOT, TTree, Double, TChain
+from ROOT import TFile, TH1F, gROOT, TTree, Double, TChain, TMath, TLorentzVector
 import numpy as num
 
 from corrections.PileupWeightTool import *
@@ -30,6 +30,7 @@ parser.add_option("-o", "--out", default='Myroot.root', type="string", help="out
 parser.add_option("-p", "--path", default='/pnfs/psi.ch/cms/trivcat/store/user/ytakahas/RJpsi_20191002_BcJpsiMuNu_020519/BcJpsiMuNu_020519/BcJpsiMuNu_020519_v1/191002_132739/0000/', type="string", help="path", dest="path")
 parser.add_option("-x", default=False, action="store_true", help="use this option if you are pulling a file from xrd. Otherwise file is pulled from psi", dest="xrd")
 parser.add_option("-l","--filelist",  default='', type="string", help="text file containing locations of input files", dest="filelist")
+parser.add_option("-d", default=False, action="store_true", help="Flag with -d if you are running over Data", dest="isdat")
 
 
 
@@ -76,10 +77,14 @@ if options.xrd == True:
 # This is to make processing faster. 
 # If you need more information, you need to activate it ... 
 # Remember that, only the activated branches will be saved
+isData = options.isdat 
 
 #outvars = ['EVENT_run', 'EVENT_lumiBlock']
-outvars = ['Jpsi_trimu_fl3d', 'Jpsi_trimu_lip', 'Jpsi_trimu_mass', 'Jpsi_trimu_maxdoca', 'Jpsi_maxdoca', 'Jpsi_pt', 'Jpsi_mu1_isSoft', 'Jpsi_mu2_isSoft', 'Jpsi_mu3_isGlobal', 'Jpsi_mu3_pt']# 'nPuVtxTrue', 'PV_N', 'bX']
-evt_outvars =['nPuVtxTrue', 'PV_N', 'bX']
+outvars = ['Jpsi_trimu_fl3d', 'Jpsi_trimu_lip', 'Jpsi_trimu_mass' ' jpsi_trimu_pt', 'Jpsi_trimu_eta', 'Jpsi_trimu_phi', 'Jpsi_trimu_maxdoca', 'Jpsi_maxdoca', 'Jpsi_pt', 'Jpsi_eta', 'Jpsi_phi', 'Jpsi_mu1_isSoft', 'Jpsi_mu2_isSoft', 'Jpsi_mu3_isGlobal', 'Jpsi_mu3_pt', 'Jpsi_mu3_eta', 'Jpsi_mu3_phi', 'Jpsi_trimu_alpha', 'Jpsi_vprob', 'Jpsi_trimu_vprob', 'Jpsi_unfit_vprob', 'Jpsi_trimu_unfit_vprob']# 'nPuVtxTrue', 'PV_N', 'bX']
+evt_outvars = ['PV_N']
+mc_vars = ['nPuVtxTrue', 'bX']
+if not isData:
+    evt_outvars = evt_outvars + mc_vars
 chain.SetBranchStatus('*', 0)
 for var in outvars:
     chain.SetBranchStatus(var, 1)
@@ -99,29 +104,39 @@ otree = chain.CloneTree(0)
 
 otree.SetDirectory(outputfile)
 
-cuthist = TH1F("cuthist", "cuthist", 3, 0, 3)
 
-weight_pu = num.zeros(1,dtype=float)
-otree.Branch('weight_pu', weight_pu, 'weight_pu/D') 
+if not isData:
+    cuthist = TH1F("cuthist", "cuthist", 3, 0, 3)
+    weight_pu = num.zeros(1,dtype=float)
+    otree.Branch('weight_pu', weight_pu, 'weight_pu/D') 
+    
+    weight_evt = num.zeros(1,dtype=float)
+    otree.Branch('weight_evt', weight_evt, 'weight_evt/D') 
 
-weight_evt = num.zeros(1,dtype=float)
-otree.Branch('weight_evt', weight_evt, 'weight_evt/D') 
-
+mcorr = num.zeros(1,dtype=float)
+otree.Branch('mcorr', mcorr , 'mcorr/D') 
+dphi_Jpsi_mu3 = num.zeros(1,dtype=float)
+otree.Branch('dphi_Jpsi_mu3', dphi_Jpsi_mu3, 'dphi_Jpsi_mu3/D') 
+cosdphi_Jpsi_mu3 = num.zeros(1,dtype=float)
+otree.Branch('Cos(dphi_Jpsi_mu3)', Cos(dphi_Jpsi_mu3), 'Cos(dphi_Jpsi_mu3)/D') 
+dR_Jpsi_mu3 = num.zeros(1,dtype=float)
+otree.Branch('dR_Jpsi_mu3', dR_Jpsi_mu3, 'dR_Jpsi_mu3/D') 
 
 Nevt = chain.GetEntries()
 
 print 'Total Number of events = ', Nevt 
 evtid = 0
 
-isData = False 
 
-if not  isData:
+if not isData:
     puTool         = PileupWeightTool(year=2018)
 
-
+MJpsi=3.096916
+MMu=0.1056583745
 for evt in xrange(Nevt):
     chain.GetEntry(evt)
-    cuthist.Fill(0)
+    if not isData:
+        cuthist.Fill(0)
 
     if evt%100000==0: print '{0:.2f}'.format(Double(evt)/Double(Nevt)*100.), '% processed'
   #  if evt>100: break
@@ -136,21 +151,20 @@ for evt in xrange(Nevt):
     #
     #   tau_pt[0] = chain.pft_tau_pt[0]
     #
+    if not isData:
+        weight_pu[0]=1
+        weight_evt[0]=1
 
-    weight_pu[0]=1
-    weight_evt[0]=1
-
-    for v  in xrange(chain.nPuVtxTrue.size()):
-        
-        if  chain.bX[v] == 0 :
+        for v  in xrange(chain.nPuVtxTrue.size()):
             
-            weight_pu[0] = puTool.getWeight(chain.nPuVtxTrue[v])
-            #print " chain.nPuVtxTrue[v] %s, PV_N  %s, PUweight %s" %(chain.nPuVtxTrue[v],  chain.PV_N, weight_pu[0] )
-            #weight_evt will just be the product of all the other weights
-            weight_evt[0] = weight_pu[0]
+            if  chain.bX[v] == 0 :
+                
+                weight_pu[0] = puTool.getWeight(chain.nPuVtxTrue[v])
+                #print " chain.nPuVtxTrue[v] %s, PV_N  %s, PUweight %s" %(chain.nPuVtxTrue[v],  chain.PV_N, weight_pu[0] )
+                #weight_evt will just be the product of all the other weights
+                weight_evt[0] = weight_pu[0]
  
            
-
 
 
 
@@ -168,22 +182,36 @@ for evt in xrange(Nevt):
 
     if selectedjpsi == -1: continue
     evtid += 1
-    cuthist.Fill(1)
-    cuthist.Fill(2, weight_evt)
     #otree.Fill()
+    pJpsi = TLorentzVector()
+    ptrimu = TLorentzVector()
+    pmu3 = TLorentzVector()
+    PJpsi.SetPtEtaPhiM(chain.Jpsi_pt[selectedjpsi], chain.Jpsi_eta[selectedjpsi], chain.Jpsi_phi[selectedjpsi], MJpsi)
+    Ptrimu.SetPtEtaPhiM(chain.Jpsi_mu3_pt[selectedjpsi], chain.Jpsi_mu3_eta[selectedjpsi], chain.Jpsi_mu3_phi[selectedjpsi], MMu)
+    Pmu3.SetPtEtaPhiM(chain.Jpsi_trimu_pt[selectedjpsi], chain.Jpsi_trimu_eta[selectedjpsi], chain.Jpsi_trimu_phi[selectedjpsi], chain.Jpsi_trimu_mass[selectedjpsi])
+
+    pperp = Ptrimu.P() * Sin(chain.Jpsi_trimu_alpha[selectedjpsi])
+    mcorr[0] = Sqrt( (chain.Jpsi_trimu_mass[selectedjpsi])**2 + pperp**2 ) + pperp
+
+    dphi_Jpsi_mu3[0] = pJpsi.DeltaPhi(pmu3)
+    dR_Jpsi_mu3[0] = pJpsi.DeltaR(pmu3)
 
     for var in outvars:
         tmp = getattr(chain,var)[selectedjpsi]
         getattr(chain,var).clear()
         getattr(chain,var).push_back(tmp)
-    #for var in evt_outvars:
-    #    tmp = getattr(chain,var)[selectedjpsi]
-    #    getattr(chain,var).clear()
-    #    getattr(chain,var).push_back(tmp)
+    if not isData:
+        cuthist.Fill(1)
+        cuthist.Fill(2, weight_evt)
+        #for var in evt_outvars:
+        #    tmp = getattr(chain,var)[selectedjpsi]
+        #    getattr(chain,var).clear()
+        #    getattr(chain,var).push_back(tmp)
     otree.Fill()
 
 outputfile.cd()
-cuthist.Write()
+if not isData:
+    cuthist.Write()
 otree.Write()
 outputfile.Write()
 outputfile.Close()

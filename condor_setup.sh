@@ -12,12 +12,24 @@ writeScript() {
     listNumber=$(echo $1 | awk '{ printf("%03d",$1) }')
     jobNumber=$1
     scriptname=CondorJob_${1}.sh
-    sed -e 's&LISTDIR&'"$3"'&g' \
-        -e 's&TARGET&'"$target"'&g' \
-        -e 's&WORKDIR&'"$workdir"'&g' \
-        -e 's/LISTNUMBER/'"$listNumber"'/g' \
-        -e 's/JOBNUMBER/'"$jobNumber"'/g' \
-        -e 's&RUNTYPE&'"$2"'&g' < $workdir/condor/condor_template.sh > $scriptname 
+    # Flag for either Data or Monte Carlo
+    if [[ $2 == *"Run"* ]]; then
+        sed -e 's&LISTDIR&'"$3"'&g' \
+            -e 's&ISDAT&-d&g' \
+            -e 's&TARGET&'"$target"'&g' \
+            -e 's&WORKDIR&'"$workdir"'&g' \
+            -e 's/LISTNUMBER/'"$listNumber"'/g' \
+            -e 's/JOBNUMBER/'"$jobNumber"'/g' \
+            -e 's&RUNTYPE&'"$2"'&g' < $workdir/condor/condor_template.sh > $scriptname 
+    else
+        sed -e 's&LISTDIR&'"$3"'&g' \
+            -e 's&ISDAT&&g' \
+            -e 's&TARGET&'"$target"'&g' \
+            -e 's&WORKDIR&'"$workdir"'&g' \
+            -e 's/LISTNUMBER/'"$listNumber"'/g' \
+            -e 's/JOBNUMBER/'"$jobNumber"'/g' \
+            -e 's&RUNTYPE&'"$2"'&g' < $workdir/condor/condor_template.sh > $scriptname 
+    fi
     chmod u+xrw $scriptname
 }
 while read dir; do
