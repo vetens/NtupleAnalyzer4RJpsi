@@ -1,1 +1,1 @@
-hadd TARGETRUNTYPEBtrimu.root TARGETRUNTYPEBCondorJob_*.root
+hadd -f TARGETRUNTYPEBtrimu.root TARGETRUNTYPECondorJob_*.root
