@@ -161,8 +161,9 @@ for evt in xrange(Nevt):
                 
                 weight_pu[0] = puTool.getWeight(chain.nPuVtxTrue[v])
                 #print " chain.nPuVtxTrue[v] %s, PV_N  %s, PUweight %s" %(chain.nPuVtxTrue[v],  chain.PV_N, weight_pu[0] )
-            #weight_evt will just be the product of all the other weights
-                weight_evt[0] = weight_pu[0]
+
+         #weight_evt will just be the product of all the other weights
+        weight_evt[0] = weight_pu[0]
  
            
 
