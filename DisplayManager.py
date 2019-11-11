@@ -89,8 +89,10 @@ class DisplayManager(object):
             title = titles[i]
             
             
-            self.Legend.AddEntry(h, title, 'lp')
-#            self.Legend.AddEntry(h, title + ': ' + '{0:.1f}'.format(h.Integral()), 'lep')
+            if h.GetTitle()=="stack":
+                self.Legend.AddEntry(h, title, 'lp')
+            else:
+                self.Legend.AddEntry(h, title + ': ' + '{0:.1f}'.format(h.Integral()), 'lep')
 
             if i == 0:
                 h.Draw('HIST E')
