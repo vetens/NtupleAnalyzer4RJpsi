@@ -64,12 +64,17 @@ def sproducer(key, rootfile, name, isample):
         
     return copy.deepcopy(hist)
 
-ensureDir('/eos/home-c/cgalloni//www/BPH_V0/plots/')
-ensureDir('/eos/home-c/cgalloni/www/BPH_V0/logs/')
+# ensureDir('/eos/home-c/cgalloni/www/BPH_V0/plots/')
+# ensureDir('/eos/home-c/cgalloni/www/BPH_V0/logs/')
+ensureDir('/eos/home-w/wvetens/www/BPH_V0/plots/')
+ensureDir('/eos/home-w/wvetens/www/BPH_V0/logs/')
 
-datfile = TFile('/afs/cern.ch/user/w/wvetens/public/4Camilla/Charmonium.root')
-bgfile = TFile('/afs/cern.ch/user/w/wvetens/public/4Camilla/BJpsiX.root')
-sigfile = TFile('/afs/cern.ch/user/w/wvetens/public/4Camilla/BcJpsiMuNu.root')
+# datfile = TFile('/afs/cern.ch/user/w/wvetens/public/4Camilla/Charmonium.root')
+# bgfile = TFile('/afs/cern.ch/user/w/wvetens/public/4Camilla/BJpsiX.root')
+# sigfile = TFile('/afs/cern.ch/user/w/wvetens/public/4Camilla/BcJpsiMuNu.root')
+datfile = TFile('/eos/home-w/wvetens/Ntuple_BPH_v0/Charmonium/Charmonium_Run2018C-17Sep2018-v1/Btrimu.root')
+bgfile = TFile('/eos/home-w/wvetens/Ntuple_BPH_v0/BJpsiX_MuMu_031019/BJpsiX_MuMu_031019/Btrimu.root')
+sigfile = TFile('/eos/home-w/wvetens/Ntuple_BPH_v0/BcJpsiMuNu_020519/BcJpsiMuNu_020519/Btrimu.root')
 lumi = 6.894770971
 # Signal Cross section estimated by multiplying the ratio of efficiencies of muon to pion at 7.5 GeV, 
 # the number of observed Bc in the Full run 2 analysis divided by the Integrated Luminosity of the 
@@ -194,9 +199,8 @@ for varkey, ivar in vardict.iteritems():
     #    hists.append(stackhist)
     #    titles.append("Stack")
           
-    comparisonPlots(hists, titles, ivar['isLog'], ivar['loglowerlimit'],# '/eos/home-c/cgalloni/www/BPH_V0/plots/'+var+'.pdf'
-                   'plots/'+var+'.pdf' , ivar['isRatio'], ivar['isLegended'])
+    comparisonPlots(hists, titles, ivar['isLog'], ivar['loglowerlimit'], '/eos/home-w/wvetens/www/BPH_V0/plots/'+var+'.pdf', ivar['isRatio'], ivar['isLegended'])
 # This writes to a webpage so you can more easily view all the plots you've created in a web browser, which will display them simultaneously.
 # This is optional, you can comment it out if you want to ...
-    #writeHTML('/eos/home-w/wvetens/www/BPH_V0', titles[ii])
+    writeHTML('/eos/home-w/wvetens/www/BPH_V0', titles)
 

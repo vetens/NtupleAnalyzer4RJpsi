@@ -1,11 +1,14 @@
 #!/bin/bash
-target=${1:-/eos/user/w/wvetens}
+target=${1:-/eos/home-w/wvetens}
 splitting=${2:-20}
 inlist=${3:-'datasets.txt'}
 prefix1="/store/user"
 workdir=$PWD
 FirstRun=0;
 rm -f $workdir/condor/configlist.txt
+rm -rf $workdir/condor/outCondor/*
+rm -rf $workdir/condor/condorscripts
+rm -rf $workdir/condor/lists
 touch $workdir/condor/configlist.txt
 # function to write condor submitted scripts, called later within while loop
 writeScript() {
@@ -62,9 +65,10 @@ while read dir; do
     if [ ! -d condor/condorscripts$run ]; then
         mkdir -p condor/condorscripts$run;
     fi
-    if [ ! -d $target$run ]; then
-        mkdir -p $target$run;
-    fi
+    rm -rf $target$run
+    mkdir -p $target$run;
+    rm -rf $workdir$run
+    mkdir -p $workdir$run;
     if [ ! -d condor/outCondor$run ]; then
         mkdir -p condor/outCondor$run;
     fi
@@ -75,6 +79,7 @@ while read dir; do
     done
     # Write the script to run after other condor jobs which hadds the results together 
     sed -e 's&RUNTYPE&'"$run"'&g' \
+        -e 's&WORKDIR&'"$workdir"'&g' \
         -e 's&TARGET&'"$target"'&g' < $workdir/condor/hadd_template.sh > CondorJob_${LastRun}.sh
     chmod u+xrw CondorJob_${LastRun}.sh
     # write list of condor clusters to be submitted

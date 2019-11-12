@@ -56,10 +56,18 @@ chain = TChain('ntuplizer/tree')
 
 print "doing xrd?", options.xrd
 
+isData = options.isdat 
+
+if not isData:
+    nevts = 0
+
 if options.xrd == False:
     file2include = 'dcap://t3se01.psi.ch:22125/' + options.path + '/flatTuple*.root'
     #file2include = 'root://cms-xrd-global.cern.ch/'+ options.path + '/flatTuple_11.root'
     print 'file2include = ', file2include 
+    if not isData:
+        infile = TFile.Open(file2include)
+        nevts += infile.Get('ntuplizer/cutflow_perevt').GetBinContent(1)
     chain.Add(file2include)
 if options.xrd == True:
 
@@ -73,11 +81,13 @@ if options.xrd == True:
         for tfile in files:
             tfile = tfile.strip()
             print 'file2include = ', tfile
+            if not isData:
+                infile = TFile.Open(tfile)
+                nevts += infile.Get('ntuplizer/cutflow_perevt').GetBinContent(1)
             chain.Add(tfile)
 # This is to make processing faster. 
 # If you need more information, you need to activate it ... 
 # Remember that, only the activated branches will be saved
-isData = options.isdat 
 
 #outvars = ['EVENT_run', 'EVENT_lumiBlock']
 outvars = ['Jpsi_trimu_fl3d', 'Jpsi_trimu_lip', 'Jpsi_trimu_mass', 'Jpsi_trimu_pt', 'Jpsi_trimu_eta', 'Jpsi_trimu_phi', 'Jpsi_trimu_maxdoca', 'Jpsi_maxdoca', 'Jpsi_pt', 'Jpsi_eta', 'Jpsi_phi', 'Jpsi_mu1_isSoft', 'Jpsi_mu2_isSoft', 'Jpsi_mu3_isGlobal', 'Jpsi_mu3_pt', 'Jpsi_mu3_eta', 'Jpsi_mu3_phi', 'Jpsi_trimu_alpha', 'Jpsi_vprob', 'Jpsi_trimu_vprob', 'Jpsi_unfitvprob', 'Jpsi_trimu_unfitvprob']# 'nPuVtxTrue', 'PV_N', 'bX']
@@ -122,9 +132,9 @@ otree.Branch('cosdphi_Jpsi_mu3', cosdphi_Jpsi_mu3, 'cosdphi_Jpsi_mu3/D')
 dR_Jpsi_mu3 = num.zeros(1,dtype=float)
 otree.Branch('dR_Jpsi_mu3', dR_Jpsi_mu3, 'dR_Jpsi_mu3/D') 
 
-Nevt = chain.GetEntries()
+Nentries = chain.GetEntries()
 
-print 'Total Number of events = ', Nevt 
+print 'Total Number of entries to proces  = ', Nentries 
 evtid = 0
 
 
@@ -133,12 +143,12 @@ if not isData:
 
 MJpsi=3.096916
 MMu=0.1056583745
-for evt in xrange(Nevt):
+if not isData:
+    cuthist.Fill(0, nevts)
+for evt in xrange(Nentries):
     chain.GetEntry(evt)
-    if not isData:
-        cuthist.Fill(0)
 
-    if evt%100000==0: print '{0:.2f}'.format(Double(evt)/Double(Nevt)*100.), '% processed'
+    if evt%100000==0: print '{0:.2f}'.format(Double(evt)/Double(Nentries)*100.), '% processed'
   #  if evt>100: break
 
 
@@ -218,5 +228,5 @@ otree.Write()
 outputfile.Write()
 outputfile.Close()
 
-print Nevt, 'evt processed.', evtid, 'evts passed'
-print "Efficiency: ", float(evtid)/Nevt
+print Nentries, 'entries processed.', evtid, 'evts passed'
+print "Efficiency: ", float(evtid)/nevts
