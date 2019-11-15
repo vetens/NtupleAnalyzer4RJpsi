@@ -229,4 +229,5 @@ outputfile.Write()
 outputfile.Close()
 
 print Nentries, 'entries processed.', evtid, 'evts passed'
-print "Efficiency: ", float(evtid)/nevts
+if not isData:
+    print "Efficiency: ", float(evtid)/nevts

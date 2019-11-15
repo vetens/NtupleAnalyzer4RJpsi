@@ -54,10 +54,10 @@ def sproducer(key, rootfile, name, isample):
     tree = rootfile.Get(isample['tree'])
 
     print isample['var'] + ' >> ' + hist.GetName(), exp
-    if key is "data":
-        tree.Draw(isample['var'] + ' >> ' + hist.GetName(), exp)
-    else:
-        tree.Draw(isample['var'] + ' >> ' + hist.GetName(), "weight_pu[0]*("+exp+")")
+    #if key is "data":
+    tree.Draw(isample['var'] + ' >> ' + hist.GetName(), exp)
+    #else:
+    #    tree.Draw(isample['var'] + ' >> ' + hist.GetName(), "weight_pu[0]*("+exp+")")
     hist.GetXaxis().SetTitle(isample['xtitle'])
     hist.GetYaxis().SetTitle(isample['ytitle'])
 
@@ -83,13 +83,13 @@ lumi = 6.894770971
 # for method and efficiency ratio, see the PDG for the branching ratio,
 # and see https://journals.aps.org/prl/pdf/10.1103/PhysRevLett.122.132001 for Run 2 Bc production
 # errors just added in quadrature
-crossxns = [5.588*10**11 ,  7629.0/140.0 *20* 0.01672]
+crossxns = [2.063*10**8 ,  7629.0/140.0 *20* 0.01672]
 crossxnerrs = [1.243 * 10**11, TMath.Sqrt( (2.0*225/140.0*1/4.69* 10 ** (-2))**2 +(2.0*7629.0/140.0 * 0.28/ (4.69) **2 * 10 ** (-2))**2 +(2.0*7629.0/140.0 * 0.46/ (4.69) ** 2 * 10 ** (-2))**2 )]
 nevts = [bgfile.Get('cuthist').GetBinContent(1), sigfile.Get('cuthist').GetBinContent(1)] 
 effwgts = []
 effwgterrs = []
 for i in range(len(crossxns)):
-    effwgts.append(crossxns[i]/nevts[i])
+    effwgts.append(lumi*crossxns[i]/nevts[i])
     print " file %s, effwgt %s, nevts %s"   %(i,lumi*crossxns[i]/nevts[i],nevts[i])
     effwgterrs.append(lumi*crossxnerrs[i]/nevts[i])
 # to add a new variable, add a new entry in the ordered dictionary 'vardict'. To add a new sample, add a new entry in the ordered dictionary 'sampledict'.

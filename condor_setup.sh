@@ -5,11 +5,11 @@ inlist=${3:-'datasets.txt'}
 prefix1="/store/user"
 workdir=$PWD
 FirstRun=0;
-rm -f $workdir/condor/configlist.txt
+rm -f $workdir/condor/clusters.txt
 rm -rf $workdir/condor/outCondor/*
 rm -rf $workdir/condor/condorscripts
 rm -rf $workdir/condor/lists
-touch $workdir/condor/configlist.txt
+touch $workdir/condor/clusters.txt
 # function to write condor submitted scripts, called later within while loop
 writeScript() {
     listNumber=$(echo $1 | awk '{ printf("%03d",$1) }')
@@ -60,7 +60,7 @@ while read dir; do
     numfiles=(*)
     numfiles=${#numfiles[@]}
     LastRun=$numfiles
-    numofjobs=$(($LastRun+1))
+    numofjobs=$(($LastRun))
     cd $workdir
     if [ ! -d condor/condorscripts$run ]; then
         mkdir -p condor/condorscripts$run;
@@ -80,14 +80,14 @@ while read dir; do
     # Write the script to run after other condor jobs which hadds the results together 
     sed -e 's&RUNTYPE&'"$run"'&g' \
         -e 's&WORKDIR&'"$workdir"'&g' \
-        -e 's&TARGET&'"$target"'&g' < $workdir/condor/hadd_template.sh > CondorJob_${LastRun}.sh
-    chmod u+xrw CondorJob_${LastRun}.sh
+        -e 's&TARGET&'"$target"'&g' < $workdir/condor/hadd_template.sh > CondorJob_hadd.sh
+    chmod u+xrw CondorJob_hadd.sh
     # write list of condor clusters to be submitted
     sed -e 's&RUNTYPE&'"$run"'&g' \
         -e 's&WORKDIR&'"$workdir"'&g' \
         -e 's&NUMOFJOBS&'"$numofjobs"'&g' < $workdir/condor/condor_config_template.cfg \
         > $workdir/condor/condorscripts${run}condor_multiple.cfg
-    echo "$workdir/condor/condorscripts${run}condor_multiple.cfg" >> $workdir/condor/configlist.txt
+    echo "$workdir/condor/condorscripts${run}" >> $workdir/condor/clusters.txt
     cd $workdir
 done < $inlist
 # ./job_condor.sh $runtype;
