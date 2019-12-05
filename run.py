@@ -90,7 +90,8 @@ if options.xrd == True:
 # Remember that, only the activated branches will be saved
 
 #outvars = ['EVENT_run', 'EVENT_lumiBlock']
-outvars = ['Jpsi_trimu_fl3d', 'Jpsi_trimu_lip', 'Jpsi_trimu_mass', 'Jpsi_trimu_pt', 'Jpsi_trimu_eta', 'Jpsi_trimu_phi', 'Jpsi_trimu_maxdoca', 'Jpsi_maxdoca', 'Jpsi_pt', 'Jpsi_eta', 'Jpsi_phi', 'Jpsi_mu1_isSoft', 'Jpsi_mu2_isSoft', 'Jpsi_mu3_isGlobal', 'Jpsi_mu3_pt', 'Jpsi_mu3_eta', 'Jpsi_mu3_phi', 'Jpsi_trimu_alpha', 'Jpsi_vprob', 'Jpsi_trimu_vprob', 'Jpsi_unfitvprob', 'Jpsi_trimu_unfitvprob']# 'nPuVtxTrue', 'PV_N', 'bX']
+#outvars = ['Jpsi_trimu_mass', 'Jpsi_mu1_pt', 'Jpsi_mu1_eta', 'Jpsi_mu1_phi', 'Jpsi_mu2_pt', 'Jpsi_mu2_eta', 'Jpsi_mu2_phi', 'Jpsi_pt', 'Jpsi_mu1_isSoft', 'Jpsi_mu2_isSoft', 'Jpsi_mu3_isGlobal', 'Jpsi_mu3_pt', 'Jpsi_mu3_eta', 'Jpsi_mu3_phi']
+outvars = ['Jpsi_trimu_fl3d', 'Jpsi_trimu_lip', 'Jpsi_trimu_mass', 'Jpsi_trimu_pt', 'Jpsi_trimu_eta', 'Jpsi_trimu_phi', 'Jpsi_trimu_maxdoca', 'Jpsi_maxdoca', 'Jpsi_pt', 'Jpsi_eta', 'Jpsi_phi', 'Jpsi_mu1_isSoft', 'Jpsi_mu2_isSoft', 'Jpsi_mu3_isGlobal', 'Jpsi_mu3_pt', 'Jpsi_mu3_eta', 'Jpsi_mu3_phi', 'Jpsi_trimu_alpha', 'Jpsi_vprob', 'Jpsi_trimu_vprob', 'Jpsi_unfitvprob', 'Jpsi_trimu_unfitvprob', 'Jpsi_mu1_pt', 'Jpsi_mu1_eta', 'Jpsi_mu1_phi', 'Jpsi_mu2_pt', 'Jpsi_mu2_eta', 'Jpsi_mu2_phi']# 'nPuVtxTrue', 'PV_N', 'bX']
 evt_outvars = ['PV_N']
 mc_vars = ['nPuVtxTrue', 'bX']
 if not isData:
@@ -179,16 +180,16 @@ for evt in xrange(Nentries):
 
 
 
-    mu3pt = 5
+    mu3ptcut = 5
     selectedjpsi = -1
     for iJpsi in xrange(chain.Jpsi_mu3_pt.size()):
+        if chain.Jpsi_mu3_pt.size() < 1: continue
         if chain.Jpsi_pt[iJpsi] <= 8: continue
         if not chain.Jpsi_mu1_isSoft[iJpsi]: continue
         if not chain.Jpsi_mu2_isSoft[iJpsi]: continue
         if not chain.Jpsi_mu3_isGlobal[iJpsi]: continue
         if chain.Jpsi_trimu_mass[iJpsi] > 9: continue
-        if chain.Jpsi_mu3_pt[iJpsi] < mu3pt: continue
-        mu3pt = chain.Jpsi_mu3_pt[iJpsi]
+        if chain.Jpsi_mu3_pt[iJpsi] < mu3ptcut: continue
         selectedjpsi = iJpsi
 
     if selectedjpsi == -1: continue

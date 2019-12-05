@@ -101,6 +101,16 @@ vardict = collections.OrderedDict()
 
 #vardict['mcorr'] = {'xtitle': 'corrected m(#mu#mu#mu) inv mass [Gev]', 'nbins': 60, 'xmin': 3, 'xmax': 9, 'ytitle': '', 'isLog': False, 'isRatio': False, 'isLegended': True, 'HasStackPlot': True, 'loglowerlimit': 1} 
 vardict['Jpsi_trimu_mass'] = {'xtitle': 'm(#mu#mu#mu) inv mass [Gev]', 'nbins': 60, 'xmin': 3, 'xmax': 9, 'ytitle': '', 'isLog': False, 'isRatio': False, 'isLegended': True, 'HasStackPlot': True, 'loglowerlimit': 1} 
+#vardict['Jpsi_trimu_mass'] = {'xtitle': 'm(#mu#mu#mu) inv mass [Gev]', 'nbins': 60, 'xmin': 3, 'xmax': 9, 'ytitle': '', 'isLog': True, 'isRatio': False, 'isLegended': True, 'HasStackPlot': True, 'loglowerlimit': 1} 
+vardict['Jpsi_trimu_pt'] = {'xtitle': 'p_{T} of the trimuon (GeV)', 'nbins': 60, 'xmin': 8, 'xmax': 14, 'ytitle': '', 'isLog': False, 'isRatio': False, 'isLegended': False, 'HasStackPlot': True, 'loglowerlimit': 1} 
+vardict['Jpsi_trimu_eta'] = {'xtitle': '#eta of the trimuon', 'nbins': 60, 'xmin': -2.2, 'xmax': 2.2, 'ytitle': '', 'isLog': False, 'isRatio': False, 'isLegended': False, 'HasStackPlot': True, 'loglowerlimit': 1} 
+vardict['Jpsi_trimu_phi'] = {'xtitle': '#phi of the trimuon', 'nbins': 60, 'xmin': -TMath.Pi(), 'xmax': TMath.Pi(), 'ytitle': '', 'isLog': False, 'isRatio': False, 'isLegended': False, 'HasStackPlot': True, 'loglowerlimit': 1} 
+vardict['Jpsi_pt'] = {'xtitle': 'p_{T} of the J/#psi (GeV)', 'nbins': 60, 'xmin': 8, 'xmax': 14, 'ytitle': '', 'isLog': False, 'isRatio': False, 'isLegended': False, 'HasStackPlot': True, 'loglowerlimit': 1} 
+vardict['Jpsi_eta'] = {'xtitle': '#eta of the J/#psi', 'nbins': 60, 'xmin': -2.2, 'xmax': 2.2, 'ytitle': '', 'isLog': False, 'isRatio': False, 'isLegended': False, 'HasStackPlot': True, 'loglowerlimit': 1} 
+vardict['Jpsi_phi'] = {'xtitle': '#phi of the J/#psi', 'nbins': 60, 'xmin': -TMath.Pi(), 'xmax': TMath.Pi(), 'ytitle': '', 'isLog': False, 'isRatio': False, 'isLegended': False, 'HasStackPlot': True, 'loglowerlimit': 1} 
+vardict['Jpsi_mu3_pt'] = {'xtitle': 'p_{T} of the #mu_{3} (GeV)', 'nbins': 60, 'xmin': 5, 'xmax': 11, 'ytitle': '', 'isLog': False, 'isRatio': False, 'isLegended': False, 'HasStackPlot': True, 'loglowerlimit': 1} 
+vardict['Jpsi_mu3_eta'] = {'xtitle': '#eta of the #mu_{3}', 'nbins': 60, 'xmin': -2.2, 'xmax': 2.2, 'ytitle': '', 'isLog': False, 'isRatio': False, 'isLegended': False, 'HasStackPlot': True, 'loglowerlimit': 1} 
+vardict['Jpsi_mu3_phi'] = {'xtitle': '#phi of the #mu_{3}', 'nbins': 60, 'xmin': -TMath.Pi(), 'xmax': TMath.Pi(), 'ytitle': '', 'isLog': False, 'isRatio': False, 'isLegended': False, 'HasStackPlot': True, 'loglowerlimit': 1} 
 #vardict['Jpsi_trimu_fl3d'] = {'xtitle': 'B_{c} Flight Length 3D', 'nbins': 60, 'xmin': 0, 'xmax': 10, 'ytitle': '', 'isLog': True, 'isRatio': False, 'isLegended': False, 'HasStackPlot': False, 'loglowerlimit': 3.6} 
 #vardict['Jpsi_trimu_lip'] = {'xtitle': 'B_{c} Longitudinal Impact Parameter', 'nbins': 60, 'xmin': -5, 'xmax': 5, 'ytitle': '', 'isLog': True, 'isRatio': False, 'isLegended': False, 'HasStackPlot': False, 'loglowerlimit': 4.3} 
 #vardict['Jpsi_trimu_maxdoca'] = {'xtitle': 'B_{c} max doca', 'nbins': 60, 'xmin': 0, 'xmax': 0.5, 'ytitle': '', 'isLog': True, 'isRatio': False, 'isLegended': False, 'HasStackPlot': False, 'loglowerlimit': 3.7} 
