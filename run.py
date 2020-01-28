@@ -58,46 +58,49 @@ print "doing xrd?", options.xrd
 
 isData = options.isdat 
 
-if not isData:
-    nevts = 0
+#if not isData:
+nevts = 0
 
 if options.xrd == False:
     file2include = 'dcap://t3se01.psi.ch:22125/' + options.path + '/flatTuple*.root'
     #file2include = 'root://cms-xrd-global.cern.ch/'+ options.path + '/flatTuple_11.root'
     print 'file2include = ', file2include 
-    if not isData:
-        infile = TFile.Open(file2include)
-        nevts += infile.Get('ntuplizer/cutflow_perevt').GetBinContent(1)
+#    if not isData:
+    infile = TFile.Open(file2include)
+    nevts += infile.Get('ntuplizer/cutflow_perevt').GetBinContent(1)
     chain.Add(file2include)
 if options.xrd == True:
-
-    
-    #file2include = 'root://cms-xrd-global.cern.ch/'+ options.path
-    #print 'file2include = ', file2include 
-    #chain.Add(file2include)
+    if options.filelist is '':
+        file2include = 'root://cms-xrd-global.cern.ch/'+ options.path
+        print 'file2include = ', file2include 
+        infile = TFile.Open(file2include)
+        nevts += infile.Get('ntuplizer/cutflow_perevt').GetBinContent(1)
+        chain.Add(file2include)
 
     if  options.filelist is not '':
         files = open(options.filelist, "r")
         for tfile in files:
             tfile = tfile.strip()
             print 'file2include = ', tfile
-            if not isData:
-                infile = TFile.Open(tfile)
-                nevts += infile.Get('ntuplizer/cutflow_perevt').GetBinContent(1)
+#            if not isData:
+            infile = TFile.Open(tfile)
+            nevts += infile.Get('ntuplizer/cutflow_perevt').GetBinContent(1)
             chain.Add(tfile)
 # This is to make processing faster. 
 # If you need more information, you need to activate it ... 
 # Remember that, only the activated branches will be saved
 
 #outvars = ['EVENT_run', 'EVENT_lumiBlock']
-#outvars = ['Jpsi_trimu_mass', 'Jpsi_mu1_pt', 'Jpsi_mu1_eta', 'Jpsi_mu1_phi', 'Jpsi_mu2_pt', 'Jpsi_mu2_eta', 'Jpsi_mu2_phi', 'Jpsi_pt', 'Jpsi_mu1_isSoft', 'Jpsi_mu2_isSoft', 'Jpsi_mu3_isGlobal', 'Jpsi_mu3_pt', 'Jpsi_mu3_eta', 'Jpsi_mu3_phi']
-outvars = ['Jpsi_trimu_fl3d', 'Jpsi_trimu_lip', 'Jpsi_trimu_mass', 'Jpsi_trimu_pt', 'Jpsi_trimu_eta', 'Jpsi_trimu_phi', 'Jpsi_trimu_maxdoca', 'Jpsi_maxdoca', 'Jpsi_pt', 'Jpsi_eta', 'Jpsi_phi', 'Jpsi_mu1_isSoft', 'Jpsi_mu2_isSoft', 'Jpsi_mu3_isGlobal', 'Jpsi_mu3_pt', 'Jpsi_mu3_eta', 'Jpsi_mu3_phi', 'Jpsi_trimu_alpha', 'Jpsi_vprob', 'Jpsi_trimu_vprob', 'Jpsi_unfitvprob', 'Jpsi_trimu_unfitvprob', 'Jpsi_mu1_pt', 'Jpsi_mu1_eta', 'Jpsi_mu1_phi', 'Jpsi_mu2_pt', 'Jpsi_mu2_eta', 'Jpsi_mu2_phi']# 'nPuVtxTrue', 'PV_N', 'bX']
+outvars = ['JpsiMu_Jpsi_lip', 'JpsiMu_Jpsi_lips', 'JpsiMu_Jpsi_pvip', 'JpsiMu_Jpsi_pvips', 'JpsiMu_B_pvip', 'JpsiMu_B_pvips', 'JpsiMu_B_lips', 'JpsiMu_B_fls3d', 'JpsiMu_Jpsi_unfit_mass', 'JpsiMu_B_iso', 'JpsiMu_B_iso_ntracks', 'JpsiMu_B_iso_mindoca', 'JpsiMu_B_fl3d', 'JpsiMu_B_lip', 'JpsiMu_B_mass', 'JpsiMu_B_pt', 'JpsiMu_B_eta', 'JpsiMu_B_phi', 'JpsiMu_B_maxdoca', 'JpsiMu_B_mindoca', 'JpsiMu_Jpsi_maxdoca', 'JpsiMu_Jpsi_mindoca', 'JpsiMu_Jpsi_alpha', 'JpsiMu_Jpsi_fl3d', 'JpsiMu_Jpsi_fls3d', 'JpsiMu_Jpsi_pt', 'JpsiMu_Jpsi_eta', 'JpsiMu_Jpsi_phi', 'JpsiMu_mu1_iso', 'JpsiMu_mu1_dbiso', 'JpsiMu_mu2_iso', 'JpsiMu_mu2_dbiso', 'JpsiMu_mu3_iso', 'JpsiMu_mu3_dbiso', 'JpsiMu_mu1_isSoft', 'JpsiMu_mu2_isSoft', 'JpsiMu_mu3_isGlobal', 'JpsiMu_mu3_pt', 'JpsiMu_mu3_eta', 'JpsiMu_mu3_phi', 'JpsiMu_B_alpha', 'JpsiMu_Jpsi_vprob', 'JpsiMu_B_vprob', 'JpsiMu_mu1_pt', 'JpsiMu_mu1_eta', 'JpsiMu_mu1_phi', 'JpsiMu_mu2_pt', 'JpsiMu_mu2_eta', 'JpsiMu_mu2_phi']# 'nPuVtxTrue', 'PV_N', 'bX']
+met_outvars = ['MET_et', 'MET_phi', 'MET_sumEt']
 evt_outvars = ['PV_N']
 mc_vars = ['nPuVtxTrue', 'bX']
 if not isData:
     evt_outvars = evt_outvars + mc_vars
 chain.SetBranchStatus('*', 0)
 for var in outvars:
+    chain.SetBranchStatus(var, 1)
+for var in met_outvars:
     chain.SetBranchStatus(var, 1)
 for var in evt_outvars:
     chain.SetBranchStatus(var, 1)
@@ -116,8 +119,8 @@ otree = chain.CloneTree(0)
 otree.SetDirectory(outputfile)
 
 
+cuthist = TH1F("cuthist", "cuthist", 3, 0, 3)
 if not isData:
-    cuthist = TH1F("cuthist", "cuthist", 3, 0, 3)
     weight_pu = num.zeros(1,dtype=float)
     otree.Branch('weight_pu', weight_pu, 'weight_pu/D') 
     
@@ -126,12 +129,20 @@ if not isData:
 
 mcorr = num.zeros(1,dtype=float)
 otree.Branch('mcorr', mcorr , 'mcorr/D') 
-dphi_Jpsi_mu3 = num.zeros(1,dtype=float)
-otree.Branch('dphi_Jpsi_mu3', dphi_Jpsi_mu3, 'dphi_Jpsi_mu3/D') 
-cosdphi_Jpsi_mu3 = num.zeros(1,dtype=float)
-otree.Branch('cosdphi_Jpsi_mu3', cosdphi_Jpsi_mu3, 'cosdphi_Jpsi_mu3/D') 
-dR_Jpsi_mu3 = num.zeros(1,dtype=float)
-otree.Branch('dR_Jpsi_mu3', dR_Jpsi_mu3, 'dR_Jpsi_mu3/D') 
+dphi_JpsiMu_mu3 = num.zeros(1,dtype=float)
+otree.Branch('dphi_JpsiMu_mu3', dphi_JpsiMu_mu3, 'dphi_JpsiMu_mu3/D') 
+cosdphi_JpsiMu_mu3 = num.zeros(1,dtype=float)
+otree.Branch('cosdphi_JpsiMu_mu3', cosdphi_JpsiMu_mu3, 'cosdphi_JpsiMu_mu3/D') 
+dphi_JpsiMu_MET = num.zeros(1,dtype=float)
+otree.Branch('dphi_JpsiMu_MET', dphi_JpsiMu_MET, 'dphi_JpsiMu_MET/D')
+cosdphi_JpsiMu_MET = num.zeros(1,dtype=float)
+otree.Branch('cosdphi_JpsiMu_MET', cosdphi_JpsiMu_mu3, 'cosdphi_JpsiMu_MET/D') 
+dphi_mu3_MET = num.zeros(1,dtype=float)
+otree.Branch('dphi_mu3_MET', dphi_mu3_MET, 'dphi_mu3_MET/D')
+cosdphi_mu3_MET = num.zeros(1,dtype=float)
+otree.Branch('cosdphi_mu3_MET', cosdphi_JpsiMu_mu3, 'cosdphi_mu3_MET/D') 
+dR_JpsiMu_mu3 = num.zeros(1,dtype=float)
+otree.Branch('dR_JpsiMu_mu3', dR_JpsiMu_mu3, 'dR_JpsiMu_mu3/D') 
 
 Nentries = chain.GetEntries()
 
@@ -144,8 +155,8 @@ if not isData:
 
 MJpsi=3.096916
 MMu=0.1056583745
-if not isData:
-    cuthist.Fill(0, nevts)
+#if not isData:
+cuthist.Fill(0, nevts)
 for evt in xrange(Nentries):
     chain.GetEntry(evt)
 
@@ -180,41 +191,53 @@ for evt in xrange(Nentries):
 
 
 
-    mu3ptcut = 5
+    mu3ptcut = 4
     selectedjpsi = -1
-    for iJpsi in xrange(chain.Jpsi_mu3_pt.size()):
-        if chain.Jpsi_mu3_pt.size() < 1: continue
-        if chain.Jpsi_pt[iJpsi] <= 8: continue
-        if not chain.Jpsi_mu1_isSoft[iJpsi]: continue
-        if not chain.Jpsi_mu2_isSoft[iJpsi]: continue
-        if not chain.Jpsi_mu3_isGlobal[iJpsi]: continue
-        if chain.Jpsi_trimu_mass[iJpsi] > 9: continue
-        if chain.Jpsi_mu3_pt[iJpsi] < mu3ptcut: continue
+    for iJpsi in xrange(chain.JpsiMu_mu3_pt.size()):
+        if chain.JpsiMu_mu3_pt.size() < 1: continue
+        if chain.JpsiMu_Jpsi_pt[iJpsi] < 8: continue
+        if chain.JpsiMu_mu1_pt[iJpsi] < 4: continue
+        if chain.JpsiMu_mu2_pt[iJpsi] < 4: continue
+        if not chain.JpsiMu_mu1_isSoft[iJpsi]: continue
+        if not chain.JpsiMu_mu2_isSoft[iJpsi]: continue
+        if not chain.JpsiMu_mu3_isGlobal[iJpsi]: continue
+        if chain.JpsiMu_mu3_pt[iJpsi] < mu3ptcut: continue
+        mu3ptcut = chain.JpsiMu_mu3_pt[iJpsi]
         selectedjpsi = iJpsi
 
     if selectedjpsi == -1: continue
     evtid += 1
     #otree.Fill()
-    pJpsi = TLorentzVector.TLorentzVector()
-    ptrimu = TLorentzVector.TLorentzVector()
+    pJpsiMu = TLorentzVector.TLorentzVector()
+    pB = TLorentzVector.TLorentzVector()
     pmu3 = TLorentzVector.TLorentzVector()
-    pJpsi.SetPtEtaPhiM(chain.Jpsi_pt[selectedjpsi], chain.Jpsi_eta[selectedjpsi], chain.Jpsi_phi[selectedjpsi], MJpsi)
-    ptrimu.SetPtEtaPhiM(chain.Jpsi_mu3_pt[selectedjpsi], chain.Jpsi_mu3_eta[selectedjpsi], chain.Jpsi_mu3_phi[selectedjpsi], MMu)
-    pmu3.SetPtEtaPhiM(chain.Jpsi_trimu_pt[selectedjpsi], chain.Jpsi_trimu_eta[selectedjpsi], chain.Jpsi_trimu_phi[selectedjpsi], chain.Jpsi_trimu_mass[selectedjpsi])
+    pmet = TLorentzVector.TLorentzVector()
+    pJpsiMu.SetPtEtaPhiM(chain.JpsiMu_Jpsi_pt[selectedjpsi], chain.JpsiMu_Jpsi_eta[selectedjpsi], chain.JpsiMu_Jpsi_phi[selectedjpsi], MJpsi)
+    pmu3.SetPtEtaPhiM(chain.JpsiMu_mu3_pt[selectedjpsi], chain.JpsiMu_mu3_eta[selectedjpsi], chain.JpsiMu_mu3_phi[selectedjpsi], MMu)
+    pB.SetPtEtaPhiM(chain.JpsiMu_B_pt[selectedjpsi], chain.JpsiMu_B_eta[selectedjpsi], chain.JpsiMu_B_phi[selectedjpsi], chain.JpsiMu_B_mass[selectedjpsi])
+    pmet.SetPtEtaPhiE(chain.MET_et[0], 2, chain.MET_phi[0], -chain.MET_et[0])
 
-    pperp = ptrimu.P() * TMath.Sin(chain.Jpsi_trimu_alpha[selectedjpsi])
-    mcorr[0] = TMath.Sqrt( (chain.Jpsi_trimu_mass[selectedjpsi])**2 + pperp**2 ) + pperp
+    pperp = pB.P() * TMath.Sin(chain.JpsiMu_B_alpha[selectedjpsi])
+    mcorr[0] = TMath.Sqrt( (chain.JpsiMu_B_mass[selectedjpsi])**2 + pperp**2 ) + pperp
 
-    dphi_Jpsi_mu3[0] = pJpsi.DeltaPhi(pmu3)
-    dR_Jpsi_mu3[0] = pJpsi.DeltaR(pmu3)
-    cosdphi_Jpsi_mu3[0] = TMath.Cos(dphi_Jpsi_mu3[0])
+    dphi_JpsiMu_mu3[0] = pJpsiMu.DeltaPhi(pmu3)
+    dphi_JpsiMu_MET[0] = pJpsiMu.DeltaPhi(pmet)
+    dphi_mu3_MET[0] = pmu3.DeltaPhi(pmet)
+    dR_JpsiMu_mu3[0] = pJpsiMu.DeltaR(pmu3)
+    cosdphi_JpsiMu_mu3[0] = TMath.Cos(dphi_JpsiMu_mu3[0])
+    cosdphi_JpsiMu_MET[0] = TMath.Cos(dphi_JpsiMu_MET[0])
+    cosdphi_mu3_MET[0] = TMath.Cos(dphi_mu3_MET[0])
 
     for var in outvars:
         tmp = getattr(chain,var)[selectedjpsi]
         getattr(chain,var).clear()
         getattr(chain,var).push_back(tmp)
+    for var in met_outvars:
+        tmp = getattr(chain,var)[0]
+        getattr(chain,var).clear()
+        getattr(chain,var).push_back(tmp)
+    cuthist.Fill(1)
     if not isData:
-        cuthist.Fill(1)
         cuthist.Fill(2, weight_evt)
         #for var in evt_outvars:
         #    tmp = getattr(chain,var)[selectedjpsi]
@@ -223,8 +246,8 @@ for evt in xrange(Nentries):
     otree.Fill()
 
 outputfile.cd()
-if not isData:
-    cuthist.Write()
+#if not isData:
+cuthist.Write()
 otree.Write()
 outputfile.Write()
 outputfile.Close()
