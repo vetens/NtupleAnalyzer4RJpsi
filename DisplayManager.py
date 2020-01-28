@@ -8,7 +8,8 @@ def applyLegendSettings(leg):
     leg.SetLineColor(0)
     leg.SetFillStyle(0)
 #    leg.SetTextSize(0.05)
-    leg.SetTextSize(0.04)
+#    leg.SetTextSize(0.04)
+    leg.SetTextSize(0.025)
 #    leg.SetTextFont(42)
 
 
@@ -50,7 +51,7 @@ def createRatioCanvas(name, errorBandFillColor=14, errorBandStyle=3354):
 
 class DisplayManager(object):
 
-    def __init__(self, name, isLog, ratio, logrange=0, xmin=0.42, ymin=0.6):
+    def __init__(self, name, isLog, ratio, logrange=0, xmin=0.42, ymin=0.6, isErr=True):
 
         if ratio:
             self.canvas = createRatioCanvas(name.replace('pdf', ''))
@@ -76,9 +77,10 @@ class DisplayManager(object):
 #    def __del__(self):
 #        self.canvas.Print(self.name + ']')
 
-    def Draw(self, histos, titles):
+    def Draw(self, histos, titles, isErr):
 
         self.histos = histos
+        self.isErr = isErr
         ymax = max(h.GetMaximum() for h in self.histos)
         ymin = min(h.GetMinimum() for h in self.histos)
 
@@ -92,12 +94,19 @@ class DisplayManager(object):
             if h.GetTitle()=="stack":
                 self.Legend.AddEntry(h, title, 'lp')
             else:
-                self.Legend.AddEntry(h, title + ': ' + '{0:.1f}'.format(h.Integral()), 'lep')
+                self.Legend.AddEntry(h, title, 'lep')
+                #self.Legend.AddEntry(h, title + ': ' + '{0:.1f}'.format(h.Integral()), 'lep')
 
-            if i == 0:
-                h.Draw('HIST E')
-            else:
-                h.Draw('SAME HIST E')
+            if isErr:
+                if i == 0:
+                    h.Draw('HIST E')
+                else:
+                    h.Draw('SAME HIST E')
+            else: 
+                if i == 0:
+                    h.Draw('HIST C')
+                else:
+                    h.Draw('SAME HIST C')
 
         if self.draw_legend:
             self.histos[0].GetYaxis().SetRangeUser(0., ymax * 1.3)
