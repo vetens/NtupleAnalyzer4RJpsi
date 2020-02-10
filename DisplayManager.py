@@ -51,12 +51,14 @@ def createRatioCanvas(name, errorBandFillColor=14, errorBandStyle=3354):
 
 class DisplayManager(object):
 
-    def __init__(self, name, isLog, ratio, logrange=0, xmin=0.42, ymin=0.6, isOpt=False):
+    def __init__(self, name, isLog, ratio, logrange=0, xmin=0.42, ymin=0.6, isOpt=False, is2D=False):
 
         if ratio:
             self.canvas = createRatioCanvas(name.replace('pdf', ''))
         else:
             self.canvas = ROOT.TCanvas(name.replace('.pdf', ''))
+        if is2D:
+            self.canvas.SetRightMargin(0.2)
 
         self.logrange = logrange
         self.isLog = isLog
@@ -77,45 +79,48 @@ class DisplayManager(object):
 #    def __del__(self):
 #        self.canvas.Print(self.name + ']')
 
-    def Draw(self, histos, titles, isOpt):
+    def Draw(self, histos, titles, isOpt, is2D=False):
 
         self.histos = histos
         self.isOpt = isOpt
+        self.is2D = is2D
 
         self.Legend.Clear()
         self.draw_ratioLegend.Clear()
 
         for i, h in enumerate(self.histos):
             title = titles[i]
-            
-            if not isOpt:
-                if h.GetTitle()=="stack":
-                    self.Legend.AddEntry(h, title, 'lp')
-                else:
-                    self.Legend.AddEntry(h, title, 'lep')
-                    #self.Legend.AddEntry(h, title + ': ' + '{0:.1f}'.format(h.Integral()), 'lep')
-                ymax = max(h.GetMaximum() for h in self.histos)
-                ymin = min(h.GetMinimum() for h in self.histos)
-                if i == 0:
-                    h.Draw('HIST E')
-                else:
-                    h.Draw('SAME HIST E')
-            else: 
-                self.Legend.AddEntry(h, title, 'l')
-                ymax = histos[0].GetMaximum()
-                ymin = histos[0].GetMinimum()
-                if i == 0:
-                    h.Draw('HIST')
-                elif i < 3:
-                    h.Draw('SAME HIST')
-                else:
-                    h.Draw('SAME, HIST')
+            if not is2D:
+                if not isOpt:
+                    if h.GetTitle()=="stack":
+                        self.Legend.AddEntry(h, title, 'lp')
+                    else:
+                        self.Legend.AddEntry(h, title, 'lep')
+                        #self.Legend.AddEntry(h, title + ': ' + '{0:.1f}'.format(h.Integral()), 'lep')
+                    ymax = max(h.GetMaximum() for h in self.histos)
+                    ymin = min(h.GetMinimum() for h in self.histos)
+                    if i == 0:
+                        h.Draw('HIST E')
+                    else:
+                        h.Draw('SAME HIST E')
+                else: 
+                    self.Legend.AddEntry(h, title, 'l')
+                    ymax = histos[0].GetMaximum()
+                    ymin = histos[0].GetMinimum()
+                    if i == 0:
+                        h.Draw('HIST')
+                    elif i < 3:
+                        h.Draw('SAME HIST')
+                    else:
+                        h.Draw('SAME, HIST')
+            else:
+                h.Draw('COLZ')
 
         if self.draw_legend:
             self.histos[0].GetYaxis().SetRangeUser(0., ymax * 1.5)
-        else:
+        elif not is2D:
             self.histos[0].GetYaxis().SetRangeUser(0, ymax * 1.05)
-        if ymin < 0:
+        if not is2D and ymin < 0:
             print 'set negative minimum ...'
             if self.draw_legend:
                 self.histos[0].GetYaxis().SetRangeUser(ymin*1.5, ymax * 1.3)
