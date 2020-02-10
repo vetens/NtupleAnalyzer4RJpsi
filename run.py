@@ -91,7 +91,7 @@ if options.xrd == True:
 # Remember that, only the activated branches will be saved
 
 #outvars = ['EVENT_run', 'EVENT_lumiBlock']
-outvars = ['JpsiMu_Jpsi_lip', 'JpsiMu_Jpsi_lips', 'JpsiMu_Jpsi_pvip', 'JpsiMu_Jpsi_pvips', 'JpsiMu_B_pvip', 'JpsiMu_B_pvips', 'JpsiMu_B_lips', 'JpsiMu_B_fls3d', 'JpsiMu_Jpsi_unfit_mass', 'JpsiMu_B_iso', 'JpsiMu_B_iso_ntracks', 'JpsiMu_B_iso_mindoca', 'JpsiMu_B_fl3d', 'JpsiMu_B_lip', 'JpsiMu_B_mass', 'JpsiMu_B_pt', 'JpsiMu_B_eta', 'JpsiMu_B_phi', 'JpsiMu_B_maxdoca', 'JpsiMu_B_mindoca', 'JpsiMu_Jpsi_maxdoca', 'JpsiMu_Jpsi_mindoca', 'JpsiMu_Jpsi_alpha', 'JpsiMu_Jpsi_fl3d', 'JpsiMu_Jpsi_fls3d', 'JpsiMu_Jpsi_pt', 'JpsiMu_Jpsi_eta', 'JpsiMu_Jpsi_phi', 'JpsiMu_mu1_iso', 'JpsiMu_mu1_dbiso', 'JpsiMu_mu2_iso', 'JpsiMu_mu2_dbiso', 'JpsiMu_mu3_iso', 'JpsiMu_mu3_dbiso', 'JpsiMu_mu1_isSoft', 'JpsiMu_mu2_isSoft', 'JpsiMu_mu3_isGlobal', 'JpsiMu_mu3_pt', 'JpsiMu_mu3_eta', 'JpsiMu_mu3_phi', 'JpsiMu_B_alpha', 'JpsiMu_Jpsi_vprob', 'JpsiMu_B_vprob', 'JpsiMu_mu1_pt', 'JpsiMu_mu1_eta', 'JpsiMu_mu1_phi', 'JpsiMu_mu2_pt', 'JpsiMu_mu2_eta', 'JpsiMu_mu2_phi']# 'nPuVtxTrue', 'PV_N', 'bX']
+outvars = ['JpsiMu_Jpsi_lip', 'JpsiMu_Jpsi_lips', 'JpsiMu_Jpsi_pvip', 'JpsiMu_Jpsi_pvips', 'JpsiMu_B_pvip', 'JpsiMu_B_pvips', 'JpsiMu_B_lips', 'JpsiMu_B_fls3d', 'JpsiMu_Jpsi_unfit_mass', 'JpsiMu_B_iso', 'JpsiMu_B_iso_ntracks', 'JpsiMu_B_iso_mindoca', 'JpsiMu_B_fl3d', 'JpsiMu_B_lip', 'JpsiMu_B_mass', 'JpsiMu_B_pt', 'JpsiMu_B_eta', 'JpsiMu_B_phi', 'JpsiMu_B_maxdoca', 'JpsiMu_B_mindoca', 'JpsiMu_Jpsi_maxdoca', 'JpsiMu_Jpsi_mindoca', 'JpsiMu_Jpsi_alpha', 'JpsiMu_Jpsi_fl3d', 'JpsiMu_Jpsi_fls3d', 'JpsiMu_Jpsi_pt', 'JpsiMu_Jpsi_eta', 'JpsiMu_Jpsi_phi', 'JpsiMu_mu1_iso', 'JpsiMu_mu1_dbiso', 'JpsiMu_mu2_iso', 'JpsiMu_mu2_dbiso', 'JpsiMu_mu3_iso', 'JpsiMu_mu3_dbiso', 'JpsiMu_mu1_isSoft', 'JpsiMu_mu1_isTracker', 'JpsiMu_mu1_isGlobal', 'JpsiMu_mu1_isPF', 'JpsiMu_mu1_isTight', 'JpsiMu_mu1_isLoose', 'JpsiMu_mu2_isSoft', 'JpsiMu_mu2_isTracker', 'JpsiMu_mu2_isGlobal', 'JpsiMu_mu2_isPF', 'JpsiMu_mu2_isTight', 'JpsiMu_mu2_isLoose', 'JpsiMu_mu3_isSoft', 'JpsiMu_mu3_isTracker', 'JpsiMu_mu3_isGlobal', 'JpsiMu_mu3_isPF', 'JpsiMu_mu3_isTight', 'JpsiMu_mu3_isLoose', 'JpsiMu_mu3_pt', 'JpsiMu_mu3_eta', 'JpsiMu_mu3_phi', 'JpsiMu_mu3_doca2mu1', 'JpsiMu_mu3_doca2mu2', 'JpsiMu_B_alpha', 'JpsiMu_Jpsi_vprob', 'JpsiMu_B_vprob', 'JpsiMu_mu1_pt', 'JpsiMu_mu1_eta', 'JpsiMu_mu1_phi', 'JpsiMu_mu2_pt', 'JpsiMu_mu2_eta', 'JpsiMu_mu2_phi']# 'nPuVtxTrue', 'PV_N', 'bX']
 met_outvars = ['MET_et', 'MET_phi', 'MET_sumEt']
 evt_outvars = ['PV_N']
 mc_vars = ['nPuVtxTrue', 'bX']
@@ -129,20 +129,66 @@ if not isData:
 
 mcorr = num.zeros(1,dtype=float)
 otree.Branch('mcorr', mcorr , 'mcorr/D') 
-dphi_JpsiMu_mu3 = num.zeros(1,dtype=float)
-otree.Branch('dphi_JpsiMu_mu3', dphi_JpsiMu_mu3, 'dphi_JpsiMu_mu3/D') 
-cosdphi_JpsiMu_mu3 = num.zeros(1,dtype=float)
-otree.Branch('cosdphi_JpsiMu_mu3', cosdphi_JpsiMu_mu3, 'cosdphi_JpsiMu_mu3/D') 
-dphi_JpsiMu_MET = num.zeros(1,dtype=float)
-otree.Branch('dphi_JpsiMu_MET', dphi_JpsiMu_MET, 'dphi_JpsiMu_MET/D')
-cosdphi_JpsiMu_MET = num.zeros(1,dtype=float)
-otree.Branch('cosdphi_JpsiMu_MET', cosdphi_JpsiMu_mu3, 'cosdphi_JpsiMu_MET/D') 
+
+
+JpsiMu_mu3_reliso= num.zeros(1,dtype=float)
+otree.Branch('JpsiMu_mu3_reliso', JpsiMu_mu3_reliso, 'JpsiMu_mu3_reliso/D') 
+
+JpsiMu_mu2_reliso= num.zeros(1,dtype=float)
+otree.Branch('JpsiMu_mu2_reliso', JpsiMu_mu2_reliso, 'JpsiMu_mu2_reliso/D') 
+
+JpsiMu_mu1_reliso= num.zeros(1,dtype=float)
+otree.Branch('JpsiMu_mu1_reliso', JpsiMu_mu1_reliso, 'JpsiMu_mu1_reliso/D') 
+
+JpsiMu_B_reliso= num.zeros(1,dtype=float)
+otree.Branch('JpsiMu_B_reliso', JpsiMu_B_reliso, 'JpsiMu_B_reliso/D') 
+
+JpsiMu_mu3_reldbiso= num.zeros(1,dtype=float)
+otree.Branch('JpsiMu_mu3_reliso', JpsiMu_mu3_reliso, 'JpsiMu_mu3_reliso/D') 
+
+JpsiMu_mu2_reldbiso= num.zeros(1,dtype=float)
+otree.Branch('JpsiMu_mu2_reliso', JpsiMu_mu2_reliso, 'JpsiMu_mu2_reliso/D') 
+
+JpsiMu_mu1_reldbiso= num.zeros(1,dtype=float)
+otree.Branch('JpsiMu_mu1_reliso', JpsiMu_mu1_reliso, 'JpsiMu_mu1_reliso/D') 
+
+dphi_Jpsi_mu3 = num.zeros(1,dtype=float)
+otree.Branch('dphi_Jpsi_mu3', dphi_Jpsi_mu3, 'dphi_Jpsi_mu3/D') 
+cosdphi_Jpsi_mu3 = num.zeros(1,dtype=float)
+otree.Branch('cosdphi_Jpsi_mu3', cosdphi_Jpsi_mu3, 'cosdphi_Jpsi_mu3/D') 
+dR_Jpsi_mu3 = num.zeros(1,dtype=float)
+otree.Branch('dR_Jpsi_mu3', dR_Jpsi_mu3, 'dR_Jpsi_mu3/D') 
+
+dphi_Jpsi_MET = num.zeros(1,dtype=float)
+otree.Branch('dphi_Jpsi_MET', dphi_Jpsi_MET, 'dphi_Jpsi_MET/D')
+cosdphi_Jpsi_MET = num.zeros(1,dtype=float)
+otree.Branch('cosdphi_Jpsi_MET', cosdphi_Jpsi_MET, 'cosdphi_Jpsi_MET/D') 
+
 dphi_mu3_MET = num.zeros(1,dtype=float)
 otree.Branch('dphi_mu3_MET', dphi_mu3_MET, 'dphi_mu3_MET/D')
 cosdphi_mu3_MET = num.zeros(1,dtype=float)
-otree.Branch('cosdphi_mu3_MET', cosdphi_JpsiMu_mu3, 'cosdphi_mu3_MET/D') 
-dR_JpsiMu_mu3 = num.zeros(1,dtype=float)
-otree.Branch('dR_JpsiMu_mu3', dR_JpsiMu_mu3, 'dR_JpsiMu_mu3/D') 
+otree.Branch('cosdphi_mu3_MET', cosdphi_mu3_MET, 'cosdphi_mu3_MET/D') 
+
+dphi_mu2_mu3 = num.zeros(1,dtype=float)
+otree.Branch('dphi_mu2_mu3', dphi_mu2_mu3, 'dphi_mu2_mu3/D') 
+cosdphi_mu2_mu3 = num.zeros(1,dtype=float)
+otree.Branch('cosdphi_mu2_mu3', cosdphi_mu2_mu3, 'cosdphi_mu2_mu3/D') 
+dR_mu2_mu3 = num.zeros(1,dtype=float)
+otree.Branch('dR_mu2_mu3', dR_mu2_mu3, 'dR_mu2_mu3/D') 
+
+dphi_mu1_mu3 = num.zeros(1,dtype=float)
+otree.Branch('dphi_mu1_mu3', dphi_mu1_mu3, 'dphi_mu1_mu3/D') 
+cosdphi_mu1_mu3 = num.zeros(1,dtype=float)
+otree.Branch('cosdphi_mu1_mu3', cosdphi_mu1_mu3, 'cosdphi_mu1_mu3/D') 
+dR_mu1_mu3 = num.zeros(1,dtype=float)
+otree.Branch('dR_mu1_mu3', dR_mu1_mu3, 'dR_mu1_mu3/D') 
+
+dphi_mu1_mu2 = num.zeros(1,dtype=float)
+otree.Branch('dphi_mu1_mu2', dphi_mu1_mu2, 'dphi_mu1_mu2/D') 
+cosdphi_mu1_mu2 = num.zeros(1,dtype=float)
+otree.Branch('cosdphi_mu1_mu2', cosdphi_mu1_mu2, 'cosdphi_mu1_mu2/D') 
+dR_mu1_mu2 = num.zeros(1,dtype=float)
+otree.Branch('dR_mu1_mu2', dR_mu1_mu2, 'dR_mu1_mu2/D') 
 
 Nentries = chain.GetEntries()
 
@@ -191,11 +237,12 @@ for evt in xrange(Nentries):
 
 
 
-    mu3ptcut = 4
+    mu3ptcut = 2
     selectedjpsi = -1
     for iJpsi in xrange(chain.JpsiMu_mu3_pt.size()):
         if chain.JpsiMu_mu3_pt.size() < 1: continue
         if chain.JpsiMu_Jpsi_pt[iJpsi] < 8: continue
+        if chain.JpsiMu_B_mass[iJpsi] < 9: continue
         if chain.JpsiMu_mu1_pt[iJpsi] < 4: continue
         if chain.JpsiMu_mu2_pt[iJpsi] < 4: continue
         if not chain.JpsiMu_mu1_isSoft[iJpsi]: continue
@@ -208,11 +255,15 @@ for evt in xrange(Nentries):
     if selectedjpsi == -1: continue
     evtid += 1
     #otree.Fill()
-    pJpsiMu = TLorentzVector.TLorentzVector()
+    pJpsi = TLorentzVector.TLorentzVector()
     pB = TLorentzVector.TLorentzVector()
+    pmu1 = TLorentzVector.TLorentzVector()
+    pmu2 = TLorentzVector.TLorentzVector()
     pmu3 = TLorentzVector.TLorentzVector()
     pmet = TLorentzVector.TLorentzVector()
-    pJpsiMu.SetPtEtaPhiM(chain.JpsiMu_Jpsi_pt[selectedjpsi], chain.JpsiMu_Jpsi_eta[selectedjpsi], chain.JpsiMu_Jpsi_phi[selectedjpsi], MJpsi)
+    pJpsi.SetPtEtaPhiM(chain.JpsiMu_Jpsi_pt[selectedjpsi], chain.JpsiMu_Jpsi_eta[selectedjpsi], chain.JpsiMu_Jpsi_phi[selectedjpsi], MJpsi)
+    pmu1.SetPtEtaPhiM(chain.JpsiMu_mu1_pt[selectedjpsi], chain.JpsiMu_mu1_eta[selectedjpsi], chain.JpsiMu_mu1_phi[selectedjpsi], MMu)
+    pmu2.SetPtEtaPhiM(chain.JpsiMu_mu2_pt[selectedjpsi], chain.JpsiMu_mu2_eta[selectedjpsi], chain.JpsiMu_mu2_phi[selectedjpsi], MMu)
     pmu3.SetPtEtaPhiM(chain.JpsiMu_mu3_pt[selectedjpsi], chain.JpsiMu_mu3_eta[selectedjpsi], chain.JpsiMu_mu3_phi[selectedjpsi], MMu)
     pB.SetPtEtaPhiM(chain.JpsiMu_B_pt[selectedjpsi], chain.JpsiMu_B_eta[selectedjpsi], chain.JpsiMu_B_phi[selectedjpsi], chain.JpsiMu_B_mass[selectedjpsi])
     pmet.SetPtEtaPhiE(chain.MET_et[0], 2, chain.MET_phi[0], -chain.MET_et[0])
@@ -220,13 +271,30 @@ for evt in xrange(Nentries):
     pperp = pB.P() * TMath.Sin(chain.JpsiMu_B_alpha[selectedjpsi])
     mcorr[0] = TMath.Sqrt( (chain.JpsiMu_B_mass[selectedjpsi])**2 + pperp**2 ) + pperp
 
-    dphi_JpsiMu_mu3[0] = pJpsiMu.DeltaPhi(pmu3)
-    dphi_JpsiMu_MET[0] = pJpsiMu.DeltaPhi(pmet)
+    dphi_Jpsi_mu3[0] = pJpsi.DeltaPhi(pmu3)
+    dphi_mu1_mu3[0] = pmu1.DeltaPhi(pmu3)
+    dphi_mu1_mu2[0] = pmu1.DeltaPhi(pmu2)
+    dphi_mu2_mu3[0] = pmu2.DeltaPhi(pmu3)
+    dphi_Jpsi_MET[0] = pJpsi.DeltaPhi(pmet)
     dphi_mu3_MET[0] = pmu3.DeltaPhi(pmet)
-    dR_JpsiMu_mu3[0] = pJpsiMu.DeltaR(pmu3)
-    cosdphi_JpsiMu_mu3[0] = TMath.Cos(dphi_JpsiMu_mu3[0])
-    cosdphi_JpsiMu_MET[0] = TMath.Cos(dphi_JpsiMu_MET[0])
+    dR_Jpsi_mu3[0] = pJpsi.DeltaR(pmu3)
+    dR_mu1_mu3[0] = pmu1.DeltaR(pmu3)
+    dR_mu1_mu2[0] = pmu1.DeltaR(pmu2)
+    dR_mu2_mu3[0] = pmu2.DeltaR(pmu3)
+    cosdphi_Jpsi_mu3[0] = TMath.Cos(dphi_Jpsi_mu3[0])
+    cosdphi_mu1_mu3[0] = TMath.Cos(dphi_mu1_mu3[0])
+    cosdphi_mu1_mu2[0] = TMath.Cos(dphi_mu1_mu2[0])
+    cosdphi_mu2_mu3[0] = TMath.Cos(dphi_mu2_mu3[0])
+    cosdphi_Jpsi_MET[0] = TMath.Cos(dphi_Jpsi_MET[0])
     cosdphi_mu3_MET[0] = TMath.Cos(dphi_mu3_MET[0])
+
+    JpsiMu_mu3_reliso[0] = chain.JpsiMu_mu3_iso[selectedjpsi]/chain.JpsiMu_mu3_pt[selectedjpsi]
+    JpsiMu_mu2_reliso[0] = chain.JpsiMu_mu2_iso[selectedjpsi]/chain.JpsiMu_mu2_pt[selectedjpsi]
+    JpsiMu_mu1_reliso[0] = chain.JpsiMu_mu1_iso[selectedjpsi]/chain.JpsiMu_mu1_pt[selectedjpsi]
+    JpsiMu_B_reliso[0] = chain.JpsiMu_B_iso[selectedjpsi]/chain.JpsiMu_B_pt[selectedjpsi]
+    JpsiMu_mu3_reldbiso[0] = chain.JpsiMu_mu3_dbiso[selectedjpsi]/chain.JpsiMu_mu3_pt[selectedjpsi]
+    JpsiMu_mu2_reldbiso[0] = chain.JpsiMu_mu2_dbiso[selectedjpsi]/chain.JpsiMu_mu2_pt[selectedjpsi]
+    JpsiMu_mu1_reldbiso[0] = chain.JpsiMu_mu1_dbiso[selectedjpsi]/chain.JpsiMu_mu1_pt[selectedjpsi]
 
     for var in outvars:
         tmp = getattr(chain,var)[selectedjpsi]
