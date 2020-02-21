@@ -59,6 +59,7 @@ class DisplayManager(object):
             self.canvas = ROOT.TCanvas(name.replace('.pdf', ''))
         if is2D:
             self.canvas.SetRightMargin(0.2)
+            self.canvas.SetLeftMargin(0.2)
 
         self.logrange = logrange
         self.isLog = isLog

@@ -10,6 +10,7 @@ rm -rf $workdir/condor/outCondor/*
 rm -rf $workdir/condor/condorscripts
 rm -rf $workdir/condor/lists
 touch $workdir/condor/clusters.txt
+cp -f $(voms-proxy-info --path) userproxy
 # function to write condor submitted scripts, called later within while loop
 writeScript() {
     listNumber=$(echo $1 | awk '{ printf("%03d",$1) }')

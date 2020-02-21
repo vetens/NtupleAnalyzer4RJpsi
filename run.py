@@ -268,7 +268,7 @@ for evt in xrange(Nentries):
     pB.SetPtEtaPhiM(chain.JpsiMu_B_pt[selectedjpsi], chain.JpsiMu_B_eta[selectedjpsi], chain.JpsiMu_B_phi[selectedjpsi], chain.JpsiMu_B_mass[selectedjpsi])
     pmet.SetPtEtaPhiE(chain.MET_et[0], 2, chain.MET_phi[0], -chain.MET_et[0])
 
-    pperp = pB.P() * TMath.Sin(chain.JpsiMu_B_alpha[selectedjpsi])
+    pperp = pB.P() * TMath.Sin(TMath.ACos(chain.JpsiMu_B_alpha[selectedjpsi]))
     JpsiMu_B_mcorr[0] = TMath.Sqrt( (chain.JpsiMu_B_mass[selectedjpsi])**2 + pperp**2 ) + pperp
 
     dphi_Jpsi_mu3[0] = pJpsi.DeltaPhi(pmu3)
