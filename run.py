@@ -29,6 +29,7 @@ parser = OptionParser(usage)
 parser.add_option("-o", "--out", default='Myroot.root', type="string", help="output filename", dest="out")
 parser.add_option("-p", "--path", default='/pnfs/psi.ch/cms/trivcat/store/user/ytakahas/RJpsi_20191002_BcJpsiMuNu_020519/BcJpsiMuNu_020519/BcJpsiMuNu_020519_v1/191002_132739/0000/', type="string", help="path", dest="path")
 parser.add_option("-x", default=False, action="store_true", help="use this option if you are pulling a file from xrd. Otherwise file is pulled from psi", dest="xrd")
+parser.add_option("--local", default=False, action="store_true", help="use this option if you are pulling a file locally. Otherwise file is pulled from psi", dest="local")
 parser.add_option("-l","--filelist",  default='', type="string", help="text file containing locations of input files", dest="filelist")
 parser.add_option("-d", default=False, action="store_true", help="Flag with -d if you are running over Data", dest="isdat")
 
@@ -62,7 +63,10 @@ isData = options.isdat
 nevts = 0
 
 if options.xrd == False:
-    file2include = 'dcap://t3se01.psi.ch:22125/' + options.path + '/flatTuple*.root'
+    if options.local == True:
+        file2include = options.path 
+    else:
+        file2include = 'dcap://t3se01.psi.ch:22125/' + options.path + '/flatTuple*.root'
     #file2include = 'root://cms-xrd-global.cern.ch/'+ options.path + '/flatTuple_11.root'
     print 'file2include = ', file2include 
 #    if not isData:
@@ -94,6 +98,8 @@ if options.xrd == True:
 outvars = ['JpsiMu_Jpsi_lip', 'JpsiMu_Jpsi_lips', 'JpsiMu_Jpsi_pvip', 'JpsiMu_Jpsi_pvips', 'JpsiMu_B_pvip', 'JpsiMu_B_pvips', 'JpsiMu_B_lips', 'JpsiMu_B_fls3d', 'JpsiMu_Jpsi_unfit_mass', 'JpsiMu_B_iso', 'JpsiMu_B_iso_ntracks', 'JpsiMu_B_iso_mindoca', 'JpsiMu_B_fl3d', 'JpsiMu_B_lip', 'JpsiMu_B_mass', 'JpsiMu_B_pt', 'JpsiMu_B_eta', 'JpsiMu_B_phi', 'JpsiMu_B_maxdoca', 'JpsiMu_B_mindoca', 'JpsiMu_Jpsi_maxdoca', 'JpsiMu_Jpsi_mindoca', 'JpsiMu_Jpsi_alpha', 'JpsiMu_Jpsi_fl3d', 'JpsiMu_Jpsi_fls3d', 'JpsiMu_Jpsi_pt', 'JpsiMu_Jpsi_eta', 'JpsiMu_Jpsi_phi', 'JpsiMu_mu1_iso', 'JpsiMu_mu1_dbiso', 'JpsiMu_mu2_iso', 'JpsiMu_mu2_dbiso', 'JpsiMu_mu3_iso', 'JpsiMu_mu3_dbiso', 'JpsiMu_mu1_isSoft', 'JpsiMu_mu1_isTracker', 'JpsiMu_mu1_isGlobal', 'JpsiMu_mu1_isPF', 'JpsiMu_mu1_isTight', 'JpsiMu_mu1_isLoose', 'JpsiMu_mu2_isSoft', 'JpsiMu_mu2_isTracker', 'JpsiMu_mu2_isGlobal', 'JpsiMu_mu2_isPF', 'JpsiMu_mu2_isTight', 'JpsiMu_mu2_isLoose', 'JpsiMu_mu3_isSoft', 'JpsiMu_mu3_isTracker', 'JpsiMu_mu3_isGlobal', 'JpsiMu_mu3_isPF', 'JpsiMu_mu3_isTight', 'JpsiMu_mu3_isLoose', 'JpsiMu_mu3_pt', 'JpsiMu_mu3_eta', 'JpsiMu_mu3_phi', 'JpsiMu_mu3_doca2mu1', 'JpsiMu_mu3_doca2mu2', 'JpsiMu_B_alpha', 'JpsiMu_Jpsi_vprob', 'JpsiMu_B_vprob', 'JpsiMu_mu1_pt', 'JpsiMu_mu1_eta', 'JpsiMu_mu1_phi', 'JpsiMu_mu2_pt', 'JpsiMu_mu2_eta', 'JpsiMu_mu2_phi']# 'nPuVtxTrue', 'PV_N', 'bX']
 met_outvars = ['MET_et', 'MET_phi', 'MET_sumEt', 'MET_significance']
 evt_outvars = ['PV_N']
+gen_outvars = ['genParticle_pdgId', 'genParticle_status', 'genParticle_dau', 'genParticle_mother', 'genParticle_pt', 'genParticle_eta', 'genParticle_phi', 'genParticle_mother_pt']
+# , 'genParticle_Bdau_X_pt', 'genParticle_Bdau_X_eta', 'genParticle_Bdau_X_phi', 'genParticle_Bdau_X_id', 'genParticle_Bdau_mu1_pt', 'genParticle_Bdau_mu1_eta', 'genParticle_Bdau_mu1_phi', 'genParticle_Bdau_mu2_pt', 'genParticle_Bdau_mu2_eta', 'genParticle_Bdau_mu2_phi', 'genParticle_Bdau_Jpsi_pt', 'genParticle_Bdau_Jpsi_eta', 'genParticle_Bdau_Jpsi_phi'
 mc_vars = ['nPuVtxTrue', 'bX']
 if not isData:
     evt_outvars = evt_outvars + mc_vars
@@ -104,6 +110,9 @@ for var in met_outvars:
     chain.SetBranchStatus(var, 1)
 for var in evt_outvars:
     chain.SetBranchStatus(var, 1)
+if len(gen_outvars) > 0 and not isData:
+    for var in gen_outvars:
+        chain.SetBranchStatus(var,1)
 
 # copy original tree
 otree = chain.CloneTree(0)
@@ -126,6 +135,8 @@ if not isData:
     
     weight_evt = num.zeros(1,dtype=float)
     otree.Branch('weight_evt', weight_evt, 'weight_evt/D') 
+    
+    Xbin = [13,111,211,113,213,221,331,223,333,311,321,313,323,411,421,441,551,553]
 
 JpsiMu_B_mcorr = num.zeros(1,dtype=float)
 otree.Branch('JpsiMu_B_mcorr', JpsiMu_B_mcorr , 'JpsiMu_B_mcorr/D') 
@@ -189,6 +200,14 @@ cosdphi_mu1_mu2 = num.zeros(1,dtype=float)
 otree.Branch('cosdphi_mu1_mu2', cosdphi_mu1_mu2, 'cosdphi_mu1_mu2/D') 
 dR_mu1_mu2 = num.zeros(1,dtype=float)
 otree.Branch('dR_mu1_mu2', dR_mu1_mu2, 'dR_mu1_mu2/D') 
+
+if len(gen_outvars) > 0:
+    B_pdgId = num.zeros(1,dtype=int)
+    otree.Branch('B_pdgId', B_pdgId, 'B_pdgId/I') 
+    X_type = num.zeros(1,dtype=int)
+    otree.Branch('X_type', X_type, 'X_type/I') 
+    genParticle_Bdau_dR = num.zeros(1,dtype=float)
+    otree.Branch('genParticle_Bdau_dR', genParticle_Bdau_dR, 'genParticle_Bdau_dR/D')
 
 Nentries = chain.GetEntries()
 
@@ -296,6 +315,65 @@ for evt in xrange(Nentries):
     JpsiMu_mu2_reldbiso[0] = chain.JpsiMu_mu2_dbiso[selectedjpsi]/chain.JpsiMu_mu2_pt[selectedjpsi]
     JpsiMu_mu1_reldbiso[0] = chain.JpsiMu_mu1_dbiso[selectedjpsi]/chain.JpsiMu_mu1_pt[selectedjpsi]
 
+# Gen Level Info
+
+    if not isData and len(gen_outvars) > 0:
+        Xmomenta = []
+        pmu1 = TLorentzVector.TLorentzVector()
+        pmu2 = TLorentzVector.TLorentzVector()
+        pB = TLorentzVector.TLorentzVector()
+        pB.SetPtEtaPhiM(0,0,0,0)
+        pJpsi = TLorentzVector.TLorentzVector()
+        pJpsi.SetPtEtaPhiM(0,0,0,0)
+        iJpsi = -1
+        iB = -1
+        Xids = []
+        for iGen in xrange(chain.genParticle_pdgId.size()):
+            ID = chain.genParticle_pdgId[iGen]
+            if ID == 443 and chain.genParticle_status[iGen] == 2 and chain.genParticle_pt[iGen] > pJpsi.Pt():
+                pJpsi.SetPtEtaPhiM(chain.genParticle_pt[iGen], chain.genParticle_eta[iGen], chain.genParticle_phi[iGen], MJpsi)
+                iJpsi = iGen
+            if abs(ID) >= 500 and abs(ID) < 600 and chain.genParticle_status[iGen] == 2:
+                iB = iGen
+                pB.SetPtEtaPhiM(chain.genParticle_pt[iGen], chain.genParticle_eta[iGen], chain.genParticle_phi[iGen], 6.)
+                for iDau in xrange(chain.genParticle_dau[iGen].size()):
+                    dauID = abs(chain.genParticle_dau[iGen][iDau])
+                    if abs(dauID) == 12 or abs(dauID) == 14 or abs(dauID) == 16: continue
+                    if dauID == 443: continue
+                    # looking at Background, so we expect the only muons to come from our Jpsi
+                    if abs(dauID) == 13: continue
+                    else:
+                        Xids += [dauID]
+        for iGen in xrange(chain.genParticle_pdgId.size()):
+            for mompt in chain.genParticle_mother_pt:
+                if mompt == pJpsi.Pt() and chain.genParticle_pdgId(iGen) == 13:
+                    pmu1.SetPtEtaPhiM(chain.genParticle_pt[iGen], chain.genParticle_eta[iGen], chain.genParticle_phi[iGen], MMu)
+                elif mompt == pJpsi.Pt() and chain.genParticle_pdgId(iGen) == -13:
+                    pmu1.SetPtEtaPhiM(chain.genParticle_pt[iGen], chain.genParticle_eta[iGen], chain.genParticle_phi[iGen], MMu)
+                elif mompt == pB.Pt():
+                    for Xid in Xids:
+                        if chain.genParticle_pdgId[iGen] == Xid:
+                            for index in xrange(Xbin):
+                                if Xbin[index] == abs(dauID):
+                                    if X_type[0] == 0: X_type[0] = index
+                                    else:
+                                        X_type += [index]
+                                else:
+                                    if X_type[0] == 0: X_type[0] = -1
+                                    else: X_type += [-1]
+                            pX = TLorentzVector.TLorentzVector()
+                            pX.SetPtEtaPhiM(chain.genParticle_pt[iGen], chain.genParticle_eta[iGen], chain.genParticle_phi[iGen], MMu)
+                            Xmomenta += [pX]
+        Xmomenta += [pmu1, pmu2]
+        Delta_R = pmu1.DeltaR(pmu2)
+        for ip1 in xrange(len(Xmomenta)):
+            for ip2 in xrange(len(Xmomenta)):
+                if ip2 <= ip1: continue
+                DR = Xmomenta[ip1].DeltaR(Xmomenta[ip2])
+                if DR >= Delta_R:
+                    Delta_R = DR
+        genParticle_Bdau_dR[0] = Delta_R
+
     for var in outvars:
         tmp = getattr(chain,var)[selectedjpsi]
         getattr(chain,var).clear()
@@ -304,6 +382,10 @@ for evt in xrange(Nentries):
         tmp = getattr(chain,var)[0]
         getattr(chain,var).clear()
         getattr(chain,var).push_back(tmp)
+   # if not isData and len(gen_outvars) > 0:
+   #     tmp = getattr(chain,var)[0]
+   #     getattr(chain,var).clear()
+   #     getattr(chain,var).push_back(tmp)
     cuthist.Fill(1)
     if not isData:
         cuthist.Fill(2, weight_evt)

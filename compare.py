@@ -20,6 +20,7 @@ parser.add_option("-o", "--cutOpt", default=False, action="store_true", help="Us
 parser.add_option("-n", "--compareNorm", default=False, action="store_true", help="Use this option to compare the histograms Normalized to 1", dest="isNorm")
 parser.add_option("-t", "--twoDHist", default=False, action="store_true", help="Use this option to compare two variables and check for correlations using a two-dimensional histogram", dest="is2DHist")
 parser.add_option("-f", "--rmrf", default=False, action="store_true", help="Forcefully overwrite the output directories to remove old outputs", dest="isrmrf")
+parser.add_option("-g", "--gen", default=False, action="store_true", help="with this flag true, will analyze gen level info from MC files", dest="isgen")
 parser.add_option("--outdir", default='/eos/home-w/wvetens/www/BPH_V5/', action="store", help="Output Directory for plots", dest="outdir")
 parser.add_option("--precut", default='', action="store", help="List of Cuts to apply before plotting", dest="precut")
 
@@ -91,6 +92,27 @@ def sproducer(key, ivar, samplekey, sample):
     hist.GetYaxis().SetTitle(ivar['ytitle'])
         
     return copy.deepcopy(hist)
+def IDsproducer(key, xlist, cut):
+
+    hist = TH1F('h_' + key, 
+                'h_' + key, 
+                len(xlist), 0, len(xlist)-1)
+
+    rootfile = sampledict['bg_JpsiX_MuMu_J']['file']
+    if cut == '':
+        exp = '(1)'
+    else:
+        exp = '(' + cut + ')'
+        
+    tree = rootfile.Get('tree')
+    for binnum in xrange(len(xlist)):
+       hist.GetXaxis().SetBinLabel(binnum+1, xlist[binnum]) 
+
+    tree.Draw(key + ' >> ' + hist.GetName(), 'weight_pu[0]*'+exp)
+    hist.GetXaxis().SetTitle(vardict[key]['xtitle'])
+    hist.GetYaxis().SetTitle(vardict[key]['ytitle'])
+        
+    return copy.deepcopy(hist)
 def optsproducer(key, ivar, samplekey, sample, tcut):
 
     hist = TH1F('h_' + key, 
@@ -140,6 +162,15 @@ def sproducer2D(key1, key2, var1, var2, samplekey, sample):
         
     return copy.deepcopy(hist)
 
+if options.isgen:
+    gdir = directory+'gen/'
+    plotgdir = gdir+'plots/'
+    logsgdir = gdir+'logs/'
+    if options.isrmrf:
+        if os.path.exists(gdir):
+            shutil.rmtree(gdir)
+    ensureDir(plotgdir)
+    ensureDir(logsgdir)
 if options.is2DHist:
     tdir = directory+'2dhists/'
     plottdir = tdir+'plots/'
@@ -350,9 +381,26 @@ if options.is2DHist:
         comparisonPlots([mmhist1], [""], False, False, plottdir+item[0]+'_'+item[1]+'_'+'bg''.pdf', False, False, False, True)
         comparisonPlots([mmhist2], [""], False, False, plottdir+item[0]+'_'+item[1]+'_'+'signal'+'.pdf', False, False, False, True)
         comparisonPlots([mmhist3], [""], False, False, plottdir+item[0]+'_'+item[1]+'_'+'dataC'+'.pdf', False, False, False, True)
-            
+if options.isgen:
+# do gen level stuff!
+# plot X_ID for ntracks = 0
+# Max Gen Delta R for b products too! 
+    Xbin = ['#mu^{#pm}','#pi^{0}','#pi^{#pm}','#rho^{0}','#rho^{+}','#eta','#eta^{`}','#omega','#phi','K^{0}','K^{+}','K^{*0}','K^{*+}','D^{+}','D^{0}','#eta_{c}','#eta_{b}','#Upsilon (1S)']
+    vardict['X_type'] = {'xtitle': 'What sort of X produced in J/#psi+X', 'nbins': len(Xbin), 'xmin': 0, 'xmax': len(Xbin) -1, 'ytitle': '', 'isLog': False, 'isRatio': False, 'isLegended': False, 'HasStackPlot': False, 'loglowerlimit': -3}
+    idhist = IDsproducer('X_type', Xbin, 'JpsiMu_B_iso_ntracks == 0') 
+    idhists = [idhist]
+    idtitles = [idhist.GetTitle()]
+    comparisonPlots(idhists, idtitles, vardict['X_type']['isLog'],vardict['X_type']['loglowerlimit'], plotgdir+'X_type.pdf', vardict['X_type']['isRatio'], vardict['X_type']['isLegended'])
+
+    vardict['genParticle_Bdau_dR'] = {'xtitle': 'Max #Delta R between all gen B daughters', 'nbins': 60, 'xmin': 0, 'xmax': 0.8, 'ytitle': '', 'isLog': False, 'isRatio': False, 'isLegended': False, 'HasStackPlot': False, 'loglowerlimit': -3}
+    Bdau_dR_hist =  sproducer('genParticle_Bdau_dR', vardict['genParticle_Bdau_dR'], 'bg_JpsiX_MuMu_J', sampledict['bg_JpsiX_MuMu_J'])
+    comparisonPlots([Bdau_dR_hist], idtitles, vardict['genParticle_Bdau_dR']['isLog'],  vardict['genParticle_Bdau_dR']['loglowerlimit'],  plotgdir+'genParticle_Bdau_dR.pdf',  vardict['genParticle_Bdau_dR']['isRatio'],  vardict['genParticle_Bdau_dR']['isLegended'])
+    
+
 # This writes to a webpage so you can more easily view all the plots you've created in a web browser, which will display them simultaneously.
 # This is optional, you can comment it out if you want to ...
+if options.isgen:
+    writeHTML(gdir, "Gen Info")
 if options.is2DHist:
     writeHTML(tdir, "2-D Histograms")
 if options.isCompare:
