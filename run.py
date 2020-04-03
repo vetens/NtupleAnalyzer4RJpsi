@@ -137,6 +137,7 @@ if not isData:
     otree.Branch('weight_evt', weight_evt, 'weight_evt/D') 
     
     Xbin = [13,111,211,113,213,221,331,223,333,311,321,313,323,411,421,441,551,553]
+    Bbin = [511, 521, 513, 523, 515, 525, 531, 533, 541, 543, 545]
 
 JpsiMu_B_mcorr = num.zeros(1,dtype=float)
 otree.Branch('JpsiMu_B_mcorr', JpsiMu_B_mcorr , 'JpsiMu_B_mcorr/D') 
@@ -202,12 +203,14 @@ dR_mu1_mu2 = num.zeros(1,dtype=float)
 otree.Branch('dR_mu1_mu2', dR_mu1_mu2, 'dR_mu1_mu2/D') 
 
 if len(gen_outvars) > 0:
-    B_pdgId = num.zeros(1,dtype=int)
-    otree.Branch('B_pdgId', B_pdgId, 'B_pdgId/I') 
+    B_type = num.zeros(1,dtype=int)
+    otree.Branch('B_type', B_type, 'B_type/I') 
     X_type = num.zeros(1,dtype=int)
     otree.Branch('X_type', X_type, 'X_type/I') 
-    genParticle_Bdau_dR = num.zeros(1,dtype=float)
-    otree.Branch('genParticle_Bdau_dR', genParticle_Bdau_dR, 'genParticle_Bdau_dR/D')
+    genParticle_Bdau_dRmin = num.zeros(1,dtype=float)
+    otree.Branch('genParticle_Bdau_dRmin', genParticle_Bdau_dRmin, 'genParticle_Bdau_dRmin/D')
+    MultiMother = num.zeros(1,dtype=int)
+    otree.Branch('MultiMother', MultiMother, 'MultiMother/I')
 
 Nentries = chain.GetEntries()
 
@@ -226,7 +229,7 @@ for evt in xrange(Nentries):
     chain.GetEntry(evt)
 
     if evt%100000==0: print '{0:.2f}'.format(Double(evt)/Double(Nentries)*100.), '% processed'
-  #  if evt>100: break
+    #if evt>100: break
 
 
     # if you want to put some cuts, you can do followings
@@ -318,61 +321,117 @@ for evt in xrange(Nentries):
 # Gen Level Info
 
     if not isData and len(gen_outvars) > 0:
-        Xmomenta = []
-        pmu1 = TLorentzVector.TLorentzVector()
-        pmu2 = TLorentzVector.TLorentzVector()
-        pB = TLorentzVector.TLorentzVector()
-        pB.SetPtEtaPhiM(0,0,0,0)
-        pJpsi = TLorentzVector.TLorentzVector()
-        pJpsi.SetPtEtaPhiM(0,0,0,0)
-        iJpsi = -1
-        iB = -1
-        Xids = []
+        pgen = TLorentzVector.TLorentzVector()
+        pmu3_gen = TLorentzVector.TLorentzVector()
+        mompt = []
+        mu3_gen_num = -1
+        dRthresh_mu3 = 0.1
+        dRthresh_dau = 0.4
+        dRthresh_other_B =  0.8
+        Id = 0
+        jpsi_gen_num = -1
+        mother_Ids = []
+        # first we pick out what gen level particle our reco mu3 most likely corresponds to
         for iGen in xrange(chain.genParticle_pdgId.size()):
-            ID = chain.genParticle_pdgId[iGen]
-            if ID == 443 and chain.genParticle_status[iGen] == 2 and chain.genParticle_pt[iGen] > pJpsi.Pt():
-                pJpsi.SetPtEtaPhiM(chain.genParticle_pt[iGen], chain.genParticle_eta[iGen], chain.genParticle_phi[iGen], MJpsi)
-                iJpsi = iGen
-            if abs(ID) >= 500 and abs(ID) < 600 and chain.genParticle_status[iGen] == 2:
-                iB = iGen
-                pB.SetPtEtaPhiM(chain.genParticle_pt[iGen], chain.genParticle_eta[iGen], chain.genParticle_phi[iGen], 6.)
-                for iDau in xrange(chain.genParticle_dau[iGen].size()):
-                    dauID = abs(chain.genParticle_dau[iGen][iDau])
-                    if abs(dauID) == 12 or abs(dauID) == 14 or abs(dauID) == 16: continue
-                    if dauID == 443: continue
-                    # looking at Background, so we expect the only muons to come from our Jpsi
-                    if abs(dauID) == 13: continue
-                    else:
-                        Xids += [dauID]
+            if chain.genParticle_status != 2: continue
+            pgen.SetPtEtaPhiM(chain.genParticle_pt[iGen], chain.genParticle_eta[iGen], chain.genParticle_phi[iGen], MMu)
+            dR = pgen.DeltaR(pmu3)
+            if dR <= dRthresh_mu3:
+                pmu3_gen = pgen
+                mu3_gen_num = iGen
+                dRthresh_mu3 = dR
+                Id = chain.genParticle_pdgId[iGen]
+                mother_Ids = chain.genParticle_mother[iGen]
+#                print mother_Ids[0]
+                mompt = chain.genParticle_mother_pt[iGen]
+        # then we get the min delta R between the sister particles and pmu3_gen
         for iGen in xrange(chain.genParticle_pdgId.size()):
-            for mompt in chain.genParticle_mother_pt:
-                if mompt == pJpsi.Pt() and chain.genParticle_pdgId(iGen) == 13:
-                    pmu1.SetPtEtaPhiM(chain.genParticle_pt[iGen], chain.genParticle_eta[iGen], chain.genParticle_phi[iGen], MMu)
-                elif mompt == pJpsi.Pt() and chain.genParticle_pdgId(iGen) == -13:
-                    pmu1.SetPtEtaPhiM(chain.genParticle_pt[iGen], chain.genParticle_eta[iGen], chain.genParticle_phi[iGen], MMu)
-                elif mompt == pB.Pt():
-                    for Xid in Xids:
-                        if chain.genParticle_pdgId[iGen] == Xid:
-                            for index in xrange(Xbin):
-                                if Xbin[index] == abs(dauID):
-                                    if X_type[0] == 0: X_type[0] = index
-                                    else:
-                                        X_type += [index]
-                                else:
-                                    if X_type[0] == 0: X_type[0] = -1
-                                    else: X_type += [-1]
-                            pX = TLorentzVector.TLorentzVector()
-                            pX.SetPtEtaPhiM(chain.genParticle_pt[iGen], chain.genParticle_eta[iGen], chain.genParticle_phi[iGen], MMu)
-                            Xmomenta += [pX]
-        Xmomenta += [pmu1, pmu2]
-        Delta_R = pmu1.DeltaR(pmu2)
-        for ip1 in xrange(len(Xmomenta)):
-            for ip2 in xrange(len(Xmomenta)):
-                if ip2 <= ip1: continue
-                DR = Xmomenta[ip1].DeltaR(Xmomenta[ip2])
-                if DR >= Delta_R:
-                    Delta_R = DR
-        genParticle_Bdau_dR[0] = Delta_R
+            if chain.genParticle_status != 2: continue
+            if chain.genParticle_mother_pt[iGen] != mompt: continue
+            if chain.genParticle_mother[iGen] != mother_Ids: continue
+            if iGen == mu3_gen_num: continue
+            pgen.SetPtEtaPhiM(chain.genParticle_pt[iGen], chain.genParticle_eta[iGen], chain.genParticle_phi[iGen], MMu)
+            dR = pgen.DeltaR(pmu3_gen)
+            if dR <= dRthresh_dau:
+                dRthresh_dau = dR
+        ###   # Now we look at the other B in the event
+        ###   for iGen in xrange(chain.genParticle_pdgId.size()):
+        ###       if iGen == mu3_gen_num: continue
+        ###       OtherMother = False
+        ###       for iMom in xrange(mompt):
+        ###           if chain.genParticle_pt[iGen] == mompt[iMom]
+        genParticle_Bdau_dRmin[0] = dRthresh_dau
+        for index in xrange(len(Xbin)):
+            if Xbin[index] == abs(Id):
+                X_type[0] = index + 1
+        if len(mother_Ids) == 0: continue
+        if len(mother_Ids) > 1: 
+            MultiMother[0] = 1
+            for index in xrange(len(Bbin)):
+                for mom in xrange(len(mother_Ids)):
+                    if Bbin[index] == abs(mother_Ids[mom]):
+                        if B_type[0] == 0: B_type[0] = index + 1
+                        else:
+                            B_type += [index + 1]
+        else:
+            MultiMother[0] = 0
+            B_type[0] = mother_Ids[0]
+
+#        Xmomenta = []
+#        pmu1 = TLorentzVector.TLorentzVector()
+#        pmu2 = TLorentzVector.TLorentzVector()
+#        pB = TLorentzVector.TLorentzVector()
+#        pB.SetPtEtaPhiM(0,0,0,0)
+#        pJpsi = TLorentzVector.TLorentzVector()
+#        pJpsi.SetPtEtaPhiM(0,0,0,0)
+#        iJpsi = -1
+#        iB = -1
+#        Xids = []
+#        for iGen in xrange(chain.genParticle_pdgId.size()):
+#            ID = chain.genParticle_pdgId[iGen]
+#            if ID == 443 and chain.genParticle_status[iGen] == 2 and chain.genParticle_pt[iGen] > pJpsi.Pt():
+#                pJpsi.SetPtEtaPhiM(chain.genParticle_pt[iGen], chain.genParticle_eta[iGen], chain.genParticle_phi[iGen], MJpsi)
+#                iJpsi = iGen
+#            if abs(ID) >= 500 and abs(ID) < 600 and chain.genParticle_status[iGen] == 2:
+#                iB = iGen
+#                pB.SetPtEtaPhiM(chain.genParticle_pt[iGen], chain.genParticle_eta[iGen], chain.genParticle_phi[iGen], 6.)
+#                for iDau in xrange(chain.genParticle_dau[iGen].size()):
+#                    dauID = abs(chain.genParticle_dau[iGen][iDau])
+#                    if abs(dauID) == 12 or abs(dauID) == 14 or abs(dauID) == 16: continue
+#                    if dauID == 443: continue
+#                    # looking at Background, so we expect the only muons to come from our Jpsi
+#                    if abs(dauID) == 13: continue
+#                    else:
+#                        Xids += [dauID]
+#        for iGen in xrange(chain.genParticle_pdgId.size()):
+#            for mompt in chain.genParticle_mother_pt:
+#                if mompt == pJpsi.Pt() and chain.genParticle_pdgId(iGen) == 13:
+#                    pmu1.SetPtEtaPhiM(chain.genParticle_pt[iGen], chain.genParticle_eta[iGen], chain.genParticle_phi[iGen], MMu)
+#                elif mompt == pJpsi.Pt() and chain.genParticle_pdgId(iGen) == -13:
+#                    pmu1.SetPtEtaPhiM(chain.genParticle_pt[iGen], chain.genParticle_eta[iGen], chain.genParticle_phi[iGen], MMu)
+#                elif mompt == pB.Pt():
+#                    for Xid in Xids:
+#                        if chain.genParticle_pdgId[iGen] == Xid:
+#                            for index in xrange(Xbin):
+#                                if Xbin[index] == abs(dauID):
+#                                    if X_type[0] == 0: X_type[0] = index
+#                                    else:
+#                                        X_type += [index]
+#                                else:
+#                                    if X_type[0] == 0: X_type[0] = -1
+#                                    else: X_type += [-1]
+#                            pX = TLorentzVector.TLorentzVector()
+#                            pX.SetPtEtaPhiM(chain.genParticle_pt[iGen], chain.genParticle_eta[iGen], chain.genParticle_phi[iGen], MMu)
+#                            Xmomenta += [pX]
+#        Xmomenta += [pmu1, pmu2]
+#        Delta_R = pmu1.DeltaR(pmu2)
+#        for ip1 in xrange(len(Xmomenta)):
+#            for ip2 in xrange(len(Xmomenta)):
+#                if ip2 <= ip1: continue
+#                DR = Xmomenta[ip1].DeltaR(Xmomenta[ip2])
+#                if DR >= Delta_R:
+#                    Delta_R = DR
+#        genParticle_Bdau_dRmin[0] = Delta_R
 
     for var in outvars:
         tmp = getattr(chain,var)[selectedjpsi]
@@ -382,10 +441,11 @@ for evt in xrange(Nentries):
         tmp = getattr(chain,var)[0]
         getattr(chain,var).clear()
         getattr(chain,var).push_back(tmp)
-   # if not isData and len(gen_outvars) > 0:
-   #     tmp = getattr(chain,var)[0]
-   #     getattr(chain,var).clear()
-   #     getattr(chain,var).push_back(tmp)
+    if not isData and len(gen_outvars) > 0:
+        for var in gen_outvars:
+            tmp = getattr(chain,var)[0]
+            getattr(chain,var).clear()
+            getattr(chain,var).push_back(tmp)
     cuthist.Fill(1)
     if not isData:
         cuthist.Fill(2, weight_evt)
