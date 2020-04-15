@@ -25,8 +25,19 @@ writeScript() {
             -e 's/LISTNUMBER/'"$listNumber"'/g' \
             -e 's/JOBNUMBER/'"$jobNumber"'/g' \
             -e 's&RUNTYPE&'"$2"'&g' < $workdir/condor/condor_template.sh > $scriptname 
+    elif [[ $2 == *"BcJpsiMu"* ]]; then
+        sed -e 's&LISTDIR&'"$3"'&g' \
+            -e 's&ISDAT&&g' \
+            -e 's&ISGEN&-g&g' \
+            -e 's&ISSIG&-s&g' \
+            -e 's&TARGET&'"$target"'&g' \
+            -e 's&WORKDIR&'"$workdir"'&g' \
+            -e 's/LISTNUMBER/'"$listNumber"'/g' \
+            -e 's/JOBNUMBER/'"$jobNumber"'/g' \
+            -e 's&RUNTYPE&'"$2"'&g' < $workdir/condor/condor_template.sh > $scriptname 
     else
         sed -e 's&LISTDIR&'"$3"'&g' \
+            -e 's&ISGEN&-g&g' \
             -e 's&ISDAT&&g' \
             -e 's&TARGET&'"$target"'&g' \
             -e 's&WORKDIR&'"$workdir"'&g' \

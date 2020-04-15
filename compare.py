@@ -131,7 +131,7 @@ def optsproducer(key, ivar, samplekey, sample, tcut):
         tree.Draw(key + ' >> ' + hist.GetName(), 'weight_pu[0]*'+wgt+'*'+tcut)
         
     return copy.deepcopy(hist)
-def sproducer2D(key1, key2, var1, var2, samplekey, sample):
+def sproducer2D(key1, key2, var1, var2, samplekey, sample, cut0):
 
     hist = TH2F('h_' + key1 + '_' + key2, 
                 samplekey+';'+var1['xtitle']+';'+var2['xtitle']+';events', 
@@ -382,9 +382,7 @@ if options.is2DHist:
         comparisonPlots([mmhist2], [""], False, False, plottdir+item[0]+'_'+item[1]+'_'+'signal'+'.pdf', False, False, False, True)
         comparisonPlots([mmhist3], [""], False, False, plottdir+item[0]+'_'+item[1]+'_'+'dataC'+'.pdf', False, False, False, True)
 if options.isgen:
-# do gen level stuff!
-# plot X_ID for ntracks = 0
-# Max Gen Delta R for b products too! 
+# The B and X types in their own separate 1D histograms and together in 2D histograms
     Xbin = ['#mu^{#pm}','#pi^{0}','#pi^{#pm}','#rho^{0}','#rho^{+}','#eta','#eta^{`}','#omega','#phi','K^{0}','K^{+}','K^{*0}','K^{*+}','D^{+}','D^{0}','#eta_{c}','#eta_{b}','#Upsilon (1S)']
     vardict['X_type'] = {'xtitle': 'What sort of X produced in J/#psi+X', 'nbins': len(Xbin), 'xmin': 0, 'xmax': len(Xbin) -1, 'ytitle': '', 'isLog': False, 'isRatio': False, 'isLegended': False, 'HasStackPlot': False, 'loglowerlimit': -3}
     idhist = IDsproducer('X_type', Xbin, 'JpsiMu_B_iso_ntracks == 0') 
@@ -392,8 +390,27 @@ if options.isgen:
     idtitles = [idhist.GetTitle()]
     comparisonPlots(idhists, idtitles, vardict['X_type']['isLog'],vardict['X_type']['loglowerlimit'], plotgdir+'X_type.pdf', vardict['X_type']['isRatio'], vardict['X_type']['isLegended'])
 
-    vardict['genParticle_Bdau_dR'] = {'xtitle': 'Max #Delta R between all gen B daughters', 'nbins': 60, 'xmin': 0, 'xmax': 0.8, 'ytitle': '', 'isLog': False, 'isRatio': False, 'isLegended': False, 'HasStackPlot': False, 'loglowerlimit': -3}
-    Bdau_dR_hist =  sproducer('genParticle_Bdau_dR', vardict['genParticle_Bdau_dR'], 'bg_JpsiX_MuMu_J', sampledict['bg_JpsiX_MuMu_J'])
+    vardict['B_type'] = {'xtitle': 'PDGID of B', 'nbins': 1200, 'xmin': -600, 'xmax': 600, 'ytitle': '', 'isLog': False, 'isRatio': False, 'isLegended': False, 'HasStackPlot': False, 'loglowerlimit': -3}
+    Bidhist =  sproducer('B_type', vardict['B_type'], 'bg_JpsiX_MuMu_J', sampledict['bg_JpsiX_MuMu_J'])
+    Bidhists = [Bidhist]
+    Bidtitles = [Bidhist.GetTitle()]
+    comparisonPlots(Bidhists, Bidtitles, vardict['B_type']['isLog'],vardict['B_type']['loglowerlimit'], plotgdir+'B_type.pdf', vardict['B_type']['isRatio'], vardict['B_type']['isLegended'])
+
+# now for the 2D histograms, splitting into first and second mother particles
+
+    1momhist =  sproducer2D('B_type', 'X_type', vardict['B_type'], vardict['X_type'], 'bg_JpsiX_MuMu_J', sampledict['bg_JpsiX_MuMu_J'], 'MultiMother == 0'):
+    2momhist =  sproducer2D('B_type', 'X_type', vardict['B_type'], vardict['X_type'], 'bg_JpsiX_MuMu_J', sampledict['bg_JpsiX_MuMu_J'], 'MultiMother == 1'):
+    comparisonPlots([1momhist], [""], False, False, plotgdir+'B_type'+'_'+'X_type'+'_'+'1mom'+'.pdf', False, False, False, True)
+    comparisonPlots([2momhist], [""], False, False, plotgdir+'B_type'+'_'+'X_type'+'_'+'2moms'+'.pdf', False, False, False, True)
+
+# min dR between mu3 and its sister particles
+    vardict['genParticle_Bdau_dRmin'] = {'xtitle': 'Min #Delta R between all gen B daughters', 'nbins': 60, 'xmin': 0, 'xmax': 0.8, 'ytitle': '', 'isLog': False, 'isRatio': False, 'isLegended': False, 'HasStackPlot': False, 'loglowerlimit': -3}
+    Bdau_dR_hist =  sproducer('genParticle_Bdau_dRmin', vardict['genParticle_Bdau_dRmin'], 'bg_JpsiX_MuMu_J', sampledict['bg_JpsiX_MuMu_J'])
+    comparisonPlots([Bdau_dR_hist], idtitles, vardict['genParticle_Bdau_dRmin']['isLog'],  vardict['genParticle_Bdau_dRmin']['loglowerlimit'],  plotgdir+'genParticle_Bdau_dRmin.pdf',  vardict['genParticle_Bdau_dRmin']['isRatio'],  vardict['genParticle_Bdau_dRmin']['isLegended'])
+    
+# Min gen level dR between mu3 and daughters of the other B produced in the evt (signal only)
+    vardict['genParticle_Bdau_OtherB_dRmin'] = {'xtitle': 'Min gen level #Delta R between #mu_{3} and all daughters of the other B in the event', 'nbins': 60, 'xmin': 0, 'xmax': 0.8, 'ytitle': '', 'isLog': False, 'isRatio': False, 'isLegended': False, 'HasStackPlot': False, 'loglowerlimit': -3}
+    Bdau_dR_hist =  sproducer('genParticle_Bdau_OtherB_dRmin', vardict['genParticle_Bdau_OtherB_dRmin'], 'signal_BcJpsiMuNu', sampledict['signal_BcJpsiMuNu'])
     comparisonPlots([Bdau_dR_hist], idtitles, vardict['genParticle_Bdau_dR']['isLog'],  vardict['genParticle_Bdau_dR']['loglowerlimit'],  plotgdir+'genParticle_Bdau_dR.pdf',  vardict['genParticle_Bdau_dR']['isRatio'],  vardict['genParticle_Bdau_dR']['isLegended'])
     
 

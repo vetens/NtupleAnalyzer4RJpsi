@@ -31,7 +31,9 @@ parser.add_option("-p", "--path", default='/pnfs/psi.ch/cms/trivcat/store/user/y
 parser.add_option("-x", default=False, action="store_true", help="use this option if you are pulling a file from xrd. Otherwise file is pulled from psi", dest="xrd")
 parser.add_option("--local", default=False, action="store_true", help="use this option if you are pulling a file locally. Otherwise file is pulled from psi", dest="local")
 parser.add_option("-l","--filelist",  default='', type="string", help="text file containing locations of input files", dest="filelist")
+parser.add_option("-g", default=False, action="store_true", help="Flag with -g if you are using gen level data", dest="isgen")
 parser.add_option("-d", default=False, action="store_true", help="Flag with -d if you are running over Data", dest="isdat")
+parser.add_option("-s", default=False, action="store_true", help="Flag with -s if you are running over Signal (at gen level)", dest="issig")
 
 
 
@@ -58,6 +60,8 @@ chain = TChain('ntuplizer/tree')
 print "doing xrd?", options.xrd
 
 isData = options.isdat 
+isGenLevel = options.isgen 
+isSignal = options.issig 
 
 #if not isData:
 nevts = 0
@@ -110,7 +114,7 @@ for var in met_outvars:
     chain.SetBranchStatus(var, 1)
 for var in evt_outvars:
     chain.SetBranchStatus(var, 1)
-if len(gen_outvars) > 0 and not isData:
+if isGenLevel and not isData:
     for var in gen_outvars:
         chain.SetBranchStatus(var,1)
 
@@ -136,8 +140,9 @@ if not isData:
     weight_evt = num.zeros(1,dtype=float)
     otree.Branch('weight_evt', weight_evt, 'weight_evt/D') 
     
-    Xbin = [13,111,211,113,213,221,331,223,333,311,321,313,323,411,421,441,551,553]
-    Bbin = [511, 521, 513, 523, 515, 525, 531, 533, 541, 543, 545]
+    if isGenLevel:
+        Xbin = [13,111,211,113,213,221,331,223,333,311,321,313,323,411,421,441,551,553]
+        Bbin = [511, 521, 513, 523, 515, 525, 531, 533, 541, 543, 545]
 
 JpsiMu_B_mcorr = num.zeros(1,dtype=float)
 otree.Branch('JpsiMu_B_mcorr', JpsiMu_B_mcorr , 'JpsiMu_B_mcorr/D') 
@@ -202,7 +207,7 @@ otree.Branch('cosdphi_mu1_mu2', cosdphi_mu1_mu2, 'cosdphi_mu1_mu2/D')
 dR_mu1_mu2 = num.zeros(1,dtype=float)
 otree.Branch('dR_mu1_mu2', dR_mu1_mu2, 'dR_mu1_mu2/D') 
 
-if len(gen_outvars) > 0:
+if isGenLevel:
     B_type = num.zeros(1,dtype=int)
     otree.Branch('B_type', B_type, 'B_type/I') 
     X_type = num.zeros(1,dtype=int)
@@ -211,6 +216,9 @@ if len(gen_outvars) > 0:
     otree.Branch('genParticle_Bdau_dRmin', genParticle_Bdau_dRmin, 'genParticle_Bdau_dRmin/D')
     MultiMother = num.zeros(1,dtype=int)
     otree.Branch('MultiMother', MultiMother, 'MultiMother/I')
+    if isSignal:
+        genParticle_Bdau_OtherB_dRmin = num.zeros(1,dtype=float)
+        otree.Branch('genParticle_Bdau_OtherB_dRmin', genParticle_Bdau_OtherB_dRmin, 'genParticle_Bdau_OtherB_dRmin/D')
 
 Nentries = chain.GetEntries()
 
@@ -320,7 +328,7 @@ for evt in xrange(Nentries):
 
 # Gen Level Info
 
-    if not isData and len(gen_outvars) > 0:
+    if not isData and isGenLevel > 0:
         pgen = TLorentzVector.TLorentzVector()
         pmu3_gen = TLorentzVector.TLorentzVector()
         mompt = []
@@ -329,53 +337,95 @@ for evt in xrange(Nentries):
         dRthresh_dau = 0.4
         dRthresh_other_B =  0.8
         Id = 0
-        jpsi_gen_num = -1
+        pt_closest_cousin = 0
         mother_Ids = []
         # first we pick out what gen level particle our reco mu3 most likely corresponds to
         for iGen in xrange(chain.genParticle_pdgId.size()):
-            if chain.genParticle_status != 2: continue
             pgen.SetPtEtaPhiM(chain.genParticle_pt[iGen], chain.genParticle_eta[iGen], chain.genParticle_phi[iGen], MMu)
             dR = pgen.DeltaR(pmu3)
+            if chain.genParticle_status[iGen] != 1: continue
             if dR <= dRthresh_mu3:
                 pmu3_gen = pgen
                 mu3_gen_num = iGen
                 dRthresh_mu3 = dR
                 Id = chain.genParticle_pdgId[iGen]
-                mother_Ids = chain.genParticle_mother[iGen]
-#                print mother_Ids[0]
-                mompt = chain.genParticle_mother_pt[iGen]
-        # then we get the min delta R between the sister particles and pmu3_gen
+        if Id == 0: continue
+        #print "pdgid", Id
+        #print "status", chain.genParticle_status[mu3_gen_num]
+        #for iMom in xrange(len(chain.genParticle_mother[mu3_gen_num])):
+        #    print chain.genParticle_mother[mu3_gen_num][iMom]
+        if len(chain.genParticle_mother[mu3_gen_num]) == 0: continue
+        #then we get the min delta R between the sister particles and pmu3_gen
         for iGen in xrange(chain.genParticle_pdgId.size()):
-            if chain.genParticle_status != 2: continue
-            if chain.genParticle_mother_pt[iGen] != mompt: continue
-            if chain.genParticle_mother[iGen] != mother_Ids: continue
             if iGen == mu3_gen_num: continue
+            #print "Number of mothers", chain.genParticle_mother[iGen].size()
+            if chain.genParticle_status[iGen] != 1: continue
+            #print "Number of Mothers of matched B decay:", chain.genParticle_mother[mu3_gen_num].size()
+            #print "Number of Mothers of this B decay:", chain.genParticle_mother[iGen].size()
+            #print "Mother of matched B decay:", chain.genParticle_mother[mu3_gen_num][0]
+            #print "Mother of this B decay:", chain.genParticle_mother[iGen][0]
+            if abs(chain.genParticle_pdgId[iGen]) != 13: continue
+            if chain.genParticle_mother[iGen][0] != 443: continue
+            print "mothers matched"
             pgen.SetPtEtaPhiM(chain.genParticle_pt[iGen], chain.genParticle_eta[iGen], chain.genParticle_phi[iGen], MMu)
             dR = pgen.DeltaR(pmu3_gen)
             if dR <= dRthresh_dau:
                 dRthresh_dau = dR
-        ###   # Now we look at the other B in the event
-        ###   for iGen in xrange(chain.genParticle_pdgId.size()):
-        ###       if iGen == mu3_gen_num: continue
-        ###       OtherMother = False
-        ###       for iMom in xrange(mompt):
-        ###           if chain.genParticle_pt[iGen] == mompt[iMom]
+                pt_closest_cousin = pgen.Pt()
+        print "mu3 gen lv PT:" , pmu3_gen.Pt()
+        print "closest dR match PT:" , pt_closest_cousin
+        print "pdgid", Id
+        print "dR with reco mu 3", dRthresh_mu3
+        print "min dR between this and the other daughters", dRthresh_dau
+
         genParticle_Bdau_dRmin[0] = dRthresh_dau
         for index in xrange(len(Xbin)):
             if Xbin[index] == abs(Id):
                 X_type[0] = index + 1
-        if len(mother_Ids) == 0: continue
-        if len(mother_Ids) > 1: 
+        if len(chain.genParticle_mother[mu3_gen_num]) > 1: 
             MultiMother[0] = 1
             for index in xrange(len(Bbin)):
-                for mom in xrange(len(mother_Ids)):
-                    if Bbin[index] == abs(mother_Ids[mom]):
+                for mom in xrange(len(chain.genParticle_mother[mu3_gen_num])):
+                    if Bbin[index] == abs(chain.genParticle_mother[mu3_gen_num][mom]):
                         if B_type[0] == 0: B_type[0] = index + 1
                         else:
                             B_type += [index + 1]
         else:
             MultiMother[0] = 0
-            B_type[0] = mother_Ids[0]
+            B_type[0] =chain.genParticle_mother[mu3_gen_num][0]
+        # Now we look at the other b in the event
+        if isSignal:
+            OtherMother = False
+            for iGen in xrange(chain.genParticle_pdgId.size()):
+                if OtherMother == True: continue
+                if abs(chain.genParticle_pdgId[iGen]) < 600 and abs(chain.genParticle_pdgId[iGen]) >= 500:
+                    for iMom in xrange(len(mompt)):
+                        if OtherMother == True: continue
+                        if chain.genParticle_pt[iGen] == mompt[iMom]: continue
+                        OtherMother == True
+                        MomNum2 = iGen
+                        mompt2 = chain.genParticle_pt[iGen]
+                        pgen.SetPtEtaPhiM(chain.genParticle_pt[iGen], chain.genParticle_eta[iGen], chain.genParticle_phi[iGen], MMu)
+                        dR = pgen.DeltaR(pmu3)
+                        if dR <= dRthresh_other_B:
+                            dRthresh_other_B = dR
+            genParticle_Bdau_OtherB_dRmin[0] = dRthresh_other_B
+        #for iGen in xrange(chain.genParticle_pdgId.size()):
+        #    if iGen == mu3_gen_num: continue
+        #    #print "Number of mothers", chain.genParticle_mother[iGen].size()
+        #    if chain.genParticle_status[iGen] != 1: continue
+        #    #print "Number of Mothers of matched B decay:", chain.genParticle_mother[mu3_gen_num].size()
+        #    #print "Number of Mothers of this B decay:", chain.genParticle_mother[iGen].size()
+        #    #print "Mother of matched B decay:", chain.genParticle_mother[mu3_gen_num][0]
+        #    #print "Mother of this B decay:", chain.genParticle_mother[iGen][0]
+        #    if chain.genParticle_mother_pt[iGen][0] != chain.genParticle_mother_pt[mu3_gen_num][0]: continue
+        #    if chain.genParticle_mother[iGen][0] != chain.genParticle_mother[mu3_gen_num][0]: continue
+        #    print "mothers matched"
+        #    pgen.SetPtEtaPhiM(chain.genParticle_pt[iGen], chain.genParticle_eta[iGen], chain.genParticle_phi[iGen], MMu)
+        #    dR = pgen.DeltaR(pmu3_gen)
+        #    if dR <= dRthresh_dau:
+        #        dRthresh_dau = dR
+        #        pt_closest_cousin = pgen.Pt()
 
 #        Xmomenta = []
 #        pmu1 = TLorentzVector.TLorentzVector()
@@ -441,11 +491,16 @@ for evt in xrange(Nentries):
         tmp = getattr(chain,var)[0]
         getattr(chain,var).clear()
         getattr(chain,var).push_back(tmp)
-    if not isData and len(gen_outvars) > 0:
-        for var in gen_outvars:
-            tmp = getattr(chain,var)[0]
-            getattr(chain,var).clear()
-            getattr(chain,var).push_back(tmp)
+    #if isGenLevel:
+    #    for iGen in xrange(chain.genParticle_pdgId.size()):
+    #        for var in gen_outvars:
+    #            print iGen, var
+    #            tmp = getattr(chain,var)[0]
+    #            print tmp
+    #            getattr(chain,var).clear()
+    #            getattr(chain,var).push_back(tmp)
+    #        otree.Fill()
+
     cuthist.Fill(1)
     if not isData:
         cuthist.Fill(2, weight_evt)
