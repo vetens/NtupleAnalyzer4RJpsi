@@ -330,8 +330,8 @@ for evt in xrange(Nentries):
 
     if not isData and isGenLevel > 0:
         pgen = TLorentzVector.TLorentzVector()
+        psis = TLorentzVector.TLorentzVector()
         pmu3_gen = TLorentzVector.TLorentzVector()
-        mompt = []
         mu3_gen_num = -1
         dRthresh_mu3 = 0.1
         dRthresh_dau = 0.4
@@ -350,33 +350,40 @@ for evt in xrange(Nentries):
                 dRthresh_mu3 = dR
                 Id = chain.genParticle_pdgId[iGen]
         if Id == 0: continue
-        #print "pdgid", Id
-        #print "status", chain.genParticle_status[mu3_gen_num]
-        #for iMom in xrange(len(chain.genParticle_mother[mu3_gen_num])):
-        #    print chain.genParticle_mother[mu3_gen_num][iMom]
-        if len(chain.genParticle_mother[mu3_gen_num]) == 0: continue
-        #then we get the min delta R between the sister particles and pmu3_gen
+        motherlist = chain.genParticle_mother[mu3_gen_num]
+        motherptlist = chain.genParticle_mother_pt[mu3_gen_num]
+        if len(motherlist) == 0: continue
+        #now getting the sisters and cousins (since mothers includes grandmothers as well)
+        sisterlist = []
+        sisterptlist = []
+        sisternumlist = []
         for iGen in xrange(chain.genParticle_pdgId.size()):
             if iGen == mu3_gen_num: continue
-            #print "Number of mothers", chain.genParticle_mother[iGen].size()
-            if chain.genParticle_status[iGen] != 1: continue
-            #print "Number of Mothers of matched B decay:", chain.genParticle_mother[mu3_gen_num].size()
-            #print "Number of Mothers of this B decay:", chain.genParticle_mother[iGen].size()
-            #print "Mother of matched B decay:", chain.genParticle_mother[mu3_gen_num][0]
-            #print "Mother of this B decay:", chain.genParticle_mother[iGen][0]
-            if abs(chain.genParticle_pdgId[iGen]) != 13: continue
-            if chain.genParticle_mother[iGen][0] != 443: continue
-            print "mothers matched"
-            pgen.SetPtEtaPhiM(chain.genParticle_pt[iGen], chain.genParticle_eta[iGen], chain.genParticle_phi[iGen], MMu)
-            dR = pgen.DeltaR(pmu3_gen)
+            for iMom in xrange(len(chain.genParticle_mother[iGen])):
+                for iMom2 in xrange(len(motherlist)):
+                    if chain.genParticle_mother[iGen][iMom] == motherlist[iMom2] and chain.genParticle_mother_pt[iGen][iMom] == motherptlist[iMom2]:
+                        sisternumlist += [iGen]
+                        sisterlist += [chain.genParticle_pdgId[iGen]]
+                        sisterptlist += [chain.genParticle_pt[iGen]]
+        if len(sisternumlist) == 0: continue
+        iclosestSis = -1
+        # Finding the closest sister
+        for iSis in sisternumlist:
+            if iSis == mu3_gen_num: continue
+            if chain.genParticle_status[iSis] != 1: continue
+            psis.SetPtEtaPhiM(chain.genParticle_pt[iSis], chain.genParticle_eta[iSis], chain.genParticle_phi[iSis], MMu)
+            dR = psis.DeltaR(pmu3_gen)
             if dR <= dRthresh_dau:
                 dRthresh_dau = dR
-                pt_closest_cousin = pgen.Pt()
+                iclosestSis = iSis
+            
+        print "-----------------------------------------------------"
         print "mu3 gen lv PT:" , pmu3_gen.Pt()
-        print "closest dR match PT:" , pt_closest_cousin
-        print "pdgid", Id
-        print "dR with reco mu 3", dRthresh_mu3
-        print "min dR between this and the other daughters", dRthresh_dau
+        print "pdgid:", Id
+        print "min dR between this and its sisters:", dRthresh_dau
+        print "closest sister:", chain.genParticle_pdgId[iclosestSis]
+        print "closest sister PT:", chain.genParticle_pt[iclosestSis]
+        print "-----------------------------------------------------"
 
         genParticle_Bdau_dRmin[0] = dRthresh_dau
         for index in xrange(len(Xbin)):
