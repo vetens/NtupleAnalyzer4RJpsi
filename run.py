@@ -141,8 +141,9 @@ if not isData:
     otree.Branch('weight_evt', weight_evt, 'weight_evt/D') 
     
     if isGenLevel:
-        Xbin = [13,111,211,113,213,221,331,223,333,311,321,313,323,411,421,441,551,553]
-        Bbin = [511, 521, 513, 523, 515, 525, 531, 533, 541, 543, 545]
+        Xbin = [13, 211, 321, 2212, 22, 310]
+        sisterbin = [13, 111, 211, 213, 221, 331, 223, 333, 321, 313, 323, 411, 421, 443, 100443, 22, 310, 413, 11, 4122, 433, 423, 511, 311, 4232, 10413, 10411, 5122, 415, 2112, 20413, 435, 10431, 20423, 311, 431, 130]
+        Bbin = [511, 521, 531, 541, 443, 431, 421, 411, 15, 5232, 100443]
 
 JpsiMu_B_mcorr = num.zeros(1,dtype=float)
 otree.Branch('JpsiMu_B_mcorr', JpsiMu_B_mcorr , 'JpsiMu_B_mcorr/D') 
@@ -208,17 +209,56 @@ dR_mu1_mu2 = num.zeros(1,dtype=float)
 otree.Branch('dR_mu1_mu2', dR_mu1_mu2, 'dR_mu1_mu2/D') 
 
 if isGenLevel:
+    Photon_mother = num.zeros(1,dtype=int)
+    otree.Branch('Photon_mother', Photon_mother, 'Photon_mother/I') 
     B_type = num.zeros(1,dtype=int)
     otree.Branch('B_type', B_type, 'B_type/I') 
+    X_Mother_pdgId = num.zeros(1,dtype=int)
+    otree.Branch('X_Mother_pdgId', X_Mother_pdgId, 'X_Mother_pdgId/I') 
     X_type = num.zeros(1,dtype=int)
     otree.Branch('X_type', X_type, 'X_type/I') 
+    X_pdgId = num.zeros(1,dtype=int)
+    otree.Branch('X_pdgId', X_pdgId, 'X_pdgId/I') 
+    sister_type = num.zeros(1,dtype=int)
+    otree.Branch('sister_type', sister_type, 'sister_type/I') 
     genParticle_Bdau_dRmin = num.zeros(1,dtype=float)
     otree.Branch('genParticle_Bdau_dRmin', genParticle_Bdau_dRmin, 'genParticle_Bdau_dRmin/D')
     MultiMother = num.zeros(1,dtype=int)
     otree.Branch('MultiMother', MultiMother, 'MultiMother/I')
+    genParticle_sister_pt = num.zeros(1,dtype=float)
+    otree.Branch('genParticle_sister_pt', genParticle_sister_pt, 'genParticle_sister_pt/D') 
+    genParticle_sister_pdgId = num.zeros(1,dtype=int)
+    otree.Branch('genParticle_sister_pdgId', genParticle_sister_pdgId, 'genParticle_sister_pdgId/I') 
+    genParticle_cousin_pt = num.zeros(1,dtype=float)
+    otree.Branch('genParticle_cousin_pt', genParticle_cousin_pt, 'genParticle_cousin_pt/D') 
+    genParticle_cousin_pdgId = num.zeros(1,dtype=int)
+    otree.Branch('genParticle_cousin_pdgId', genParticle_cousin_pdgId, 'genParticle_cousin_pdgId/I') 
+    genParticle_aunt_pt = num.zeros(1,dtype=float)
+    otree.Branch('genParticle_aunt_pt', genParticle_aunt_pt, 'genParticle_aunt_pt/D') 
+    genParticle_aunt_pdgId = num.zeros(1,dtype=int)
+    otree.Branch('genParticle_aunt_pdgId', genParticle_aunt_pdgId, 'genParticle_aunt_pdgId/I') 
+    genParticle_grandmother_pt = num.zeros(1,dtype=float)
+    otree.Branch('genParticle_grandmother_pt', genParticle_cousin_pt, 'genParticle_grandmother_pt/D') 
+    genParticle_grandmother_pdgId = num.zeros(1,dtype=int)
+    otree.Branch('genParticle_grandmother_pdgId', genParticle_grandmother_pdgId, 'genParticle_grandmother_pdgId/I') 
     if isSignal:
         genParticle_Bdau_OtherB_dRmin = num.zeros(1,dtype=float)
         otree.Branch('genParticle_Bdau_OtherB_dRmin', genParticle_Bdau_OtherB_dRmin, 'genParticle_Bdau_OtherB_dRmin/D')
+
+        mismatched_B= num.zeros(1,dtype=int)
+        otree.Branch('mismatched_B', mismatched_B, 'mismatched_B/I')
+
+        mismatched_mu1= num.zeros(1,dtype=int)
+        otree.Branch('mismatched_mu1', mismatched_mu1, 'mismatched_mu1/I')
+
+        mismatched_mu2= num.zeros(1,dtype=int)
+        otree.Branch('mismatched_mu2', mismatched_mu2, 'mismatched_mu2/I')
+
+        mismatched_mu3= num.zeros(1,dtype=int)
+        otree.Branch('mismatched_mu3', mismatched_mu3, 'mismatched_mu3/I')
+
+        isMismatched = num.zeros(1,dtype=int)
+        otree.Branch('isMismatched',isMismatched, 'isMismatched/I')
 
 Nentries = chain.GetEntries()
 
@@ -233,6 +273,10 @@ MJpsi=3.096916
 MMu=0.1056583745
 #if not isData:
 cuthist.Fill(0, nevts)
+print "Running over", Nentries, "entries!"
+NBadMatches = 0
+NJpsiB = 0
+NNotMu = 0
 for evt in xrange(Nentries):
     chain.GetEntry(evt)
 
@@ -329,166 +373,385 @@ for evt in xrange(Nentries):
 # Gen Level Info
 
     if not isData and isGenLevel > 0:
-        pgen = TLorentzVector.TLorentzVector()
+        def getmatches(thresh, momentum):
+            gen_num = -1
+            pgen = TLorentzVector.TLorentzVector()
+            matches = []
+            for iGen in xrange(chain.genParticle_pdgId.size()):
+                if chain.genParticle_status[iGen] != 1: continue
+                if abs(chain.genParticle_pdgId[iGen]) == 12: continue
+                if abs(chain.genParticle_pdgId[iGen]) == 14: continue
+                if abs(chain.genParticle_pdgId[iGen]) == 16: continue
+                pgen.SetPtEtaPhiM(chain.genParticle_pt[iGen], chain.genParticle_eta[iGen], chain.genParticle_phi[iGen], MMu)
+                dR = pgen.DeltaR(momentum)
+                if dR <= thresh:
+                    matches += [[iGen, dR]] 
+            return matches
+
+        def mindr(matches, thresh):
+            bestmatch = [-1, thresh]
+            for match in matches:
+                if match[1] <= thresh:
+                    bestmatch = match
+            return bestmatch
+        def checkdupes(matchlist, threshlist):
+            drlist = []
+            hasdupes = False
+            for iParticle in xrange(len(matchlist)):
+                drlist += [mindr(matchlist[iParticle], threshlist[iParticle])]
+            for iParticle in xrange(len(drlist)):
+                for iParticle2 in xrange(len(drlist)):
+                    if iParticle2 <= iParticle: continue
+                    if drlist[iParticle][0] == drlist[iParticle2][0]:
+                        hasdupes = True
+                        break
+                    else: continue
+                    break
+                break
+            return hasdupes
+
+        def removedupes(matchlist, threshlist):
+            if not checkdupes(matchlist, threshlist):
+                return matchlist
+            else:
+                drlist = []
+                matchlist2 = matchlist
+                for iParticle in xrange(len(matchlist)):
+                    drlist += [mindr(matchlist[iParticle], threshlist[iParticle])]
+                for iParticle in xrange(len(drlist)):
+                    for iParticle2 in xrange(len(drlist)):
+                        if iParticle2 <= iParticle: continue
+                        if drlist[iParticle][0] == drlist[iParticle2][0]:
+                            for imatch1 in xrange(len(matchlist[iParticle])):
+                                if matchlist[iParticle][imatch1][0] != drlist[iParticle][0]: 
+                                    continue
+                                for imatch2 in xrange(len(matchlist[iParticle2])):
+                                    if matchlist[iParticle2][imatch2][0] != drlist[iParticle2][0]: 
+                                        continue
+                                    if drlist[iParticle][1] >= drlist[iParticle2][1]:
+                                        del matchlist2[iParticle][imatch1]
+                                    else:
+                                        del matchlist2[iParticle2][imatch2]
+                for iParticle in xrange(len(matchlist2)):
+                    if matchlist2[iParticle] == []:
+                        return matchlist2
+                    else: break
+                if len(matchlist2) ==0:
+                    return matchlist2
+                else:
+                    return removedupes(matchlist2, threshlist)
+
+        def multimindr(threshlist, momentumlist):
+            matchlist = []
+            drlist = []
+            for iParticle in xrange(len(threshlist)):
+                matchlist += [getmatches(threshlist[iParticle], momentumlist[iParticle])]
+            matchlist2 = removedupes(matchlist, threshlist)
+            for iParticle in xrange(len(matchlist2)):
+                drlist += [mindr(matchlist2[iParticle], threshlist[iParticle])]
+            return drlist
+    
+        def getmotherids(gen_num):
+            pdgid_list = chain.genParticle_mother[gen_num]
+            pt_list = chain.genParticle_mother_pt[gen_num]
+            idlist = []
+            for imom in xrange(len(pdgid_list)):
+                for iGen in xrange(chain.genParticle_pdgId.size()):
+                    if chain.genParticle_status[iGen] != 2: continue
+                    if chain.genParticle_pdgId[iGen] == pdgid_list[imom]:
+                        if chain.genParticle_pt[iGen] == pt_list[imom]:
+                            idlist += [iGen]
+            return idlist
+        def getdaughterids(gen_num, NoIntermediateParticles = True, NoNu = False):
+            pt = chain.genParticle_pt[gen_num]
+            pdgid= chain.genParticle_pdgId[gen_num]
+            daulist = []
+            for iGen in xrange(chain.genParticle_pdgId.size()):
+                if iGen == gen_num: continue
+                if NoNu:
+                    if abs(chain.genParticle_pdgId[iGen]) == 12: continue
+                    if abs(chain.genParticle_pdgId[iGen]) == 14: continue
+                    if abs(chain.genParticle_pdgId[iGen]) == 16: continue
+                if NoIntermediateParticles:
+                    if chain.genParticle_status[iGen] != 1: continue
+                else:
+                    if chain.genParticle_status[iGen] != 2 and chain.genParticle_status[iGen] != 1: continue
+                momlist = chain.genParticle_mother[iGen]
+                momptlist = chain.genParticle_mother_pt[iGen]
+                isdau = False
+                for imom in xrange(len(momlist)):
+                    if momlist[imom] == pdgid and momptlist[imom] == pt:
+                        isdau = True
+                        break
+                if isdau: 
+                    daulist += [iGen]
+            return daulist
+        def getsisterids(gen_num, NoIntermediateParticles = True, NoNu = False):
+            mothers = getmotherids(gen_num)
+            sisters0 = []
+            for mom in mothers:
+                sisters0 += getdaughterids(mom, NoIntermediateParticles, NoNu)
+            # remove duplicates
+            sisters = list(set(sisters0))
+            # make sure the original particle isn't counted as a sister
+            for isis in xrange(len(sisters)):
+                if sisters[isis] == gen_num:
+                    del sisters[isis]
+                    break
+            return sisters
+
+        def getgrandmotherids(gen_num):
+            mothers = getmotherids(gen_num)
+            grandmas = []
+            for mom in mothers:
+                grandmas += getmotherids(mom)
+            return list(set(grandmas))
+        
+        def getauntids(gen_num):
+            mothers = getmotherids(gen_num)
+            aunts0 = []
+            for mother in mothers:
+                aunts0 += getsisterids(mother, False)
+            return list(set(aunts0))
+
+        def getcousinids(gen_num, AsymptoticOnly = True, NoNu = False):
+            cousins0 = []
+            aunts = getauntids(gen_num)
+            for aunt in aunts: 
+                cousins0 += getdaughterids(aunt, AsymptoticOnly, NoNu)
+            return list(set(cousins0))
+            
         psis = TLorentzVector.TLorentzVector()
         pmu3_gen = TLorentzVector.TLorentzVector()
-        mu3_gen_num = -1
+        dRthresh_mu1 = 0.1
+        dRthresh_mu2 = 0.1
         dRthresh_mu3 = 0.1
-        dRthresh_dau = 0.4
-        dRthresh_other_B =  0.8
-        Id = 0
-        pt_closest_cousin = 0
-        mother_Ids = []
+        genmatch_thresh_list = [dRthresh_mu1, dRthresh_mu2, dRthresh_mu3]
         # first we pick out what gen level particle our reco mu3 most likely corresponds to
-        for iGen in xrange(chain.genParticle_pdgId.size()):
-            pgen.SetPtEtaPhiM(chain.genParticle_pt[iGen], chain.genParticle_eta[iGen], chain.genParticle_phi[iGen], MMu)
-            dR = pgen.DeltaR(pmu3)
-            if chain.genParticle_status[iGen] != 1: continue
-            if dR <= dRthresh_mu3:
-                pmu3_gen = pgen
-                mu3_gen_num = iGen
-                dRthresh_mu3 = dR
-                Id = chain.genParticle_pdgId[iGen]
-        if Id == 0: continue
-        motherlist = chain.genParticle_mother[mu3_gen_num]
-        motherptlist = chain.genParticle_mother_pt[mu3_gen_num]
-        if len(motherlist) == 0: continue
-        #now getting the sisters and cousins (since mothers includes grandmothers as well)
-        sisterlist = []
-        sisterptlist = []
-        sisternumlist = []
-        for iGen in xrange(chain.genParticle_pdgId.size()):
-            if iGen == mu3_gen_num: continue
-            for iMom in xrange(len(chain.genParticle_mother[iGen])):
-                for iMom2 in xrange(len(motherlist)):
-                    if chain.genParticle_mother[iGen][iMom] == motherlist[iMom2] and chain.genParticle_mother_pt[iGen][iMom] == motherptlist[iMom2]:
-                        sisternumlist += [iGen]
-                        sisterlist += [chain.genParticle_pdgId[iGen]]
-                        sisterptlist += [chain.genParticle_pt[iGen]]
-        if len(sisternumlist) == 0: continue
+        matchedparticles = multimindr(genmatch_thresh_list, [pmu1, pmu2, pmu3])
+        mu1_gen_num = matchedparticles[0][0]
+        mu2_gen_num = matchedparticles[1][0]
+        mu3_gen_num = matchedparticles[2][0]
+        pmu3_gen.SetPtEtaPhiM(chain.genParticle_pt[mu3_gen_num], chain.genParticle_eta[mu3_gen_num], chain.genParticle_phi[mu3_gen_num], MMu)
+        if mu3_gen_num == -1: continue
+        if chain.genParticle_pdgId[mu3_gen_num] == 22:
+                Photon_mother = chain.genParticle_mother[mu3_gen_num]
+        #now getting the sisters, mothers, etc
+        sisterlist = getsisterids(mu3_gen_num)
+        unasymptoticsisterlist = getsisterids(mu3_gen_num, False)
+        for sister in unasymptoticsisterlist:
+            if abs(chain.genParticle_pdgId[sister]) == 12: continue
+            if abs(chain.genParticle_pdgId[sister]) == 14: continue
+            if abs(chain.genParticle_pdgId[sister]) == 16: continue
+            for index in xrange(len(sisterbin)):
+                if sisterbin[index] == abs(chain.genParticle_pdgId[sister]):
+                    Other = False
+                    sister_type[0] = index + 1
+                    break
+                else: 
+                    Other = True
+            if Other == True:
+               print "Sister ID:", chain.genParticle_pdgId[sister]
+               sister_type[0] = len(sisterbin)+1
+        X_pdgId[0] = TMath.Abs(chain.genParticle_pdgId[mu3_gen_num])
+        for sister in unasymptoticsisterlist:
+            if genParticle_sister_pdgId[0] == 0:
+                genParticle_sister_pdgId[0] = TMath.Abs(chain.genParticle_pdgId[sister])
+                genParticle_sister_pt[0] = chain.genParticle_pt[sister]
+            else:
+                genParticle_sister_pdgId += [TMath.Abs(chain.genParticle_pdgId[sister])]
+                genParticle_sister_pt += [chain.genParticle_pt[sister]]
+        motherlist = getmotherids(mu3_gen_num)
+        for mother in motherlist:
+            if X_Mother_pdgId[0] == 0:
+                X_Mother_pdgId[0] = TMath.Abs(chain.genParticle_pdgId[mother])
+            else:
+                X_Mother_pdgId += [chain.genParticle_pdgId[mother]]
+        auntlist = getauntids(mu3_gen_num)
+        for aunt in auntlist:
+            if genParticle_aunt_pdgId[0] == 0:
+                genParticle_aunt_pdgId[0] = chain.genParticle_pdgId[aunt]
+                genParticle_aunt_pt[0] = chain.genParticle_pt[aunt]
+            else:
+                genParticle_aunt_pdgId += [chain.genParticle_pdgId[aunt]]
+                genParticle_aunt_pt += [chain.genParticle_pt[aunt]]
+        cousinlist = getcousinids(mu3_gen_num)
+        for cousin in cousinlist:
+            if genParticle_cousin_pdgId[0] == 0:
+                genParticle_cousin_pdgId[0] = chain.genParticle_pdgId[cousin]
+                genParticle_cousin_pt[0] = chain.genParticle_pt[cousin]
+            else:
+                genParticle_cousin_pdgId += [chain.genParticle_pdgId[cousin]]
+                genParticle_cousin_pt += [chain.genParticle_pt[cousin]]
+        grandmotherlist = getgrandmotherids(mu3_gen_num)
+        for grandmother in grandmotherlist:
+            if genParticle_grandmother_pdgId[0] == 0:
+                genParticle_grandmother_pdgId[0] = chain.genParticle_pdgId[grandmother]
+                genParticle_grandmother_pt[0] = chain.genParticle_pt[grandmother]
+            else:
+                genParticle_grandmother_pdgId += [chain.genParticle_pdgId[grandmother]]
+                genParticle_grandmother_pt += [chain.genParticle_pt[grandmother]]
+        immediate_family = unasymptoticsisterlist+motherlist
+        if len(sisterlist) == 0: continue
         iclosestSis = -1
-        # Finding the closest sister
-        for iSis in sisternumlist:
+        dRthresh_dau = -1
+        # Finding the closest visible sister
+        for iSis in sisterlist:
             if iSis == mu3_gen_num: continue
             if chain.genParticle_status[iSis] != 1: continue
+            if abs(chain.genParticle_pdgId[iSis]) == 12: continue
+            if abs(chain.genParticle_pdgId[iSis]) == 14: continue
+            if abs(chain.genParticle_pdgId[iSis]) == 16: continue
             psis.SetPtEtaPhiM(chain.genParticle_pt[iSis], chain.genParticle_eta[iSis], chain.genParticle_phi[iSis], MMu)
             dR = psis.DeltaR(pmu3_gen)
+            if iSis == sisterlist[0] and dRthresh_dau == -1: dRthresh_dau = dR
             if dR <= dRthresh_dau:
                 dRthresh_dau = dR
                 iclosestSis = iSis
             
-        print "-----------------------------------------------------"
-        print "mu3 gen lv PT:" , pmu3_gen.Pt()
-        print "pdgid:", Id
-        print "min dR between this and its sisters:", dRthresh_dau
-        print "closest sister:", chain.genParticle_pdgId[iclosestSis]
-        print "closest sister PT:", chain.genParticle_pt[iclosestSis]
-        print "-----------------------------------------------------"
-
         genParticle_Bdau_dRmin[0] = dRthresh_dau
+        Other = True
+        X_type[0] = -1
         for index in xrange(len(Xbin)):
-            if Xbin[index] == abs(Id):
+            if Xbin[index] == abs(chain.genParticle_pdgId[mu3_gen_num]):
+                Other = False
                 X_type[0] = index + 1
+                break
+            else: 
+                Other = True
+        if Other == True:
+           X_type[0] = len(Xbin)+1
+           #print "X ID:", chain.genParticle_pdgId[mu3_gen_num]
+        B_type[0] = -1
         if len(chain.genParticle_mother[mu3_gen_num]) > 1: 
             MultiMother[0] = 1
-            for index in xrange(len(Bbin)):
-                for mom in xrange(len(chain.genParticle_mother[mu3_gen_num])):
+            for mom in xrange(len(chain.genParticle_mother[mu3_gen_num])):
+                Other = True
+                for index in xrange(len(Bbin)):
                     if Bbin[index] == abs(chain.genParticle_mother[mu3_gen_num][mom]):
-                        if B_type[0] == 0: B_type[0] = index + 1
+                        Other = False
+                        if B_type[0] == -1: B_type[0] = index + 1
                         else:
                             B_type += [index + 1]
+                        break
+                    else:
+                        Other = True
+                if Other == True:       
+                    if B_type[0] == -1: B_type[0] = len(Bbin)+1
+                    else: B_type += [len(Bbin)+1]
         else:
             MultiMother[0] = 0
-            B_type[0] =chain.genParticle_mother[mu3_gen_num][0]
-        # Now we look at the other b in the event
+            Other = True
+            for index in xrange(len(Bbin)):
+                if Bbin[index] == abs(chain.genParticle_mother[mu3_gen_num][0]):
+                    Other = False
+                    B_type[0] = index + 1
+                    break
+                else: Other = True
+            if Other == True:
+                B_type[0] = len(Bbin)+1
+                print "ID of B Classified as Other:", abs(chain.genParticle_mother[mu3_gen_num][0])
         if isSignal:
+            isBadMatch = False
+            isNotBc = False
+            isJpsi = False
+            isNotMu = False
+            for iB in xrange(len(B_type)):
+                if B_type[iB] != 9:
+                    isBadMatch = True
+                    isNotBc = True
+                    if abs(chain.genParticle_mother[mu3_gen_num][iB]) == 443:
+                        isJpsi = True
+                    break
+            if X_type[0] != 1: 
+                isBadMatch = True
+                isNotMu = True
+            if isBadMatch:
+                NBadMatches += 1
+                mismatched_mu1[0] = abs(chain.genParticle_pdgId[mu1_gen_num])
+                mismatched_mu2[0] = abs(chain.genParticle_pdgId[mu2_gen_num])
+                mismatched_mu3[0] = Xbin[X_type[0]-1]
+                isMismatched[0] = 1
+               # print "Mu 3 matched to pdgID ", X_pdgId[0]
+               # if B_type[0] > len(Bbin):
+               #     print "B: ", chain.genParticle_mother[mu3_gen_num][0]
+               # else:
+               #     print "B: ", Bbin[B_type[0]-1]
+               # print "Sisters: "
+               # for sister in sisterlist:
+               #     print chain.genParticle_pdgId[sister]
+            if isJpsi:
+                NJpsiB +=1
+            if isNotMu:
+                NNotMu +=1
+            if isBadMatch and not isJpsi:
+                if B_type[0]<len(Bbin): 
+                    mismatched_B[0] = Bbin[B_type[0]-1]
+                #    print "Mismatched B: ", mismatched_B[0]
+                else:
+                    mismatched_B[0] = abs(chain.genParticle_mother[mu3_gen_num][0])
+                #    print "Mismatched B: ", mismatched_B[0]
+                #if len(B_type)>1:
+                #    print "Other mom:", abs(chain.genParticle_mother[mu3_gen_num][1])
+            elif isBadMatch and isJpsi:
+                mismatched_B[0] = 443
+        # Now we look at the other b in the event and note its daughters
+        if isSignal:
+            MomNum2 = -1
+            pmom2 = TLorentzVector.TLorentzVector()
             OtherMother = False
             for iGen in xrange(chain.genParticle_pdgId.size()):
-                if OtherMother == True: continue
+                if OtherMother == True: break
+                if iGen == mu3_gen_num: continue
                 if abs(chain.genParticle_pdgId[iGen]) < 600 and abs(chain.genParticle_pdgId[iGen]) >= 500:
-                    for iMom in xrange(len(mompt)):
+                    for iRel in xrange(len(immediate_family)):
                         if OtherMother == True: continue
-                        if chain.genParticle_pt[iGen] == mompt[iMom]: continue
+                        if chain.genParticle_pt[iGen] == chain.genParticle_pt[immediate_family[iRel]]: continue
                         OtherMother == True
                         MomNum2 = iGen
                         mompt2 = chain.genParticle_pt[iGen]
-                        pgen.SetPtEtaPhiM(chain.genParticle_pt[iGen], chain.genParticle_eta[iGen], chain.genParticle_phi[iGen], MMu)
-                        dR = pgen.DeltaR(pmu3)
-                        if dR <= dRthresh_other_B:
-                            dRthresh_other_B = dR
-            genParticle_Bdau_OtherB_dRmin[0] = dRthresh_other_B
-        #for iGen in xrange(chain.genParticle_pdgId.size()):
-        #    if iGen == mu3_gen_num: continue
-        #    #print "Number of mothers", chain.genParticle_mother[iGen].size()
-        #    if chain.genParticle_status[iGen] != 1: continue
-        #    #print "Number of Mothers of matched B decay:", chain.genParticle_mother[mu3_gen_num].size()
-        #    #print "Number of Mothers of this B decay:", chain.genParticle_mother[iGen].size()
-        #    #print "Mother of matched B decay:", chain.genParticle_mother[mu3_gen_num][0]
-        #    #print "Mother of this B decay:", chain.genParticle_mother[iGen][0]
-        #    if chain.genParticle_mother_pt[iGen][0] != chain.genParticle_mother_pt[mu3_gen_num][0]: continue
-        #    if chain.genParticle_mother[iGen][0] != chain.genParticle_mother[mu3_gen_num][0]: continue
-        #    print "mothers matched"
-        #    pgen.SetPtEtaPhiM(chain.genParticle_pt[iGen], chain.genParticle_eta[iGen], chain.genParticle_phi[iGen], MMu)
-        #    dR = pgen.DeltaR(pmu3_gen)
-        #    if dR <= dRthresh_dau:
-        #        dRthresh_dau = dR
-        #        pt_closest_cousin = pgen.Pt()
-
-#        Xmomenta = []
-#        pmu1 = TLorentzVector.TLorentzVector()
-#        pmu2 = TLorentzVector.TLorentzVector()
-#        pB = TLorentzVector.TLorentzVector()
-#        pB.SetPtEtaPhiM(0,0,0,0)
-#        pJpsi = TLorentzVector.TLorentzVector()
-#        pJpsi.SetPtEtaPhiM(0,0,0,0)
-#        iJpsi = -1
-#        iB = -1
-#        Xids = []
-#        for iGen in xrange(chain.genParticle_pdgId.size()):
-#            ID = chain.genParticle_pdgId[iGen]
-#            if ID == 443 and chain.genParticle_status[iGen] == 2 and chain.genParticle_pt[iGen] > pJpsi.Pt():
-#                pJpsi.SetPtEtaPhiM(chain.genParticle_pt[iGen], chain.genParticle_eta[iGen], chain.genParticle_phi[iGen], MJpsi)
-#                iJpsi = iGen
-#            if abs(ID) >= 500 and abs(ID) < 600 and chain.genParticle_status[iGen] == 2:
-#                iB = iGen
-#                pB.SetPtEtaPhiM(chain.genParticle_pt[iGen], chain.genParticle_eta[iGen], chain.genParticle_phi[iGen], 6.)
-#                for iDau in xrange(chain.genParticle_dau[iGen].size()):
-#                    dauID = abs(chain.genParticle_dau[iGen][iDau])
-#                    if abs(dauID) == 12 or abs(dauID) == 14 or abs(dauID) == 16: continue
-#                    if dauID == 443: continue
-#                    # looking at Background, so we expect the only muons to come from our Jpsi
-#                    if abs(dauID) == 13: continue
-#                    else:
-#                        Xids += [dauID]
-#        for iGen in xrange(chain.genParticle_pdgId.size()):
-#            for mompt in chain.genParticle_mother_pt:
-#                if mompt == pJpsi.Pt() and chain.genParticle_pdgId(iGen) == 13:
-#                    pmu1.SetPtEtaPhiM(chain.genParticle_pt[iGen], chain.genParticle_eta[iGen], chain.genParticle_phi[iGen], MMu)
-#                elif mompt == pJpsi.Pt() and chain.genParticle_pdgId(iGen) == -13:
-#                    pmu1.SetPtEtaPhiM(chain.genParticle_pt[iGen], chain.genParticle_eta[iGen], chain.genParticle_phi[iGen], MMu)
-#                elif mompt == pB.Pt():
-#                    for Xid in Xids:
-#                        if chain.genParticle_pdgId[iGen] == Xid:
-#                            for index in xrange(Xbin):
-#                                if Xbin[index] == abs(dauID):
-#                                    if X_type[0] == 0: X_type[0] = index
-#                                    else:
-#                                        X_type += [index]
-#                                else:
-#                                    if X_type[0] == 0: X_type[0] = -1
-#                                    else: X_type += [-1]
-#                            pX = TLorentzVector.TLorentzVector()
-#                            pX.SetPtEtaPhiM(chain.genParticle_pt[iGen], chain.genParticle_eta[iGen], chain.genParticle_phi[iGen], MMu)
-#                            Xmomenta += [pX]
-#        Xmomenta += [pmu1, pmu2]
-#        Delta_R = pmu1.DeltaR(pmu2)
-#        for ip1 in xrange(len(Xmomenta)):
-#            for ip2 in xrange(len(Xmomenta)):
-#                if ip2 <= ip1: continue
-#                DR = Xmomenta[ip1].DeltaR(Xmomenta[ip2])
-#                if DR >= Delta_R:
-#                    Delta_R = DR
-#        genParticle_Bdau_dRmin[0] = Delta_R
+                        pmom2.SetPtEtaPhiM(chain.genParticle_pt[iGen], chain.genParticle_eta[iGen], chain.genParticle_phi[iGen], MMu)
+            dR = 0
+            dauID = 0
+            dRmin = -1
+            otherdaughters = getdaughterids(MomNum2)
+#            for daughter in otherdaughters:
+#                print chain.genParticle_pdgId[daughter]
+            pdau = TLorentzVector.TLorentzVector()
+            for iDau in otherdaughters:
+                if abs(chain.genParticle_pdgId[iDau]) == 12: continue
+                if abs(chain.genParticle_pdgId[iDau]) == 14: continue
+                if abs(chain.genParticle_pdgId[iDau]) == 16: continue
+                if iDau == mu3_gen_num: continue
+                if chain.genParticle_status[iDau] != 1 and chain.genParticle_status[iDau] != 2: continue
+                pdau.SetPtEtaPhiM(chain.genParticle_pt[iDau], chain.genParticle_eta[iDau], chain.genParticle_phi[iDau], MMu)
+                dR = pdau.DeltaR(pmu3)
+                if dRmin == -1: dRmin = dR
+                if dR <= dRmin:
+                    dauID = chain.genParticle_pdgId[iDau]
+                    dRmin = dR
+            #if dRmin == -1: continue
+            genParticle_Bdau_OtherB_dRmin[0] = dRmin
+        #print "-----------------------------------------------------"
+        #print "imu1 gen:", mu1_gen_num
+        #print "mu1 gen lv PT:" , chain.genParticle_pt[mu1_gen_num]
+        #print "pdgid:", chain.genParticle_pdgId[mu1_gen_num]
+        #print "imu2 gen:", mu2_gen_num
+        #print "mu2 gen lv PT:" , chain.genParticle_pt[mu2_gen_num] 
+        #print "pdgid:", chain.genParticle_pdgId[mu2_gen_num]
+        #print "imu3 gen:", mu3_gen_num
+        #print "mu3 gen lv PT:" , chain.genParticle_pt[mu3_gen_num]
+        #print "pdgid:", chain.genParticle_pdgId[mu3_gen_num]
+        #print "min dR between this and its sisters:", dRthresh_dau
+        #print "iclosest sister:", iclosestSis
+        #print "closest sister:", chain.genParticle_pdgId[iclosestSis]
+        #print "closest sister PT:", chain.genParticle_pt[iclosestSis]
+        #print "closest mother:", motherlist
+        #if isSignal:
+        #    print "Closest gen particle from other B:", dauID
+        #    print "with delta R:", dRthresh_other_B
+        #    print "Daughters of Other B:", otherdaughters
+        #print "-----------------------------------------------------"
 
     for var in outvars:
         tmp = getattr(chain,var)[selectedjpsi]
@@ -527,3 +790,6 @@ outputfile.Close()
 print Nentries, 'entries processed.', evtid, 'evts passed'
 if not isData:
     print "Efficiency: ", float(evtid)/nevts
+print NJpsiB, "- Number of X coming from Jpsi"
+print NNotMu, "- Number of X which are not muons"
+print NBadMatches, "- Number of X coming from a particle which is not Bc"

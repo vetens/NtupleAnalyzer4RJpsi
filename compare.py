@@ -2,9 +2,10 @@ import collections
 import itertools
 import shutil
 import copy, math, os, collections, sys
-from numpy import array
+import numpy as np
 #from CMGTools.H2TauTau.proto.plotter.categories_TauMu import cat_Inc
-from ROOT import TFile, TH1F, TTree, gROOT, gStyle, THStack, TMath, TCanvas, TLegend, TEventList, TDirectory, gObjectTable, TLine, TH2F
+from ROOT import TFile, TH1F, TTree, gROOT, gStyle, THStack, TMath, TCanvas, TLegend, TEventList, TDirectory, gObjectTable, TLine, TH2F, TAxis
+from ROOT import TH2I
 from DisplayManager import DisplayManager
 from officialStyle import officialStyle
 from makeSimpleHtml import writeHTML
@@ -21,7 +22,7 @@ parser.add_option("-n", "--compareNorm", default=False, action="store_true", hel
 parser.add_option("-t", "--twoDHist", default=False, action="store_true", help="Use this option to compare two variables and check for correlations using a two-dimensional histogram", dest="is2DHist")
 parser.add_option("-f", "--rmrf", default=False, action="store_true", help="Forcefully overwrite the output directories to remove old outputs", dest="isrmrf")
 parser.add_option("-g", "--gen", default=False, action="store_true", help="with this flag true, will analyze gen level info from MC files", dest="isgen")
-parser.add_option("--outdir", default='/eos/home-w/wvetens/www/BPH_V5/', action="store", help="Output Directory for plots", dest="outdir")
+parser.add_option("--outdir", default='/eos/home-w/wvetens/www/geninfo/', action="store", help="Output Directory for plots", dest="outdir")
 parser.add_option("--precut", default='', action="store", help="List of Cuts to apply before plotting", dest="precut")
 
 
@@ -57,21 +58,30 @@ def WeightCalc(crossxn, crossxnerr, Tfile):
     wgterr = lumi * crossxnerr / nevts
     return [wgt, wgterr, nevts]
 
-def comparisonPlots(hists, titles, isLog=False, LogRange=0, pname='sync.pdf', isRatio=True, isLegend=True, isOpt=False, is2D=False):
+def comparisonPlots(hists, titles, isLog=False, LogRange=0, pname='sync.pdf', isRatio=True, isLegend=True, isOpt=False, is2D=False, isLogX=False):
 
-    display = DisplayManager(pname, isLog, isRatio, LogRange, 0.2, 0.7, isOpt, is2D)
+    display = DisplayManager(pname, isLog, isRatio, LogRange, 0.2, 0.7, isOpt, is2D, isLogX)
     display.draw_legend = isLegend
 
     display.Draw(hists, titles, isOpt, is2D)
 
+def BinLogX(xmin, xmax, bins):
+    width = (float(xmax) - float(xmin)) / float(bins)
+    new_bins = []
+    for i in xrange(bins):
+        new_bins += [10.0 ** (xmin + i * width)]
+    return new_bins
 
-def sproducer(key, ivar, samplekey, sample):
+def sproducer(key, ivar, samplekey, sample, cut0='', title='', isLogX=False):
 
-    hist = TH1F('h_' + key, 
-                'h_' + key, 
-                ivar['nbins'], ivar['xmin'], ivar['xmax'])
-
+    if isLogX:
+        bins = BinLogX(ivar['xmin'], ivar['xmax'], ivar['nbins'])
+        hist = TH1F('h_' + key, 'h_' + key, ivar['nbins'], np.array(bins, dtype='int64'))
+    else:
+        hist = TH1F('h_' + key, 'h_' + key, ivar['nbins'], ivar['xmin'], ivar['xmax'])
     hist.Sumw2()
+    if title is not '':
+        hist.SetTitle(title)
     if samplekey is "dataC":
         wgt = '23'
     else:
@@ -92,13 +102,13 @@ def sproducer(key, ivar, samplekey, sample):
     hist.GetYaxis().SetTitle(ivar['ytitle'])
         
     return copy.deepcopy(hist)
-def IDsproducer(key, xlist, cut):
+def IDsproducer(key, xlist, cut, title, sample='bg_JpsiX_MuMu_J'):
 
     hist = TH1F('h_' + key, 
-                'h_' + key, 
-                len(xlist), 0, len(xlist)-1)
+                title, 
+                len(xlist), 1, len(xlist)+1)
 
-    rootfile = sampledict['bg_JpsiX_MuMu_J']['file']
+    rootfile = sampledict[sample]['file']
     if cut == '':
         exp = '(1)'
     else:
@@ -111,6 +121,30 @@ def IDsproducer(key, xlist, cut):
     tree.Draw(key + ' >> ' + hist.GetName(), 'weight_pu[0]*'+exp)
     hist.GetXaxis().SetTitle(vardict[key]['xtitle'])
     hist.GetYaxis().SetTitle(vardict[key]['ytitle'])
+        
+    return copy.deepcopy(hist)
+
+def IDsproducer2D(keyx, xlist, keyy, ylist, cut, title):
+
+    hist = TH2I('h_' + keyx + keyy, 
+                title, 
+                len(xlist), 1, len(xlist)+1, len(ylist), 1, len(ylist)+1)
+    rootfile = sampledict['bg_JpsiX_MuMu_J']['file']
+
+    if cut == '':
+        exp = '(1)'
+    else:
+        exp = '(' + cut + ')'
+        
+    tree = rootfile.Get('tree')
+    for binnum in xrange(len(xlist)):
+       hist.GetXaxis().SetBinLabel(binnum+1, xlist[binnum]) 
+    for binnum in xrange(len(ylist)):
+       hist.GetYaxis().SetBinLabel(binnum+1, ylist[binnum]) 
+
+    tree.Draw(keyy + ':' + keyx + ' >> ' + hist.GetName(), 'weight_pu[0]*'+exp)
+    hist.GetXaxis().SetTitle(vardict[keyx]['xtitle'])
+    hist.GetYaxis().SetTitle(vardict[keyy]['xtitle'])
         
     return copy.deepcopy(hist)
 def optsproducer(key, ivar, samplekey, sample, tcut):
@@ -131,7 +165,7 @@ def optsproducer(key, ivar, samplekey, sample, tcut):
         tree.Draw(key + ' >> ' + hist.GetName(), 'weight_pu[0]*'+wgt+'*'+tcut)
         
     return copy.deepcopy(hist)
-def sproducer2D(key1, key2, var1, var2, samplekey, sample, cut0):
+def sproducer2D(key1, key2, var1, var2, samplekey, sample, cut0=''):
 
     hist = TH2F('h_' + key1 + '_' + key2, 
                 samplekey+';'+var1['xtitle']+';'+var2['xtitle']+';events', 
@@ -154,7 +188,7 @@ def sproducer2D(key1, key2, var1, var2, samplekey, sample, cut0):
     if samplekey is "dataC":
         tree.Draw(key2 + ':' + key1 + ' >> ' + hist.GetName(), exp)
     else:
-        tree.Draw(key2 + ':' + key1  + ' >> ' + hist.GetName(), "weight_pu[0]*"+exp)
+        tree.Draw(key2 + ':' + key1  + ' >> ' + hist.GetName(), 'weight_pu[0]*'+exp)
     hist.GetXaxis().SetTitleOffset(1)
     hist.GetYaxis().SetTitleOffset(1.7)
     hist.GetZaxis().SetTitleOffset(1.7)
@@ -383,37 +417,204 @@ if options.is2DHist:
         comparisonPlots([mmhist3], [""], False, False, plottdir+item[0]+'_'+item[1]+'_'+'dataC'+'.pdf', False, False, False, True)
 if options.isgen:
 # The B and X types in their own separate 1D histograms and together in 2D histograms
-    Xbin = ['#mu^{#pm}','#pi^{0}','#pi^{#pm}','#rho^{0}','#rho^{+}','#eta','#eta^{`}','#omega','#phi','K^{0}','K^{+}','K^{*0}','K^{*+}','D^{+}','D^{0}','#eta_{c}','#eta_{b}','#Upsilon (1S)']
+    Xbin = ['#mu^{#pm}', '#pi^{#pm}','K^{+}', 'p', '#gamma', 'K^{0}_{s}','Other']
+
     vardict['X_type'] = {'xtitle': 'What sort of X produced in J/#psi+X', 'nbins': len(Xbin), 'xmin': 0, 'xmax': len(Xbin) -1, 'ytitle': '', 'isLog': False, 'isRatio': False, 'isLegended': False, 'HasStackPlot': False, 'loglowerlimit': -3}
-    idhist = IDsproducer('X_type', Xbin, 'JpsiMu_B_iso_ntracks == 0') 
+    idhist = IDsproducer('X_type', Xbin, ' JpsiMu_B_reliso < 0.2', 'X isolated') 
+    if idhist.Integral()!=0:
+        idhist.Scale(1/idhist.Integral())
     idhists = [idhist]
     idtitles = [idhist.GetTitle()]
     comparisonPlots(idhists, idtitles, vardict['X_type']['isLog'],vardict['X_type']['loglowerlimit'], plotgdir+'X_type.pdf', vardict['X_type']['isRatio'], vardict['X_type']['isLegended'])
 
-    vardict['B_type'] = {'xtitle': 'PDGID of B', 'nbins': 1200, 'xmin': -600, 'xmax': 600, 'ytitle': '', 'isLog': False, 'isRatio': False, 'isLegended': False, 'HasStackPlot': False, 'loglowerlimit': -3}
-    Bidhist =  sproducer('B_type', vardict['B_type'], 'bg_JpsiX_MuMu_J', sampledict['bg_JpsiX_MuMu_J'])
+    idhist2 = IDsproducer('X_type', Xbin, ' JpsiMu_B_reliso > 0.2', 'X unisolated') 
+    if idhist2.Integral()!=0:
+        idhist2.Scale(1/idhist2.Integral())
+    idhists2 = [idhist2]
+    idtitles2 = [idhist2.GetTitle()]
+    comparisonPlots(idhists2, idtitles2, vardict['X_type']['isLog'],vardict['X_type']['loglowerlimit'], plotgdir+'X_type2.pdf', vardict['X_type']['isRatio'], vardict['X_type']['isLegended'])
+
+    idhist3 = IDsproducer('X_type', Xbin, '', 'Signal', 'signal_BcJpsiMuNu')
+    if idhist3.Integral()!=0:
+        idhist3.Scale(1/idhist3.Integral())
+    idhists3 = [idhist3]
+    idtitles3 = [idhist3.GetTitle()]
+    comparisonPlots(idhists3, idtitles3, vardict['X_type']['isLog'],vardict['X_type']['loglowerlimit'], plotgdir+'X_type3.pdf', vardict['X_type']['isRatio'], vardict['X_type']['isLegended'])
+
+    vardict['X_pdgId'] = {'xtitle': 'PDGID of X classified as \'Other\'', 'nbins': 100, 'xmin': 0, 'xmax': 6, 'ytitle': '', 'isLog': False, 'isRatio': False, 'isLegended': False, 'HasStackPlot': False, 'loglowerlimit': -3, 'isLogX': True}
+    Xidhist = sproducer('X_pdgId', vardict['X_pdgId'], 'bg_JpsiX_MuMu_J', sampledict['bg_JpsiX_MuMu_J'], ' JpsiMu_B_reliso < 0.2 && X_type == ' + str(len(Xbin)), 'X isolated', True) 
+    if Xidhist.Integral()!=0:
+        Xidhist.Scale(1/Xidhist.Integral())
+    Xidhists = [Xidhist]
+    Xidtitles = [Xidhist.GetTitle()]
+    comparisonPlots(Xidhists, Xidtitles, vardict['X_pdgId']['isLog'],vardict['X_pdgId']['loglowerlimit'], plotgdir+'X_pdgId.pdf', vardict['X_pdgId']['isRatio'], vardict['X_pdgId']['isLegended'], False, False, True)
+
+    Xidhist2 = sproducer('X_pdgId', vardict['X_pdgId'], 'bg_JpsiX_MuMu_J', sampledict['bg_JpsiX_MuMu_J'], ' JpsiMu_B_reliso > 0.2 && X_type == ' + str(len(Xbin)), 'X unisolated', True) 
+    if Xidhist2.Integral()!=0:
+        Xidhist2.Scale(1/Xidhist2.Integral())
+    Xidhists2 = [Xidhist2]
+    Xidtitles2 = [Xidhist2.GetTitle()]
+    comparisonPlots(Xidhists2, Xidtitles2, vardict['X_pdgId']['isLog'],vardict['X_pdgId']['loglowerlimit'], plotgdir+'X_pdgId2.pdf', vardict['X_pdgId']['isRatio'], vardict['X_pdgId']['isLegended'], False, False, True)
+
+    sisterbin = ['#mu^{#pm}', '#pi^{0}', '#pi^{#pm}', '#rho^{+}', '#eta', '#omega', 'K^{0}', 'K^{+}', 'K^{*0}', 'K^{*+}', 'D^{+}', 'D^{0}', 'J/#psi', '#psi(2S)', '#gamma', 'K^{0}_{s}', 'D^{*+}', '#chi_{c1}', 'e', '#Lambda_{c}^{+}', 'D^{*+}_{s}', 'D^{*0}', 'B^{0}', 'K^{0}', '#Xi^{+}_{c}', 'D_{1}^{+}', 'D_0^{*+}', '#Lambda_{b}^{0}', 'D_{2}^{*+}', 'n', 'D_{s2}^{*+}', 'D_{s0}^{*+}', 'D_{1}^{0}', 'K^{0}', 'D_{s}^{+}', 'K^{0}_{L}', 'Other']
+    vardict['sister_type'] = {'xtitle': 'Gen Level ID of X\'s Sister(s)', 'nbins': len(sisterbin), 'xmin': 0, 'xmax': len(sisterbin) -1, 'ytitle': '', 'isLog': False, 'isRatio': False, 'isLegended': False, 'HasStackPlot': False, 'loglowerlimit': -3}
+    sishist = IDsproducer('sister_type', sisterbin, ' JpsiMu_B_reliso < 0.2', 'X isolated') 
+    if sishist.Integral()!=0:
+        sishist.Scale(1/sishist.Integral())
+    sishists = [sishist]
+    sistitles = [sishist.GetTitle()]
+    comparisonPlots(sishists, sistitles, vardict['sister_type']['isLog'],vardict['sister_type']['loglowerlimit'], plotgdir+'sister_type.pdf', vardict['sister_type']['isRatio'], vardict['sister_type']['isLegended'])
+
+    sishist2 = IDsproducer('sister_type', sisterbin, ' JpsiMu_B_reliso > 0.2', 'X unisolated') 
+    if sishist2.Integral()!=0:
+        sishist2.Scale(1/sishist2.Integral())
+    sishists2 = [sishist2]
+    sistitles2 = [sishist2.GetTitle()]
+    comparisonPlots(sishists2, sistitles2, vardict['sister_type']['isLog'],vardict['sister_type']['loglowerlimit'], plotgdir+'sister_type2.pdf', vardict['sister_type']['isRatio'], vardict['sister_type']['isLegended'])
+
+    sishist3 = IDsproducer('sister_type', sisterbin, '', 'Signal', 'signal_BcJpsiMuNu')
+    if sishist3.Integral()!=0:
+        sishist3.Scale(1/sishist3.Integral())
+    sishists3 = [sishist3]
+    sistitles3 = [sishist3.GetTitle()]
+    comparisonPlots(sishists3, sistitles3, vardict['sister_type']['isLog'],vardict['sister_type']['loglowerlimit'], plotgdir+'sister_type3.pdf', vardict['sister_type']['isRatio'], vardict['sister_type']['isLegended'])
+
+    vardict['genParticle_sister_pdgId'] = {'xtitle': 'PDGID of X Sisters classified as \'Other\'', 'nbins': 100, 'xmin': 0, 'xmax': 6, 'ytitle': '', 'isLog': False, 'isRatio': False, 'isLegended': False, 'HasStackPlot': False, 'loglowerlimit': -3, 'isLogX': True}
+    sisidhist = sproducer('genParticle_sister_pdgId', vardict['genParticle_sister_pdgId'], 'bg_JpsiX_MuMu_J', sampledict['bg_JpsiX_MuMu_J'], ' JpsiMu_B_reliso < 0.2 && sister_type == ' + str(len(sisterbin)), 'X isolated', True) 
+    if sisidhist.Integral()!=0:
+        sisidhist.Scale(1/sisidhist.Integral())
+    sisidhists = [sisidhist]
+    sisidtitles = [sisidhist.GetTitle()]
+    comparisonPlots(sisidhists, sisidtitles, vardict['genParticle_sister_pdgId']['isLog'],vardict['genParticle_sister_pdgId']['loglowerlimit'], plotgdir+'genParticle_sister_pdgId.pdf', vardict['genParticle_sister_pdgId']['isRatio'], vardict['genParticle_sister_pdgId']['isLegended'], False, False, True)
+
+    sisidhist2 = sproducer('genParticle_sister_pdgId', vardict['genParticle_sister_pdgId'], 'bg_JpsiX_MuMu_J', sampledict['bg_JpsiX_MuMu_J'], ' JpsiMu_B_reliso > 0.2 && sister_type == ' + str(len(sisterbin)), 'X unisolated', True) 
+    if sisidhist2.Integral()!=0:
+        sisidhist2.Scale(1/sisidhist2.Integral())
+    sisidhists2 = [sisidhist2]
+    sisidtitles2 = [sisidhist2.GetTitle()]
+    comparisonPlots(sisidhists2, sisidtitles2, vardict['genParticle_sister_pdgId']['isLog'],vardict['genParticle_sister_pdgId']['loglowerlimit'], plotgdir+'genParticle_sister_pdgId2.pdf', vardict['genParticle_sister_pdgId']['isRatio'], vardict['genParticle_sister_pdgId']['isLegended'], False, False, True)
+
+    Bbin = ['B^{0}','B^{+}', 'B_{s}^{0}', 'B_{c}^{+}', 'J/#psi', 'D^{0}', 'D^{+}', '#tau', '#Xi^{0}_{b}', '#psi(2S)', 'other']
+    vardict['B_type'] = {'xtitle': 'Type of B', 'nbins': len(Bbin), 'xmin': 0, 'xmax': len(Bbin), 'ytitle': '', 'isLog': False, 'isRatio': False, 'isLegended': False, 'HasStackPlot': False, 'loglowerlimit': -3}
+    Bidhist = IDsproducer('B_type', Bbin, ' JpsiMu_B_reliso < 0.2', 'X isolated')
+    if Bidhist.Integral()!=0:
+        Bidhist.Scale(1/Bidhist.Integral())
     Bidhists = [Bidhist]
     Bidtitles = [Bidhist.GetTitle()]
     comparisonPlots(Bidhists, Bidtitles, vardict['B_type']['isLog'],vardict['B_type']['loglowerlimit'], plotgdir+'B_type.pdf', vardict['B_type']['isRatio'], vardict['B_type']['isLegended'])
 
+    Bidhist2 = IDsproducer('B_type', Bbin, ' JpsiMu_B_reliso > 0.2', 'X unisolated')
+    if Bidhist2.Integral()!=0:
+        Bidhist2.Scale(1/Bidhist2.Integral())
+    Bidhists2 = [Bidhist2]
+    Bidtitles2 = [Bidhist2.GetTitle()]
+    comparisonPlots(Bidhists2, Bidtitles2, vardict['B_type']['isLog'],vardict['B_type']['loglowerlimit'], plotgdir+'B_type2.pdf', vardict['B_type']['isRatio'], vardict['B_type']['isLegended'])
+
+    Bidhist3 = IDsproducer('B_type', Bbin, '', 'Signal', 'signal_BcJpsiMuNu')
+    if Bidhist3.Integral()!=0:
+        Bidhist3.Scale(1/Bidhist3.Integral())
+    Bidhists3 = [Bidhist3]
+    Bidtitles3 = [Bidhist3.GetTitle()]
+    comparisonPlots(Bidhists3, Bidtitles3, vardict['B_type']['isLog'],vardict['B_type']['loglowerlimit'], plotgdir+'B_type3.pdf', vardict['B_type']['isRatio'], vardict['B_type']['isLegended'])
+
+    vardict['X_Mother_pdgId'] = {'xtitle': 'PDGID of Mothers of X classified as \'Other\'', 'nbins': 100, 'xmin': 0, 'xmax': 6, 'ytitle': '', 'isLog': False, 'isRatio': False, 'isLegended': False, 'HasStackPlot': False, 'loglowerlimit': -3, 'isLogX': True}
+    momidhist = sproducer('X_Mother_pdgId', vardict['X_Mother_pdgId'], 'bg_JpsiX_MuMu_J', sampledict['bg_JpsiX_MuMu_J'], ' JpsiMu_B_reliso < 0.2 && B_type == ' + str(len(sisterbin)), 'X isolated', True) 
+    if momidhist.Integral()!=0:
+        momidhist.Scale(1/momidhist.Integral())
+    momidhists = [momidhist]
+    momidtitles = [momidhist.GetTitle()]
+    comparisonPlots(momidhists, momidtitles, vardict['X_Mother_pdgId']['isLog'],vardict['X_Mother_pdgId']['loglowerlimit'], plotgdir+'X_Mother_pdgId.pdf', vardict['X_Mother_pdgId']['isRatio'], vardict['X_Mother_pdgId']['isLegended'], False, False, True)
+
+    momidhist2 = sproducer('X_Mother_pdgId', vardict['X_Mother_pdgId'], 'bg_JpsiX_MuMu_J', sampledict['bg_JpsiX_MuMu_J'], ' JpsiMu_B_reliso > 0.2 && B_type == ' + str(len(sisterbin)), 'X unisolated', True) 
+    if momidhist2.Integral()!=0:
+        momidhist2.Scale(1/momidhist2.Integral())
+    momidhists2 = [momidhist2]
+    momidtitles2 = [momidhist2.GetTitle()]
+    comparisonPlots(momidhists2, momidtitles2, vardict['X_Mother_pdgId']['isLog'],vardict['X_Mother_pdgId']['loglowerlimit'], plotgdir+'X_Mother_pdgId2.pdf', vardict['X_Mother_pdgId']['isRatio'], vardict['X_Mother_pdgId']['isLegended'], False, False, True)
+
+
+    momidhist3 = sproducer('X_Mother_pdgId', vardict['X_Mother_pdgId'], 'signal_BcJpsiMuNu', sampledict['signal_BcJpsiMuNu'], ' JpsiMu_B_reliso > 0.2 && B_type == ' + str(len(sisterbin)), 'Signal', True) 
+    if momidhist3.Integral()!=0:
+        momidhist3.Scale(1/momidhist3.Integral())
+    momidhists3 = [momidhist3]
+    momidtitles3 = [momidhist3.GetTitle()]
+    comparisonPlots(momidhists3, momidtitles3, vardict['X_Mother_pdgId']['isLog'],vardict['X_Mother_pdgId']['loglowerlimit'], plotgdir+'X_Mother_pdgId3.pdf', vardict['X_Mother_pdgId']['isRatio'], vardict['X_Mother_pdgId']['isLegended'], False, False, True)
+
+# Where are the photons as X coming from?
+
+    vardict['Photon_mother'] = {'xtitle': 'Mother of #gamma Tagged as X', 'nbins': 100, 'xmin': 0, 'xmax': 6, 'ytitle': '', 'isLog': False, 'isRatio': False, 'isLegended': False, 'HasStackPlot': False, 'loglowerlimit': -3, 'isLogX': True}
+
+    photonhist = sproducer('Photon_mother', vardict['Photon_mother'], 'bg_JpsiX_MuMu_J', sampledict['bg_JpsiX_MuMu_J'], ' X_type == 19', '', True) 
+    comparisonPlots([photonhist], [photonhist.GetTitle()], vardict['Photon_mother']['isLog'],vardict['Photon_mother']['loglowerlimit'], plotgdir+'Photon_mother.pdf', vardict['Photon_mother']['isRatio'], vardict['Photon_mother']['isLegended'], False, False, True)
+
 # now for the 2D histograms, splitting into first and second mother particles
 
-    1momhist =  sproducer2D('B_type', 'X_type', vardict['B_type'], vardict['X_type'], 'bg_JpsiX_MuMu_J', sampledict['bg_JpsiX_MuMu_J'], 'MultiMother == 0'):
-    2momhist =  sproducer2D('B_type', 'X_type', vardict['B_type'], vardict['X_type'], 'bg_JpsiX_MuMu_J', sampledict['bg_JpsiX_MuMu_J'], 'MultiMother == 1'):
-    comparisonPlots([1momhist], [""], False, False, plotgdir+'B_type'+'_'+'X_type'+'_'+'1mom'+'.pdf', False, False, False, True)
-    comparisonPlots([2momhist], [""], False, False, plotgdir+'B_type'+'_'+'X_type'+'_'+'2moms'+'.pdf', False, False, False, True)
+    isoBX = IDsproducer2D('X_type', Xbin, 'B_type', Bbin, ' JpsiMu_B_reliso < 0.2', 'X isolated')
+    comparisonPlots([isoBX], [""], False, False, plotgdir+'B_type'+'_'+'X_type'+'_'+'iso'+'.pdf', False, False, False, True)
+
+    unisoBX = IDsproducer2D('X_type', Xbin, 'B_type', Bbin, ' JpsiMu_B_reliso > 0.2', 'X unisolated')
+    comparisonPlots([unisoBX], [""], False, False, plotgdir+'B_type'+'_'+'X_type'+'_'+'uniso'+'.pdf', False, False, False, True)
+
+    isoBsis = IDsproducer2D('sister_type', sisterbin, 'B_type', Bbin, ' JpsiMu_B_reliso < 0.2', 'X isolated')
+    comparisonPlots([isoBsis], [""], False, False, plotgdir+'B_type'+'_'+'sister_type'+'_'+'iso'+'.pdf', False, False, False, True)
+
+    unisoBsis = IDsproducer2D('sister_type', sisterbin, 'B_type', Bbin, ' JpsiMu_B_reliso > 0.2', 'X unisolated')
+    comparisonPlots([unisoBsis], [""], False, False, plotgdir+'B_type'+'_'+'sister_type'+'_'+'uniso'+'.pdf', False, False, False, True)
+
+    isosisX = IDsproducer2D('X_type', Xbin, 'sister_type', sisterbin, ' JpsiMu_B_reliso < 0.2', 'X isolated')
+    comparisonPlots([isosisX], [""], False, False, plotgdir+'sister_type'+'_'+'X_type'+'_'+'iso'+'.pdf', False, False, False, True)
+
+    unisosisX = IDsproducer2D('X_type', Xbin, 'sister_type', sisterbin, ' JpsiMu_B_reliso > 0.2', 'X unisolated')
+    comparisonPlots([unisosisX], [""], False, False, plotgdir+'sister_type'+'_'+'X_type'+'_'+'uniso'+'.pdf', False, False, False, True)
 
 # min dR between mu3 and its sister particles
-    vardict['genParticle_Bdau_dRmin'] = {'xtitle': 'Min #Delta R between all gen B daughters', 'nbins': 60, 'xmin': 0, 'xmax': 0.8, 'ytitle': '', 'isLog': False, 'isRatio': False, 'isLegended': False, 'HasStackPlot': False, 'loglowerlimit': -3}
-    Bdau_dR_hist =  sproducer('genParticle_Bdau_dRmin', vardict['genParticle_Bdau_dRmin'], 'bg_JpsiX_MuMu_J', sampledict['bg_JpsiX_MuMu_J'])
-    comparisonPlots([Bdau_dR_hist], idtitles, vardict['genParticle_Bdau_dRmin']['isLog'],  vardict['genParticle_Bdau_dRmin']['loglowerlimit'],  plotgdir+'genParticle_Bdau_dRmin.pdf',  vardict['genParticle_Bdau_dRmin']['isRatio'],  vardict['genParticle_Bdau_dRmin']['isLegended'])
+
+    vardict['genParticle_Bdau_dRmin'] = {'xtitle': 'Min #Delta R between all gen B daughters', 'nbins': 60, 'xmin': 0, 'xmax': 3, 'ytitle': '', 'isLog': True, 'isRatio': False, 'isLegended': True, 'HasStackPlot': False, 'loglowerlimit': -3}
+    Bdau_dR_hist_bg =  sproducer('genParticle_Bdau_dRmin', vardict['genParticle_Bdau_dRmin'], 'bg_JpsiX_MuMu_J', sampledict['bg_JpsiX_MuMu_J'])
+    bgtitle = sampledict['bg_JpsiX_MuMu_J']['title']
+    sampledict['bg_JpsiX_MuMu_J']['title'] += ' [ #Delta R < 0.4 / total = '+str(round(Bdau_dR_hist_bg.Integral(1,Bdau_dR_hist_bg.GetXaxis().FindBin(0.4))/(Bdau_dR_hist_bg.Integral()+Bdau_dR_hist_bg.GetBinContent(61)), 3))+']'
+    if Bdau_dR_hist_bg.Integral()!=0:
+        Bdau_dR_hist_bg.Scale(1./Bdau_dR_hist_bg.Integral())
+    applyHistStyle(Bdau_dR_hist_bg, 'bg_JpsiX_MuMu_J')
+    Bdau_dR_hist_sig =  sproducer('genParticle_Bdau_dRmin', vardict['genParticle_Bdau_dRmin'], 'signal_BcJpsiMuNu', sampledict['signal_BcJpsiMuNu'])
+    sigtitle = sampledict['signal_BcJpsiMuNu']['title']
+    sampledict['signal_BcJpsiMuNu']['title'] += ' [ #Delta R < 0.4 / total = '+str(round(Bdau_dR_hist_sig.Integral(1,Bdau_dR_hist_sig.GetXaxis().FindBin(0.4))/(Bdau_dR_hist_sig.Integral()+Bdau_dR_hist_sig.GetBinContent(61)), 3))+']'
+    if Bdau_dR_hist_sig.Integral()!=0:
+        Bdau_dR_hist_sig.Scale(1./Bdau_dR_hist_sig.Integral())
+    applyHistStyle(Bdau_dR_hist_sig, 'signal_BcJpsiMuNu')
+    comparisonPlots([Bdau_dR_hist_bg, Bdau_dR_hist_sig], [sampledict['bg_JpsiX_MuMu_J']['title'], sampledict['signal_BcJpsiMuNu']['title']], vardict['genParticle_Bdau_dRmin']['isLog'], vardict['genParticle_Bdau_dRmin']['loglowerlimit'], plotgdir+'genParticle_Bdau_dRmin.pdf', vardict['genParticle_Bdau_dRmin']['isRatio'], vardict['genParticle_Bdau_dRmin']['isLegended'])
+
+    sampledict['signal_BcJpsiMuNu']['title'] = sigtitle
+    sampledict['bg_JpsiX_MuMu_J']['title'] = bgtitle
+
+    fullhist = sproducer('genParticle_Bdau_dRmin', vardict['genParticle_Bdau_dRmin'], 'signal_BcJpsiMuNu', sampledict['signal_BcJpsiMuNu'], '', 'All X')
+    
+    xfrombchist = sproducer('genParticle_Bdau_dRmin', vardict['genParticle_Bdau_dRmin'], 'signal_BcJpsiMuNu', sampledict['signal_BcJpsiMuNu'], 'B_type == 9', 'X from Bc')
+
+    xnotfrombchist = sproducer('genParticle_Bdau_dRmin', vardict['genParticle_Bdau_dRmin'], 'signal_BcJpsiMuNu', sampledict['signal_BcJpsiMuNu'], 'B_type != 9', 'X not from Bc')
+    applyHistStyle(Bdau_dR_hist_sig, 'signal_BcJpsiMuNu')
+    applyHistStyle(xfrombchist, 'bg_JpsiX_MuMu_J')
+    applyHistStyle(xnotfrombchist, 'dataC')
+    print "Number of X", fullhist.Integral()
+    print "Number of X from Bc", xfrombchist.Integral()
+    print "Number of X not from Bc", xnotfrombchist.Integral()
+    print "Percent not from Bc:", xnotfrombchist.Integral()/fullhist.Integral()
+
+    comparisonPlots([Bdau_dR_hist_sig, xfrombchist, xnotfrombchist], ['All X','X from Bc','X not from Bc'], vardict['genParticle_Bdau_dRmin']['isLog'], 5, plotgdir+'WheresXFromInSignal.pdf', False, True)
     
 # Min gen level dR between mu3 and daughters of the other B produced in the evt (signal only)
-    vardict['genParticle_Bdau_OtherB_dRmin'] = {'xtitle': 'Min gen level #Delta R between #mu_{3} and all daughters of the other B in the event', 'nbins': 60, 'xmin': 0, 'xmax': 0.8, 'ytitle': '', 'isLog': False, 'isRatio': False, 'isLegended': False, 'HasStackPlot': False, 'loglowerlimit': -3}
-    Bdau_dR_hist =  sproducer('genParticle_Bdau_OtherB_dRmin', vardict['genParticle_Bdau_OtherB_dRmin'], 'signal_BcJpsiMuNu', sampledict['signal_BcJpsiMuNu'])
-    comparisonPlots([Bdau_dR_hist], idtitles, vardict['genParticle_Bdau_dR']['isLog'],  vardict['genParticle_Bdau_dR']['loglowerlimit'],  plotgdir+'genParticle_Bdau_dR.pdf',  vardict['genParticle_Bdau_dR']['isRatio'],  vardict['genParticle_Bdau_dR']['isLegended'])
-    
 
+    vardict['genParticle_Bdau_OtherB_dRmin'] = {'xtitle': 'Min #DeltaR(#mu_{3} & daugh other B)', 'nbins': 60, 'xmin': 0, 'xmax': 5, 'ytitle': '', 'isLog': True, 'isRatio': False, 'isLegended': True, 'HasStackPlot': False, 'loglowerlimit': 3}
+    Bdau_otherB_dR_hist =  sproducer('genParticle_Bdau_OtherB_dRmin', vardict['genParticle_Bdau_OtherB_dRmin'], 'signal_BcJpsiMuNu', sampledict['signal_BcJpsiMuNu'])
+    sampledict['signal_BcJpsiMuNu']['title'] += ' [ #Delta R < 0.4 / total = '+str(round(Bdau_otherB_dR_hist.Integral(1,Bdau_otherB_dR_hist.GetXaxis().FindBin(0.4))/(Bdau_otherB_dR_hist.Integral()+Bdau_otherB_dR_hist.GetBinContent(61)), 3))+']'
+    applyHistStyle(Bdau_otherB_dR_hist, 'signal_BcJpsiMuNu')
+    comparisonPlots([Bdau_otherB_dR_hist], [sampledict['signal_BcJpsiMuNu']['title']], vardict['genParticle_Bdau_OtherB_dRmin']['isLog'], vardict['genParticle_Bdau_OtherB_dRmin']['loglowerlimit'],  plotgdir+'genParticle_Bdau_OtherB_dRmin.pdf', vardict['genParticle_Bdau_OtherB_dRmin']['isRatio'],  vardict['genParticle_Bdau_OtherB_dRmin']['isLegended'])
+
+vardict['mismatched_mu1'] = {'xtitle': 'PDGID of #mu_{1} in event of bad match', '  nbins': 100, 'xmin': 0, 'xmax': 6, 'ytitle': '', 'isLog': True, 'isRatio': False, 'isLegended': True  , 'HasStackPlot': False, 'loglowerlimit': 3}
+vardict['mismatched_mu2'] = {'xtitle': 'PDGID of #mu_{2} in event of bad match', '  nbins': 100, 'xmin': 0, 'xmax': 6, 'ytitle': '', 'isLog': True, 'isRatio': False, 'isLegended': True  , 'HasStackPlot': False, 'loglowerlimit': 3}
+vardict['mismatched_mu3'] = {'xtitle': 'PDGID of #mu_{3} in event of bad match', '  nbins': 100, 'xmin': 0, 'xmax': 6, 'ytitle': '', 'isLog': True, 'isRatio': False, 'isLegended': True  , 'HasStackPlot': False, 'loglowerlimit': 3}
+vardict['mismatched_B'] = {'xtitle': 'PDGID of B in event of bad match', '  nbins': 100, 'xmin': 0, 'xmax': 6, 'ytitle': '', 'isLog': True, 'isRatio': False, 'isLegended': True  , 'HasStackPlot': False, 'loglowerlimit': 3}
+    
 # This writes to a webpage so you can more easily view all the plots you've created in a web browser, which will display them simultaneously.
 # This is optional, you can comment it out if you want to ...
 if options.isgen:

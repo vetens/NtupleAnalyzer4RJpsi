@@ -51,7 +51,7 @@ def createRatioCanvas(name, errorBandFillColor=14, errorBandStyle=3354):
 
 class DisplayManager(object):
 
-    def __init__(self, name, isLog, ratio, logrange=0, xmin=0.42, ymin=0.6, isOpt=False, is2D=False):
+    def __init__(self, name, isLog, ratio, logrange=0, xmin=0.42, ymin=0.6, isOpt=False, is2D=False, isLogX=False):
 
         if ratio:
             self.canvas = createRatioCanvas(name.replace('pdf', ''))
@@ -63,6 +63,7 @@ class DisplayManager(object):
 
         self.logrange = logrange
         self.isLog = isLog
+        self.isLogX = isLogX
         self.name = name
         self.draw_ratio = ratio
         self.histos = []
@@ -131,6 +132,9 @@ class DisplayManager(object):
         if self.isLog:
 #            h.GetYaxis().SetRangeUser(0.001, ymax * 100)
             self.histos[0].GetYaxis().SetRangeUser((0.1)**(self.logrange), ymax * 2 )
+        if self.isLogX:
+        #    self.histos[0].GetXaxis().SetRangeUser(1, 10^10)
+            h.GetXaxis().SetRangeUser(1, 10**6)
         if self.draw_legend:
             self.Legend.Draw()
 
@@ -139,6 +143,11 @@ class DisplayManager(object):
                 self.canvas.GetPad(1).SetLogy()
             else:
                 self.canvas.SetLogy()
+        if self.isLogX:
+            if self.draw_ratio:
+                self.canvas.GetPad(1).SetLogx()
+            else:
+                self.canvas.SetLogx()
 
         pull_histos = []
 
