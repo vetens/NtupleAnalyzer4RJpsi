@@ -16,6 +16,10 @@ writeScript() {
     listNumber=$(echo $1 | awk '{ printf("%03d",$1) }')
     jobNumber=$1
     scriptname=CondorJob_${1}.sh
+    if [ -e $workdir/condor/condorscripts/$2$scriptname ]; then
+        jobNumber=$(($jobNumber+1)) \
+        scriptname=CondorJob_${jobNumber}.sh
+    fi
     # Flag for either Data or Monte Carlo
     if [[ $2 == *"Run"* ]]; then
         sed -e 's&LISTDIR&'"$3"'&g' \

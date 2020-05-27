@@ -1,3 +1,4 @@
-/store/user/cgalloni/Ntuple_BPH_v5_multipleCand/Charmonium/Charmonium_Run2018C-17Sep2018-v1/191209_131113/0000/
-/store/user/cgalloni/Ntuple_BPH_v5_multipleCand/BcJpsiMuNu_020519/BcJpsiMuNu_020519/191209_130502/0000/
-/store/user/cgalloni/Ntuple_BPH_v5_multipleCand/JpsiX_MuMu_J_211119/JpsiX_MuMu_J_211119/191209_130437/0000/
+/store/user/wvetens/Ntuple_BPH_v6/OniaAndX_ToMuMu_MuFilter_SoftQCDnonD_TuneCP5_13TeV-pythia8-evtgen/OniaAndX_ToMuMu_MuFilter_SoftQCDnonD_TuneCP5_13TeV-pythia8-evtgen/200525_103242/0000/
+/store/user/wvetens/Ntuple_BPH_v6/OniaAndX_ToMuMu_MuFilter_SoftQCDnonD_TuneCP5_13TeV-pythia8-evtgen/OniaAndX_ToMuMu_MuFilter_SoftQCDnonD_TuneCP5_13TeV-pythia8-evtgen/200522_130346/0000/
+/store/user/wvetens/Ntuple_BPH_v6/BcToJPsiMuNu_TuneCUEP8M1_13TeV-bcvegpy2-pythia8-evtgen/BcToJPsiMuNu_TuneCUEP8M1_13TeV-bcvegpy2-pythia8-evtgen/200522_130346/0000/
+/store/user/wvetens/Ntuple_BPH_v6/Charmonium/Charmonium_Run2018C-17Sep2018-v1/200522_123328/0000/
