@@ -91,8 +91,8 @@ if options.xrd == True:
 # Remember that, only the activated branches will be saved
 
 #outvars = ['EVENT_run', 'EVENT_lumiBlock']
-outvars = ['JpsiMu_Jpsi_lip', 'JpsiMu_Jpsi_lips', 'JpsiMu_Jpsi_pvip', 'JpsiMu_Jpsi_pvips', 'JpsiMu_B_pvip', 'JpsiMu_B_pvips', 'JpsiMu_B_lips', 'JpsiMu_B_fls3d', 'JpsiMu_Jpsi_unfit_mass', 'JpsiMu_B_iso', 'JpsiMu_B_iso_ntracks', 'JpsiMu_B_iso_mindoca', 'JpsiMu_B_fl3d', 'JpsiMu_B_lip', 'JpsiMu_B_mass', 'JpsiMu_B_pt', 'JpsiMu_B_eta', 'JpsiMu_B_phi', 'JpsiMu_B_maxdoca', 'JpsiMu_B_mindoca', 'JpsiMu_Jpsi_maxdoca', 'JpsiMu_Jpsi_mindoca', 'JpsiMu_Jpsi_alpha', 'JpsiMu_Jpsi_fl3d', 'JpsiMu_Jpsi_fls3d', 'JpsiMu_Jpsi_pt', 'JpsiMu_Jpsi_eta', 'JpsiMu_Jpsi_phi', 'JpsiMu_mu1_iso', 'JpsiMu_mu1_dbiso', 'JpsiMu_mu2_iso', 'JpsiMu_mu2_dbiso', 'JpsiMu_mu3_iso', 'JpsiMu_mu3_dbiso', 'JpsiMu_mu1_isSoft', 'JpsiMu_mu1_isTracker', 'JpsiMu_mu1_isGlobal', 'JpsiMu_mu1_isPF', 'JpsiMu_mu1_isTight', 'JpsiMu_mu1_isLoose', 'JpsiMu_mu2_isSoft', 'JpsiMu_mu2_isTracker', 'JpsiMu_mu2_isGlobal', 'JpsiMu_mu2_isPF', 'JpsiMu_mu2_isTight', 'JpsiMu_mu2_isLoose', 'JpsiMu_mu3_isSoft', 'JpsiMu_mu3_isTracker', 'JpsiMu_mu3_isGlobal', 'JpsiMu_mu3_isPF', 'JpsiMu_mu3_isTight', 'JpsiMu_mu3_isLoose', 'JpsiMu_mu3_pt', 'JpsiMu_mu3_eta', 'JpsiMu_mu3_phi', 'JpsiMu_mu3_doca2mu1', 'JpsiMu_mu3_doca2mu2', 'JpsiMu_B_alpha', 'JpsiMu_Jpsi_vprob', 'JpsiMu_B_vprob', 'JpsiMu_mu1_pt', 'JpsiMu_mu1_eta', 'JpsiMu_mu1_phi', 'JpsiMu_mu2_pt', 'JpsiMu_mu2_eta', 'JpsiMu_mu2_phi', 'HLT_BPH_isFired']# 'nPuVtxTrue', 'PV_N', 'bX']
-met_outvars = ['MET_et', 'MET_phi', 'MET_sumEt']
+outvars = ['JpsiMu_Jpsi_lip', 'JpsiMu_Jpsi_lips', 'JpsiMu_Jpsi_pvip', 'JpsiMu_Jpsi_pvips', 'JpsiMu_B_pvip', 'JpsiMu_B_pvips', 'JpsiMu_B_lips', 'JpsiMu_B_fls3d', 'JpsiMu_Jpsi_unfit_mass', 'JpsiMu_B_iso', 'JpsiMu_B_iso_ntracks', 'JpsiMu_B_iso_mindoca', 'JpsiMu_B_fl3d', 'JpsiMu_B_lip', 'JpsiMu_B_mass', 'JpsiMu_B_pt', 'JpsiMu_B_eta', 'JpsiMu_B_phi', 'JpsiMu_B_maxdoca', 'JpsiMu_B_mindoca', 'JpsiMu_Jpsi_maxdoca', 'JpsiMu_Jpsi_mindoca', 'JpsiMu_Jpsi_alpha', 'JpsiMu_Jpsi_fl3d', 'JpsiMu_Jpsi_fls3d', 'JpsiMu_Jpsi_pt', 'JpsiMu_Jpsi_eta', 'JpsiMu_Jpsi_phi', 'JpsiMu_mu1_iso', 'JpsiMu_mu1_dbiso', 'JpsiMu_mu2_iso', 'JpsiMu_mu2_dbiso', 'JpsiMu_mu3_iso', 'JpsiMu_mu3_dbiso', 'JpsiMu_mu1_isSoft', 'JpsiMu_mu1_isTracker', 'JpsiMu_mu1_isGlobal', 'JpsiMu_mu1_isPF', 'JpsiMu_mu1_isTight', 'JpsiMu_mu1_isLoose', 'JpsiMu_mu2_isSoft', 'JpsiMu_mu2_isTracker', 'JpsiMu_mu2_isGlobal', 'JpsiMu_mu2_isPF', 'JpsiMu_mu2_isTight', 'JpsiMu_mu2_isLoose', 'JpsiMu_mu3_isSoft', 'JpsiMu_mu3_isTracker', 'JpsiMu_mu3_isGlobal', 'JpsiMu_mu3_isPF', 'JpsiMu_mu3_isTight', 'JpsiMu_mu3_isLoose', 'JpsiMu_mu3_pt', 'JpsiMu_mu3_eta', 'JpsiMu_mu3_phi', 'JpsiMu_mu3_doca2mu1', 'JpsiMu_mu3_doca2mu2', 'JpsiMu_B_alpha', 'JpsiMu_Jpsi_vprob', 'JpsiMu_B_vprob', 'JpsiMu_mu1_pt', 'JpsiMu_mu1_eta', 'JpsiMu_mu1_phi', 'JpsiMu_mu2_pt', 'JpsiMu_mu2_eta', 'JpsiMu_mu2_phi']#, 'HLT_BPH_isFired']#, 'nPuVtxTrue', 'PV_N', 'bX']
+met_outvars = ['MET_et', 'MET_phi', 'MET_sumEt']#, 'MET_significance']
 evt_outvars = ['PV_N']
 mc_vars = ['nPuVtxTrue', 'bX']
 if not isData:
@@ -256,7 +256,7 @@ for evt in xrange(Nentries):
 
     if selectedjpsi == -1: continue
     evtid += 1
-    print chain.HLT_BPH_isFired[selectedjpsi]
+    #print chain.HLT_BPH_isFired[selectedjpsi]
     #otree.Fill()
     pJpsi = TLorentzVector.TLorentzVector()
     pB = TLorentzVector.TLorentzVector()
@@ -325,4 +325,5 @@ outputfile.Close()
 
 print Nentries, 'entries processed.', evtid, 'evts passed'
 if not isData:
-    print "Efficiency: ", float(evtid)/nevts
+    if nevts !=0:
+        print "Efficiency: ", float(evtid)/nevts

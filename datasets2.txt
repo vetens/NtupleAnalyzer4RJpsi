@@ -1,0 +1,3 @@
+/store/user/cgalloni/Ntuple_BPH_v5_multipleCand/Charmonium/Charmonium_Run2018C-17Sep2018-v1/191209_131113/0000/
+/store/user/cgalloni/Ntuple_BPH_v5_multipleCand/BcJpsiMuNu_020519/BcJpsiMuNu_020519/191209_130502/0000/
+/store/user/cgalloni/Ntuple_BPH_v5_multipleCand/JpsiX_MuMu_J_211119/JpsiX_MuMu_J_211119/191209_130437/0000/

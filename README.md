@@ -1,54 +1,38 @@
 # NtupleAnalyzer4RJpsi
 
-To produce flat-tree, you can do, 
+# Generating Condor scripts
 
-``python run.py --path XXX --out YYY``
+To Generate condor scripts, you may simply run
 
-where XXX is the pathname to the directory where you store your ROOT files (can be multiple files -> will be chained automatically) and YYY is the output file name. 
+``./condor_setup.sh <OUTDIR> <FILES PER JOB> <LIST OF INPUT NTUPLES>``
 
-For submitting the jobs using psi batch, you can do, 
+These will be placed in the ``condor/condorscripts/`` folder. 
 
-``python submit_Yuta.py``
+To test your ``run.py`` code locally, you may execute one of the condor scripts that is generated, i.e.:
 
-But before that, you need to inspect submit_Yuta.py (you need to change input data path) as well as submit_Yuta.sh (you need to change "ytakahas" to your user name).
+``./condor/condorscripts/Ntuple_BPH_v6/Charmonium/Charmonium_Run2018C-17Sep2018-v1/CondorJob_0.sh``
 
+# Submitting to Condor
 
-For the plotting, you can do,
+When ready to submit your jobs to Condor, run
+
+``./submit_condor.sh``
+
+You may check the status of these jobs using the ``condor_q`` command, and when the jobs have all finished running, you may run
+
+``./hadder.sh``
+
+to automatically hadd all the root files in each sample into their respective final forms, which are then stored as ``<OUTDIR>/<SAMPLE NAME>/Btrimu.root``
+
+# Plotting
+
+In ``samples.py``, add the names and locations of the skimmed NTuple samples, then for the plotting, you can do,
 
 ``python compare.py``
 
-This compare.py will take, as an input, the flat n-tuple produced above. 
+This compare.py will take, as an input, the flat n-tuples produced above.  You may run compare.py with multiple options, accessible by 
 
-Running on LXPLUS instead of psi
---------------------------------
+``python compare.py -h``
 
-First you must save your list of files to a .txt file, for example by using the following code(The first line dumps the contents of the folder into a file, the second formats whitespace properly, the third and fourth remove any 'log' files from the list, and the fifth and sixth set up the files to be automatically accessed through xrootd:
+By Default, compare.py is configured to also generate HTML and save the plots to your eos storage so they can then be accessible through a webpage. To disable this option, simply comment out the ``writeHTML`` Lines at the bottom of ``compare.py``.
 
-```
-uberftp -ls gsiftp://<STORAGE SERVER>/<PATH TO FOLDER CONTAINING FILES> > list.txt
-awk '{printf("%s\n", $9)}' <list.txt | tr -d '\r'> list2.txt
-sed -i '/log/d' list2.txt
-rm list2.txt
-sed -e "s&^&\"root://cms-xrd-global.cern.ch/$dir\"&" list2.txt > list.txt
-rm list2.txt
-```
-
-then run the following command:
-
-`` python run.py -x -l list.txt -o OUTPUTDIRECTORY/OUTPUTNAME``
-
-
-Running on Condor
------------------
-
-Save your Grid Certificate to a file, ``userproxy``, which is accessible to condor for use with your jobs:
-
-``cp $(voms-proxy-info --path) userproxy``
-
-then execute (with positionally dependent optional commands)
-
-``./condor_setup.sh <OUTPUTDIRECTORY = /eos/user/w/wvetens> <NUM_OF_FILES_PER_JOB = 20> <LIST_OF_INPUT_DATASETS = datasets.txt>`` 
-
-which auto generates the condor submission scripts and config files from templates. To submit to condor then execute
-
-``./submit_condor.sh``
