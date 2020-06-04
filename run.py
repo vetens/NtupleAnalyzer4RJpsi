@@ -237,18 +237,16 @@ for evt in xrange(Nentries):
 
 
 
-    mu3ptcut = 2
+    mu3ptcut = 4
     selectedjpsi = -1
     for iJpsi in xrange(chain.JpsiMu_mu3_pt.size()):
-        if chain.JpsiMu_mu3_pt.size() < 4: continue
-        if chain.JpsiMu_B_vprob.size() < 10 ** (-4): continue
+        if chain.JpsiMu_B_vprob[iJpsi] < 10 ** (-4): continue
         if chain.JpsiMu_Jpsi_pt[iJpsi] < 8: continue
         if chain.JpsiMu_B_mass[iJpsi] > 9: continue
         if chain.JpsiMu_mu1_pt[iJpsi] < 4: continue
         if chain.JpsiMu_mu2_pt[iJpsi] < 4: continue
         if not chain.JpsiMu_mu1_isSoft[iJpsi]: continue
         if not chain.JpsiMu_mu2_isSoft[iJpsi]: continue
-        if not chain.JpsiMu_mu3_isGlobal[iJpsi]: continue
         if not chain.JpsiMu_mu3_isSoft[iJpsi]: continue
         if chain.JpsiMu_mu3_pt[iJpsi] < mu3ptcut: continue
         mu3ptcut = chain.JpsiMu_mu3_pt[iJpsi]

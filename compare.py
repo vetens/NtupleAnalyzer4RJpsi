@@ -13,14 +13,14 @@ from varsdict import *
 
 from optparse import OptionParser, OptionValueError
 
-usage = "usage: python compare.py [--compare: True, False (default: False)] [--CutOpt: True, False (default: False)] [--compareNorm: True, False (default: False)] [--twoDHist: True, False (default: False)] [--rmrf: True, False (default: False)] [--outdir: <Directory For Outgoing Files> (default: /eos/home-w/wvetens/www/BPH_v6/)] [--precut: <Precuts in TCut string format> (default: '')]"
+usage = "usage: python compare.py [--compare: True, False (default: False)] [--CutOpt: True, False (default: False)] [--compareNorm: True, False (default: False)] [--twoDHist: True, False (default: False)] [--rmrf: True, False (default: False)] [--outdir: <Directory For Outgoing Files> (default: /eos/home-w/wvetens/www/BPH_v8/)] [--precut: <Precuts in TCut string format> (default: '')]"
 parser = OptionParser(usage)
 parser.add_option("-c", "--compare", default=False, action="store_true", help="Use this option to generate comparison plots between signal and background", dest="isCompare")
 parser.add_option("-o", "--cutOpt", default=False, action="store_true", help="Use this option to generate scans for cut optimization", dest="isCutOpt")
 parser.add_option("-n", "--compareNorm", default=False, action="store_true", help="Use this option to compare the histograms Normalized to 1", dest="isNorm")
 parser.add_option("-t", "--twoDHist", default=False, action="store_true", help="Use this option to compare two variables and check for correlations using a two-dimensional histogram", dest="is2DHist")
 parser.add_option("-f", "--rmrf", default=False, action="store_true", help="Forcefully overwrite the output directories to remove old outputs", dest="isrmrf")
-parser.add_option("--outdir", default='/eos/home-w/wvetens/www/BPH_v6/', action="store", help="Output Directory for plots", dest="outdir")
+parser.add_option("--outdir", default='/eos/home-w/wvetens/www/BPH_v8/', action="store", help="Output Directory for plots", dest="outdir")
 parser.add_option("--precut", default='', action="store", help="List of Cuts to apply before plotting", dest="precut")
 
 
@@ -230,6 +230,7 @@ for varkey, ivar in vardict.iteritems():
         if var not in to_optimize:
             continue
         optparams = to_optimize[var]
+        print 'optimizing ', var
         granularity = optparams['granularity']
         igran = int(granularity)
         split = (optparams['xmax']-optparams['xmin'])/granularity
@@ -301,7 +302,7 @@ for varkey, ivar in vardict.iteritems():
         cutline2.SetLineColor(6)
         cutline3.SetLineColor(6)
         opt_signif = coh2.GetMaximum()
-        if opt_signif >= 0.0022:
+        if opt_signif >= 0:
             GoodCuts += [var]
             #sigh.Scale(histscale * coh1.Integral()/sigh.Integral())
             #bckgh.Scale(histscale * coh1.Integral()/bckgh.Integral())

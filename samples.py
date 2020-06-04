@@ -11,15 +11,23 @@ styles ={"dataC":1, "bg_BJpsiX_MuMu":2, "bg_BcChic1MuNu":4, "bg_BcJpsiTauNu":3, 
 widths = {"dataC":3, "bg_BJpsiX_MuMu":3, "bg_BcChic1MuNu":3, "bg_BcJpsiTauNu":3, "bg_BcPsi2STauNu":3, "bg_BJpsiX_MuMu_J": 3, "bg_JpsiX_MuMu_J":3, "bg_BcPsi2SMuNu":3, "signal_BcJpsiMuNu":3}
 
 ##TFiles
-datfileC = TFile('/eos/home-w/wvetens/SkimmedNTuples/Ntuple_BPH_v6/Charmonium/Charmonium_Run2018C-17Sep2018-v1/Btrimu.root')
-#bg_BcChic1MuNu = TFile('/eos/home-w/wvetens/SkimmedNTuples/Ntuple_BPH_v5_multipleCand/BcChic1MuNu_211019/BcChic1MuNu_211019/Btrimu.root')
-#bg_BcJpsiTauNu = TFile('/eos/home-w/wvetens/SkimmedNTuples/Ntuple_BPH_v5_multipleCand/BcJpsiTauNu_020519/BcJpsiTauNu_020519/Btrimu.root')
-#bg_BcPsi2STauNu = TFile('/eos/home-w/wvetens/SkimmedNTuples/Ntuple_BPH_v5_multipleCand/BcPsi2STauNu_051019/BcPsi2STauNu_051019/Btrimu.root')
-#bg_BJpsiX_MuMu_J = TFile('/eos/home-w/wvetens/SkimmedNTuples/Ntuple_BPH_v5_multipleCand/BJpsiX_MuMu_J_211119/BJpsiX_MuMu_J_211119/Btrimu.root')
-bg_JpsiX_MuMu_J = TFile('/eos/home-w/wvetens/SkimmedNTuples/Ntuple_BPH_v6/OniaAndX_ToMuMu_MuFilter_SoftQCDnonD_TuneCP5_13TeV-pythia8-evtgen/OniaAndX_ToMuMu_MuFilter_SoftQCDnonD_TuneCP5_13TeV-pythia8-evtgen/Btrimu.root')
-#bg_BcPsi2SMuNu = TFile('/eos/home-w/wvetens/SkimmedNTuples/Ntuple_BPH_v5_multipleCand/BcPsi2SMuNu_091019/BcPsi2SMuNu_091019/Btrimu.root')
-#bg_BJpsiX_MuMu = TFile('/eos/home-w/wvetens/SkimmedNTuples/Ntuple_BPH_v5_multipleCand/BJpsiX_MuMu_031019/BJpsiX_MuMu_031019/Btrimu.root')
-signal_BcJpsiMuNu = TFile('/eos/home-w/wvetens/SkimmedNTuples/Ntuple_BPH_v6/BcToJPsiMuNu_TuneCUEP8M1_13TeV-bcvegpy2-pythia8-evtgen/BcToJPsiMuNu_TuneCUEP8M1_13TeV-bcvegpy2-pythia8-evtgen/Btrimu.root')
+
+datfileC = TFile('/eos/home-w/wvetens/SkimmedNTuples/Ntuple_BPH_v8/Charmonium/Charmonium_Run2018A-17Sep2018-v1/Btrimu.root')
+
+bg_JpsiX_MuMu_J = TFile('/eos/home-w/wvetens/SkimmedNTuples/Ntuple_BPH_v8/OniaAndX_ToMuMu_MuFilter_SoftQCDnonD_TuneCP5_13TeV-pythia8-evtgen/OniaAndX_ToMuMu_MuFilter_SoftQCDnonD_TuneCP5_13TeV-pythia8-evtgen/Btrimu.root')
+
+signal_BcJpsiMuNu = TFile('/eos/home-w/wvetens/SkimmedNTuples/Ntuple_BPH_v8/BcToJPsiMuNu_TuneCUEP8M1_13TeV-bcvegpy2-pythia8-evtgen/BcToJPsiMuNu_TuneCUEP8M1_13TeV-bcvegpy2-pythia8-evtgen/Btrimu.root')
+
+
+#datfileC = TFile('/eos/home-w/wvetens/SkimmedNTuples/Ntuple_BPH_v6/Charmonium/Charmonium_Run2018C-17Sep2018-v1/Btrimu.root')
+##bg_BcChic1MuNu = TFile('/eos/home-w/wvetens/SkimmedNTuples/Ntuple_BPH_v5_multipleCand/BcChic1MuNu_211019/BcChic1MuNu_211019/Btrimu.root')
+##bg_BcJpsiTauNu = TFile('/eos/home-w/wvetens/SkimmedNTuples/Ntuple_BPH_v5_multipleCand/BcJpsiTauNu_020519/BcJpsiTauNu_020519/Btrimu.root')
+##bg_BcPsi2STauNu = TFile('/eos/home-w/wvetens/SkimmedNTuples/Ntuple_BPH_v5_multipleCand/BcPsi2STauNu_051019/BcPsi2STauNu_051019/Btrimu.root')
+##bg_BJpsiX_MuMu_J = TFile('/eos/home-w/wvetens/SkimmedNTuples/Ntuple_BPH_v5_multipleCand/BJpsiX_MuMu_J_211119/BJpsiX_MuMu_J_211119/Btrimu.root')
+#bg_JpsiX_MuMu_J = TFile('/eos/home-w/wvetens/SkimmedNTuples/Ntuple_BPH_v6/OniaAndX_ToMuMu_MuFilter_SoftQCDnonD_TuneCP5_13TeV-pythia8-evtgen/OniaAndX_ToMuMu_MuFilter_SoftQCDnonD_TuneCP5_13TeV-pythia8-evtgen/Btrimu.root')
+##bg_BcPsi2SMuNu = TFile('/eos/home-w/wvetens/SkimmedNTuples/Ntuple_BPH_v5_multipleCand/BcPsi2SMuNu_091019/BcPsi2SMuNu_091019/Btrimu.root')
+##bg_BJpsiX_MuMu = TFile('/eos/home-w/wvetens/SkimmedNTuples/Ntuple_BPH_v5_multipleCand/BJpsiX_MuMu_031019/BJpsiX_MuMu_031019/Btrimu.root')
+#signal_BcJpsiMuNu = TFile('/eos/home-w/wvetens/SkimmedNTuples/Ntuple_BPH_v6/BcToJPsiMuNu_TuneCUEP8M1_13TeV-bcvegpy2-pythia8-evtgen/BcToJPsiMuNu_TuneCUEP8M1_13TeV-bcvegpy2-pythia8-evtgen/Btrimu.root')
 
 sampledict = collections.OrderedDict() 
 
