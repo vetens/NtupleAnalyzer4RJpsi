@@ -72,19 +72,17 @@ def sproducer(key, ivar, samplekey, sample):
 
     hist.Sumw2()
     if samplekey is "dataC":
-        wgt = '23'
+        wgt = '1'
     else:
         wgt = str(WeightCalc(sample['crossxn'],sample['crossxnerr'],sample['file'])[0]) 
-    if cut0 == '':
-        exp = '('+wgt+')'
-    else:
-        exp = wgt+'*(' + cut0 + ')'
+    exp = '('+wgt+')'
     rootfile = sample['file']
         
     tree = rootfile.Get('tree')
 
     if samplekey is "dataC":
         tree.Draw(key + ' >> ' + hist.GetName(), exp)
+        print hist.Integral()+hist.GetBinContent(0)+hist.GetBinContent(ivar['nbins']+1)
     else:
         tree.Draw(key + ' >> ' + hist.GetName(), 'weight_pu[0]*'+exp)
     hist.GetXaxis().SetTitle(ivar['xtitle'])
@@ -234,23 +232,23 @@ for varkey, ivar in vardict.iteritems():
         granularity = optparams['granularity']
         igran = int(granularity)
         split = (optparams['xmax']-optparams['xmin'])/granularity
-        #coh1name="cutopthist1"+var
-        coh2name="cutopthist2"+var
-        coh3name="cutopthist3"+var
+        coh1name="cutopthist1"+var
+        #coh2name="cutopthist2"+var
+        #coh3name="cutopthist3"+var
         signame="sig"+var
         bckgname="bckg"+var
-        #coh1 = TH1F(coh1name, "Cut Optimization for "+str(ivar['xtitle']), igran, optparams['xmin'], optparams['xmax'])
-        #coh1.GetYaxis().SetTitle('a.u.')
-        #coh1.GetYaxis().SetTitleFont(12)
-        #coh1.GetXaxis().SetTitle(str(ivar['xtitle']))
-        coh2 = TH1F(coh2name, "Cut Optimization for "+str(ivar['xtitle']), igran, optparams['xmin'], optparams['xmax'])
-        coh2.GetYaxis().SetTitle('a.u.')
-        coh2.GetYaxis().SetTitleFont(12)
-        coh2.GetXaxis().SetTitle(str(ivar['xtitle']))
-        coh3 = TH1F(coh3name, "Cut Optimization for "+str(ivar['xtitle']), igran, optparams['xmin'], optparams['xmax'])
-        coh3.GetYaxis().SetTitle('a.u.')
-        coh3.GetYaxis().SetTitleFont(12)
-        coh3.GetXaxis().SetTitle(str(ivar['xtitle']))
+        coh1 = TH1F(coh1name, "Cut Optimization for "+str(ivar['xtitle']), igran, optparams['xmin'], optparams['xmax'])
+        coh1.GetYaxis().SetTitle('a.u.')
+        coh1.GetYaxis().SetTitleFont(12)
+        coh1.GetXaxis().SetTitle(str(ivar['xtitle']))
+        #coh2 = TH1F(coh2name, "Cut Optimization for "+str(ivar['xtitle']), igran, optparams['xmin'], optparams['xmax'])
+        #coh2.GetYaxis().SetTitle('a.u.')
+        #coh2.GetYaxis().SetTitleFont(12)
+        #coh2.GetXaxis().SetTitle(str(ivar['xtitle']))
+        #coh3 = TH1F(coh3name, "Cut Optimization for "+str(ivar['xtitle']), igran, optparams['xmin'], optparams['xmax'])
+        #coh3.GetYaxis().SetTitle('a.u.')
+        #coh3.GetYaxis().SetTitleFont(12)
+        #coh3.GetXaxis().SetTitle(str(ivar['xtitle']))
         sigh = TH1F(signame, "s", igran, optparams['xmin'], optparams['xmax'])
         bckgh = TH1F(bckgname, "b", igran, optparams['xmin'], optparams['xmax'])
         if cut0 == '':
@@ -277,57 +275,57 @@ for varkey, ivar in vardict.iteritems():
             b = bh.Integral()
             s = sh.Integral()
             if b == 0:
-                #coh1.AddBinContent(x+1, 0)
-                coh2.AddBinContent(x+1, 0)
-                coh3.AddBinContent(x+1, 0)
+                coh1.AddBinContent(x+1, 0)
+                #coh2.AddBinContent(x+1, 0)
+                #coh3.AddBinContent(x+1, 0)
             else:
-                #coh1.AddBinContent(x+1, s/TMath.Sqrt(s+b))
-                coh2.AddBinContent(x+1, s/TMath.Sqrt(b))
-                coh3.AddBinContent(x+1, s/b)
-        #optcutbin1 = coh1.GetMaximumBin()
-        #optcut1 = coh1.GetBin(optcutbin1)
-        #optcut1 = optparams['xmin'] + optcutbin1 * split
-        #cutline1 = TLine.TLine(optcut1, 0, optcut1, coh1.GetMaximum())
-        optcutbin2 = coh2.GetMaximumBin()
-        optcut2 = optparams['xmin'] + optcutbin2 * split
-        cutline2 = TLine.TLine(optcut2, 0, optcut2, coh2.GetMaximum())
-        optcutbin3 = coh3.GetMaximumBin()
-        optcut3 = coh3.GetBin(optcutbin3)
-        optcut3 = optparams['xmin'] + optcutbin3 * split
-        cutline3 = TLine.TLine(optcut3, 0, optcut3, coh3.GetMaximum())
+                coh1.AddBinContent(x+1, s/TMath.Sqrt(s+b))
+                #coh2.AddBinContent(x+1, s/TMath.Sqrt(b))
+                #coh3.AddBinContent(x+1, s/b)
+        optcutbin1 = coh1.GetMaximumBin()
+        optcut1 = coh1.GetBin(optcutbin1)
+        optcut1 = optparams['xmin'] + optcutbin1 * split
+        cutline1 = TLine.TLine(optcut1, 0, optcut1, coh1.GetMaximum())
+        #optcutbin2 = coh2.GetMaximumBin()
+        #optcut2 = optparams['xmin'] + optcutbin2 * split
+        #cutline2 = TLine.TLine(optcut2, 0, optcut2, coh2.GetMaximum())
+        #optcutbin3 = coh3.GetMaximumBin()
+        #optcut3 = coh3.GetBin(optcutbin3)
+        #optcut3 = optparams['xmin'] + optcutbin3 * split
+        #cutline3 = TLine.TLine(optcut3, 0, optcut3, coh3.GetMaximum())
         histscale = optparams['histscale']
         sigh.SetLineColor(2)
         bckgh.SetLineColor(4)
-        #cutline1.SetLineColor(6)
-        cutline2.SetLineColor(6)
-        cutline3.SetLineColor(6)
-        opt_signif = coh2.GetMaximum()
+        cutline1.SetLineColor(6)
+        #cutline2.SetLineColor(6)
+        #cutline3.SetLineColor(6)
+        opt_signif = coh1.GetMaximum()
         if opt_signif >= 0:
             GoodCuts += [var]
-            #sigh.Scale(histscale * coh1.Integral()/sigh.Integral())
-            #bckgh.Scale(histscale * coh1.Integral()/bckgh.Integral())
-            #comparisonPlots([coh1, sigh, bckgh, cutline1], ['#frac{s}{#sqrt{s+b}}', 'B_{c}->J/#psi+#mu+#nu Signal', 'pp->J/#psi+X Background', 'Optimal Cut: ' + var +' '+optparams['isgl']+' '+str(optcut1)+'. #frac{s}{#sqrt{s+b}} = '+str(coh1.GetMaximum())+' vs no cuts: '+str(s0/TMath.Sqrt(s0+b0))], False, False, plotodir+var+'_cutopt1'+'.pdf', False, True, True)
+            sigh.Scale(histscale * coh1.Integral()/sigh.Integral())
+            bckgh.Scale(histscale * coh1.Integral()/bckgh.Integral())
+            comparisonPlots([coh1, sigh, bckgh, cutline1], ['#frac{s}{#sqrt{s+b}}', 'B_{c}->J/#psi+#mu+#nu Signal', 'pp->J/#psi+X Background', 'Optimal Cut: ' + var +' '+optparams['isgl']+' '+str(optcut1)+'. #frac{s}{#sqrt{s+b}} = '+str(coh1.GetMaximum())+' vs no cuts: '+str(s0/TMath.Sqrt(s0+b0))], False, False, plotodir+var+'_cutopt1'+'.pdf', False, True, True)
 
-            sigh.Scale(histscale * coh2.Integral()/sigh.Integral())
-            bckgh.Scale(histscale * coh2.Integral()/bckgh.Integral())
-            comparisonPlots([coh2, sigh, bckgh, cutline2], ['#frac{s}{#sqrt{b}}', 'B_{c}->J/#psi+#mu+#nu Signal', 'pp->J/#psi+X Background', 'Cut: ' + var+' '+optparams['isgl']+' '+str(optcut2)+'.#frac{s}{#sqrt{b}} = '+str(round(coh2.GetMaximum(), 4))+' : '+str(round(s0/TMath.Sqrt(b0), 4))], False, False, plotodir+var+'_cutopt2'+'.pdf', False, True, True)
+            #sigh.Scale(histscale * coh2.Integral()/sigh.Integral())
+            #bckgh.Scale(histscale * coh2.Integral()/bckgh.Integral())
+            #comparisonPlots([coh2, sigh, bckgh, cutline2], ['#frac{s}{#sqrt{b}}', 'B_{c}->J/#psi+#mu+#nu Signal', 'pp->J/#psi+X Background', 'Cut: ' + var+' '+optparams['isgl']+' '+str(optcut2)+'.#frac{s}{#sqrt{b}} = '+str(round(coh2.GetMaximum(), 4))+' : '+str(round(s0/TMath.Sqrt(b0), 4))], False, False, plotodir+var+'_cutopt2'+'.pdf', False, True, True)
 
-            sigh.Scale(histscale * coh3.Integral()/sigh.Integral())
-            bckgh.Scale(histscale * coh3.Integral()/bckgh.Integral())
-            comparisonPlots([coh3, sigh, bckgh, cutline3], ['#frac{s}{b}', 'B_{c}->J/#psi+#mu+#nu Signal', 'pp->J/#psi+X Background', 'Cut: ' + var+' '+optparams['isgl']+' '+str(optcut3)+'.#frac{s}{b} = '+str(round(coh3.GetMaximum(), 8))+' : '+str(round(s0/b0, 8))], False, False, plotodir+var+'_cutopt3'+'.pdf', False, True, True)
+            #sigh.Scale(histscale * coh3.Integral()/sigh.Integral())
+            #bckgh.Scale(histscale * coh3.Integral()/bckgh.Integral())
+            #comparisonPlots([coh3, sigh, bckgh, cutline3], ['#frac{s}{b}', 'B_{c}->J/#psi+#mu+#nu Signal', 'pp->J/#psi+X Background', 'Cut: ' + var+' '+optparams['isgl']+' '+str(optcut3)+'.#frac{s}{b} = '+str(round(coh3.GetMaximum(), 8))+' : '+str(round(s0/b0, 8))], False, False, plotodir+var+'_cutopt3'+'.pdf', False, True, True)
 
         else:
-            #sigh.Scale(histscale * coh1.Integral()/sigh.Integral())
-            #bckgh.Scale(histscale * coh1.Integral()/bckgh.Integral())
-            #comparisonPlots([coh1, sigh, bckgh, cutline1], ['#frac{s}{#sqrt{s+b}}', 'B_{c}->J/#psi+#mu+#nu Signal', 'pp->J/#psi+X Background', 'Optimal Cut: ' + var +' '+optparams['isgl']+' '+str(optcut1)+'. #frac{s}{#sqrt{s+b}} = '+str(coh1.GetMaximum())+' vs no cuts: '+str(s0/TMath.Sqrt(s0+b0))], False, False, plotodir2+var+'_cutopt1'+'.pdf', False, True, True)
+            sigh.Scale(histscale * coh1.Integral()/sigh.Integral())
+            bckgh.Scale(histscale * coh1.Integral()/bckgh.Integral())
+            comparisonPlots([coh1, sigh, bckgh, cutline1], ['#frac{s}{#sqrt{s+b}}', 'B_{c}->J/#psi+#mu+#nu Signal', 'pp->J/#psi+X Background', 'Optimal Cut: ' + var +' '+optparams['isgl']+' '+str(optcut1)+'. #frac{s}{#sqrt{s+b}} = '+str(coh1.GetMaximum())+' vs no cuts: '+str(s0/TMath.Sqrt(s0+b0))], False, False, plotodir2+var+'_cutopt1'+'.pdf', False, True, True)
 
-            sigh.Scale(histscale * coh2.Integral()/sigh.Integral())
-            bckgh.Scale(histscale * coh2.Integral()/bckgh.Integral())
-            comparisonPlots([coh2, sigh, bckgh, cutline2], ['#frac{s}{#sqrt{b}}', 'B_{c}->J/#psi+#mu+#nu Signal', 'pp->J/#psi+X Background', 'Cut: ' + var+' '+optparams['isgl']+' '+str(optcut2)+'.#frac{s}{#sqrt{b}} = '+str(round(coh2.GetMaximum(), 4))+' : '+str(round(s0/TMath.Sqrt(b0), 4))], False, False, plotodir2+var+'_cutopt2'+'.pdf', False, True, True)
+            #sigh.Scale(histscale * coh2.Integral()/sigh.Integral())
+            #bckgh.Scale(histscale * coh2.Integral()/bckgh.Integral())
+            #comparisonPlots([coh2, sigh, bckgh, cutline2], ['#frac{s}{#sqrt{b}}', 'B_{c}->J/#psi+#mu+#nu Signal', 'pp->J/#psi+X Background', 'Cut: ' + var+' '+optparams['isgl']+' '+str(optcut2)+'.#frac{s}{#sqrt{b}} = '+str(round(coh2.GetMaximum(), 4))+' : '+str(round(s0/TMath.Sqrt(b0), 4))], False, False, plotodir2+var+'_cutopt2'+'.pdf', False, True, True)
 
-            sigh.Scale(histscale * coh3.Integral()/sigh.Integral())
-            bckgh.Scale(histscale * coh3.Integral()/bckgh.Integral())
-            comparisonPlots([coh3, sigh, bckgh, cutline3], ['#frac{s}{b}', 'B_{c}->J/#psi+#mu+#nu Signal', 'pp->J/#psi+X Background', 'Cut: ' + var+' '+optparams['isgl']+' '+str(optcut3)+'.#frac{s}{b} = '+str(round(coh3.GetMaximum(), 8))+' : '+str(round(s0/b0, 8))], False, False, plotodir2+var+'_cutopt3'+'.pdf', False, True, True)
+            #sigh.Scale(histscale * coh3.Integral()/sigh.Integral())
+            #bckgh.Scale(histscale * coh3.Integral()/bckgh.Integral())
+            #comparisonPlots([coh3, sigh, bckgh, cutline3], ['#frac{s}{b}', 'B_{c}->J/#psi+#mu+#nu Signal', 'pp->J/#psi+X Background', 'Cut: ' + var+' '+optparams['isgl']+' '+str(optcut3)+'.#frac{s}{b} = '+str(round(coh3.GetMaximum(), 8))+' : '+str(round(s0/b0, 8))], False, False, plotodir2+var+'_cutopt3'+'.pdf', False, True, True)
 
 if options.is2DHist:
     gStyle.SetOptTitle(1)
