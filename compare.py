@@ -352,10 +352,10 @@ if options.is2DHist:
             
 # This writes to a webpage so you can more easily view all the plots you've created in a web browser, which will display them simultaneously.
 # This is optional, you can comment it out if you want to ...
-if options.is2DHist:
-    writeHTML(tdir, "2-D Histograms")
-if options.isCompare:
-    writeHTML(cdir, "Comparison Plots")
-if options.isCutOpt:
-    writeHTML(odir, "Cut Optimization")
-    writeHTML(odir2, "Cut Optimization pt 2")
+#if options.is2DHist:
+#    writeHTML(tdir, "2-D Histograms")
+#if options.isCompare:
+#    writeHTML(cdir, "Comparison Plots")
+#if options.isCutOpt:
+#    writeHTML(odir, "Cut Optimization")
+#    writeHTML(odir2, "Cut Optimization pt 2")
