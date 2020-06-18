@@ -16,11 +16,17 @@ widths = {"dataC":3, "bg_JpsiX_MuMu_J_old":3, "signal_BcJpsiMuNu_old":3, "bg_BcJ
 
 ##TFiles
 
-datfileC = TFile('/eos/home-w/wvetens/SkimmedNTuples/Ntuple_BPH_v8/Charmonium/Charmonium_Run2018C-17Sep2018-v1/Btrimu.root')
+#datfileC = TFile('/eos/home-w/wvetens/SkimmedNTuples/Ntuple_BPH_v8/Charmonium/Charmonium_Run2018C-17Sep2018-v1/Btrimu.root')
+#
+#bg_JpsiX_MuMu_J = TFile('/eos/home-w/wvetens/SkimmedNTuples/Ntuple_BPH_v8/OniaAndX_ToMuMu_MuFilter_SoftQCDnonD_TuneCP5_13TeV-pythia8-evtgen/OniaAndX_ToMuMu_MuFilter_SoftQCDnonD_TuneCP5_13TeV-pythia8-evtgen/Btrimu.root')
+#
+#signal_BcJpsiMuNu = TFile('/eos/home-w/wvetens/SkimmedNTuples/Ntuple_BPH_v8/BcToJPsiMuNu_TuneCUEP8M1_13TeV-bcvegpy2-pythia8-evtgen/BcToJPsiMuNu_TuneCUEP8M1_13TeV-bcvegpy2-pythia8-evtgen/Btrimu.root')
 
-bg_JpsiX_MuMu_J = TFile('/eos/home-w/wvetens/SkimmedNTuples/Ntuple_BPH_v8/OniaAndX_ToMuMu_MuFilter_SoftQCDnonD_TuneCP5_13TeV-pythia8-evtgen/OniaAndX_ToMuMu_MuFilter_SoftQCDnonD_TuneCP5_13TeV-pythia8-evtgen/Btrimu.root')
+datfileC = TFile('Charm.root')
 
-signal_BcJpsiMuNu = TFile('/eos/home-w/wvetens/SkimmedNTuples/Ntuple_BPH_v8/BcToJPsiMuNu_TuneCUEP8M1_13TeV-bcvegpy2-pythia8-evtgen/BcToJPsiMuNu_TuneCUEP8M1_13TeV-bcvegpy2-pythia8-evtgen/Btrimu.root')
+bg_JpsiX_MuMu_J = TFile('Onia.root')
+
+signal_BcJpsiMuNu = TFile('Bc.root')
 
 #signal_BcJpsiMuNu_old = TFile('/eos/home-w/wvetens/SkimmedNTuples/Ntuple_BPH_v5_multipleCand/BcJpsiMuNu_020519/BcJpsiMuNu_020519/Btrimu.root')
 #
