@@ -95,10 +95,10 @@ if options.xrd == True:
 # Remember that, only the activated branches will be saved
 
 #outvars = ['EVENT_run', 'EVENT_lumiBlock']
-outvars = ['JpsiMu_Jpsi_lip', 'JpsiMu_Jpsi_lips', 'JpsiMu_Jpsi_pvip', 'JpsiMu_Jpsi_pvips', 'JpsiMu_B_pvip', 'JpsiMu_B_pvips', 'JpsiMu_B_lips', 'JpsiMu_B_fls3d', 'JpsiMu_Jpsi_unfit_mass', 'JpsiMu_B_iso', 'JpsiMu_B_iso_ntracks', 'JpsiMu_B_iso_mindoca', 'JpsiMu_B_fl3d', 'JpsiMu_B_lip', 'JpsiMu_B_mass', 'JpsiMu_B_pt', 'JpsiMu_B_eta', 'JpsiMu_B_phi', 'JpsiMu_B_maxdoca', 'JpsiMu_B_mindoca', 'JpsiMu_Jpsi_maxdoca', 'JpsiMu_Jpsi_mindoca', 'JpsiMu_Jpsi_alpha', 'JpsiMu_Jpsi_fl3d', 'JpsiMu_Jpsi_fls3d', 'JpsiMu_Jpsi_pt', 'JpsiMu_Jpsi_eta', 'JpsiMu_Jpsi_phi', 'JpsiMu_mu1_iso', 'JpsiMu_mu1_dbiso', 'JpsiMu_mu2_iso', 'JpsiMu_mu2_dbiso', 'JpsiMu_mu3_iso', 'JpsiMu_mu3_dbiso', 'JpsiMu_mu1_isSoft', 'JpsiMu_mu1_isTracker', 'JpsiMu_mu1_isGlobal', 'JpsiMu_mu1_isPF', 'JpsiMu_mu1_isTight', 'JpsiMu_mu1_isLoose', 'JpsiMu_mu2_isSoft', 'JpsiMu_mu2_isTracker', 'JpsiMu_mu2_isGlobal', 'JpsiMu_mu2_isPF', 'JpsiMu_mu2_isTight', 'JpsiMu_mu2_isLoose', 'JpsiMu_mu3_isSoft', 'JpsiMu_mu3_isTracker', 'JpsiMu_mu3_isGlobal', 'JpsiMu_mu3_isPF', 'JpsiMu_mu3_isTight', 'JpsiMu_mu3_isLoose', 'JpsiMu_mu3_pt', 'JpsiMu_mu3_eta', 'JpsiMu_mu3_phi', 'JpsiMu_mu3_doca2mu1', 'JpsiMu_mu3_doca2mu2', 'JpsiMu_B_alpha', 'JpsiMu_Jpsi_vprob', 'JpsiMu_B_vprob', 'JpsiMu_mu1_pt', 'JpsiMu_mu1_eta', 'JpsiMu_mu1_phi', 'JpsiMu_mu2_pt', 'JpsiMu_mu2_eta', 'JpsiMu_mu2_phi']#, 'nPuVtxTrue', 'PV_N', 'bX']
+outvars = ['JpsiMu_Jpsi_lip', 'JpsiMu_Jpsi_lips', 'JpsiMu_Jpsi_pvip', 'JpsiMu_Jpsi_pvips', 'JpsiMu_B_pvip', 'JpsiMu_B_pvips', 'JpsiMu_B_lips', 'JpsiMu_B_fls3d', 'JpsiMu_Jpsi_unfit_mass', 'JpsiMu_B_iso', 'JpsiMu_B_iso_ntracks', 'JpsiMu_B_iso_mindoca', 'JpsiMu_B_fl3d', 'JpsiMu_B_lip', 'JpsiMu_B_mass', 'JpsiMu_B_pt', 'JpsiMu_B_eta', 'JpsiMu_B_phi', 'JpsiMu_B_maxdoca', 'JpsiMu_B_mindoca', 'JpsiMu_Jpsi_maxdoca', 'JpsiMu_Jpsi_mindoca', 'JpsiMu_Jpsi_alpha', 'JpsiMu_Jpsi_fl3d', 'JpsiMu_Jpsi_fls3d', 'JpsiMu_Jpsi_pt', 'JpsiMu_Jpsi_eta', 'JpsiMu_Jpsi_phi', 'JpsiMu_mu1_dbiso', 'JpsiMu_mu2_dbiso', 'JpsiMu_mu3_dbiso', 'JpsiMu_mu1_isSoft', 'JpsiMu_mu1_isTracker', 'JpsiMu_mu1_isGlobal', 'JpsiMu_mu1_isPF', 'JpsiMu_mu1_isTight', 'JpsiMu_mu1_isLoose', 'JpsiMu_mu2_isSoft', 'JpsiMu_mu2_isTracker', 'JpsiMu_mu2_isGlobal', 'JpsiMu_mu2_isPF', 'JpsiMu_mu2_isTight', 'JpsiMu_mu2_isLoose', 'JpsiMu_mu3_isSoft', 'JpsiMu_mu3_isTracker', 'JpsiMu_mu3_isGlobal', 'JpsiMu_mu3_isPF', 'JpsiMu_mu3_isTight', 'JpsiMu_mu3_isLoose', 'JpsiMu_mu3_pt', 'JpsiMu_mu3_eta', 'JpsiMu_mu3_phi', 'JpsiMu_mu3_doca2mu1', 'JpsiMu_mu3_doca2mu2', 'JpsiMu_B_alpha', 'JpsiMu_Jpsi_vprob', 'JpsiMu_B_vprob', 'JpsiMu_mu1_pt', 'JpsiMu_mu1_eta', 'JpsiMu_mu1_phi', 'JpsiMu_mu2_pt', 'JpsiMu_mu2_eta', 'JpsiMu_mu2_phi']#, 'nPuVtxTrue', 'PV_N', 'bX']
 #met_outvars = ['MET_et', 'MET_phi', 'MET_sumEt']#, 'MET_significance']
 evt_outvars = ['PV_N']
-gen_outvars = ['genParticle_pdgId', 'genParticle_status', 'genParticle_dau', 'genParticle_mother', 'genParticle_pt', 'genParticle_eta', 'genParticle_phi']
+gen_outvars = ['genParticle_pdgId', 'genParticle_status', 'genParticle_dau', 'genParticle_mother', 'genParticle_pt', 'genParticle_eta', 'genParticle_phi', 'genParticle_mother_pt']
 mc_vars = ['nPuVtxTrue', 'bX']
 trig_vars = ['HLT_BPH_isFired']
 if not isData:
@@ -140,16 +140,6 @@ if not isData:
 
 JpsiMu_B_mcorr = num.zeros(1,dtype=float)
 otree.Branch('JpsiMu_B_mcorr', JpsiMu_B_mcorr , 'JpsiMu_B_mcorr/D') 
-
-
-JpsiMu_mu3_reliso= num.zeros(1,dtype=float)
-otree.Branch('JpsiMu_mu3_reliso', JpsiMu_mu3_reliso, 'JpsiMu_mu3_reliso/D') 
-
-JpsiMu_mu2_reliso= num.zeros(1,dtype=float)
-otree.Branch('JpsiMu_mu2_reliso', JpsiMu_mu2_reliso, 'JpsiMu_mu2_reliso/D') 
-
-JpsiMu_mu1_reliso= num.zeros(1,dtype=float)
-otree.Branch('JpsiMu_mu1_reliso', JpsiMu_mu1_reliso, 'JpsiMu_mu1_reliso/D') 
 
 JpsiMu_B_reliso= num.zeros(1,dtype=float)
 otree.Branch('JpsiMu_B_reliso', JpsiMu_B_reliso, 'JpsiMu_B_reliso/D') 
@@ -204,6 +194,27 @@ otree.Branch('dR_mu1_mu2', dR_mu1_mu2, 'dR_mu1_mu2/D')
 if isGenLevel:
     isBplusJpsiKplus = num.zeros(1,dtype=bool)
     otree.Branch('isBplusJpsiKplus', isBplusJpsiKplus, 'isBplusJpsiKplus/B')
+
+    isBplusJpsiPiplus = num.zeros(1,dtype=bool)
+    otree.Branch('isBplusJpsiPiplus', isBplusJpsiPiplus, 'isBplusJpsiPiplus/B')
+
+    isBplusJpsiKPiPiplus = num.zeros(1,dtype=bool)
+    otree.Branch('isBplusJpsiKPiPiplus', isBplusJpsiKPiPiplus, 'isBplusJpsiKPiPiplus/B')
+
+    isBplusJpsi3Kplus = num.zeros(1,dtype=bool)
+    otree.Branch('isBplusJpsi3Kplus', isBplusJpsi3Kplus, 'isBplusJpsi3Kplus/B')
+
+    isBplusJpsiPhiKplus = num.zeros(1,dtype=bool)
+    otree.Branch('isBplusJpsiPhiKplus', isBplusJpsiPhiKplus, 'isBplusJpsiPhiKplus/B')
+
+    isBplusJpsiK0Piplus = num.zeros(1,dtype=bool)
+    otree.Branch('isBplusJpsiK0Piplus', isBplusJpsiK0Piplus, 'isBplusJpsiK0Piplus/B')
+
+    JpsiGen = num.zeros(1,dtype=bool)
+    otree.Branch('JpsiGen', JpsiGen, 'JpsiGen/B')
+
+    #JpsiGoodMatch= num.zeros(1,dtype=bool)
+    #otree.Branch('JpsiGoodMatch', JpsiGoodMatch, 'JpsiGoodMatch/B')
 
 Nentries = chain.GetEntries()
 
@@ -263,22 +274,25 @@ for evt in xrange(Nentries):
     
     if not JpsiTrig and JpsiMuTrig:
         continue
+    if chain.JpsiMu_Jpsi_pt < 8: continue
 
-    mu3ptcut = 4
-    selectedjpsi = -1
-    for iJpsi in xrange(chain.JpsiMu_mu3_pt.size()):
-        if chain.JpsiMu_B_vprob[iJpsi] < 10 ** (-4): continue
-        if chain.JpsiMu_Jpsi_pt[iJpsi] < 8: continue
-        if chain.JpsiMu_B_mass[iJpsi] > 9: continue
-        if chain.JpsiMu_mu1_pt[iJpsi] < 4: continue
-        if chain.JpsiMu_mu2_pt[iJpsi] < 4: continue
-        if chain.JpsiMu_mu3_pt[iJpsi] < mu3ptcut: continue
-        mu3ptcut = chain.JpsiMu_mu3_pt[iJpsi]
-        selectedjpsi = iJpsi
+    mu3ptcut = 10
+    selectedmu3 = -1
+    for iMu3 in xrange(chain.JpsiMu_mu3_pt.size()):
+        if chain.JpsiMu_B_vprob[iMu3] < 0.1: continue
+        if chain.JpsiMu_B_mass[iMu3] > 9: continue
+        if chain.JpsiMu_mu1_pt[iMu3] < 4: continue
+        if chain.JpsiMu_mu2_pt[iMu3] < 4: continue
+        if not chain.JpsiMu_mu1_isSoft[iMu3]: continue
+        if not chain.JpsiMu_mu2_isSoft[iMu3]: continue
+        if not chain.JpsiMu_mu3_isTight[iMu3]: continue
+        if chain.JpsiMu_mu3_pt[iMu3] < mu3ptcut: continue
+        mu3ptcut = chain.JpsiMu_mu3_pt[iMu3]
+        selectedmu3 = iMu3
 
-    if selectedjpsi == -1: continue
+    if selectedmu3 == -1: continue
     evtid += 1
-    #print chain.HLT_BPH_isFired[selectedjpsi]
+    #print chain.HLT_BPH_isFired[selectedmu3]
     #otree.Fill()
     pJpsi = TLorentzVector.TLorentzVector()
     pB = TLorentzVector.TLorentzVector()
@@ -286,15 +300,15 @@ for evt in xrange(Nentries):
     pmu2 = TLorentzVector.TLorentzVector()
     pmu3 = TLorentzVector.TLorentzVector()
     #pmet = TLorentzVector.TLorentzVector()
-    pJpsi.SetPtEtaPhiM(chain.JpsiMu_Jpsi_pt[selectedjpsi], chain.JpsiMu_Jpsi_eta[selectedjpsi], chain.JpsiMu_Jpsi_phi[selectedjpsi], MJpsi)
-    pmu1.SetPtEtaPhiM(chain.JpsiMu_mu1_pt[selectedjpsi], chain.JpsiMu_mu1_eta[selectedjpsi], chain.JpsiMu_mu1_phi[selectedjpsi], MMu)
-    pmu2.SetPtEtaPhiM(chain.JpsiMu_mu2_pt[selectedjpsi], chain.JpsiMu_mu2_eta[selectedjpsi], chain.JpsiMu_mu2_phi[selectedjpsi], MMu)
-    pmu3.SetPtEtaPhiM(chain.JpsiMu_mu3_pt[selectedjpsi], chain.JpsiMu_mu3_eta[selectedjpsi], chain.JpsiMu_mu3_phi[selectedjpsi], MMu)
-    pB.SetPtEtaPhiM(chain.JpsiMu_B_pt[selectedjpsi], chain.JpsiMu_B_eta[selectedjpsi], chain.JpsiMu_B_phi[selectedjpsi], chain.JpsiMu_B_mass[selectedjpsi])
+    pJpsi.SetPtEtaPhiM(chain.JpsiMu_Jpsi_pt[selectedmu3], chain.JpsiMu_Jpsi_eta[selectedmu3], chain.JpsiMu_Jpsi_phi[selectedmu3], MJpsi)
+    pmu1.SetPtEtaPhiM(chain.JpsiMu_mu1_pt[selectedmu3], chain.JpsiMu_mu1_eta[selectedmu3], chain.JpsiMu_mu1_phi[selectedmu3], MMu)
+    pmu2.SetPtEtaPhiM(chain.JpsiMu_mu2_pt[selectedmu3], chain.JpsiMu_mu2_eta[selectedmu3], chain.JpsiMu_mu2_phi[selectedmu3], MMu)
+    pmu3.SetPtEtaPhiM(chain.JpsiMu_mu3_pt[selectedmu3], chain.JpsiMu_mu3_eta[selectedmu3], chain.JpsiMu_mu3_phi[selectedmu3], MMu)
+    pB.SetPtEtaPhiM(chain.JpsiMu_B_pt[selectedmu3], chain.JpsiMu_B_eta[selectedmu3], chain.JpsiMu_B_phi[selectedmu3], chain.JpsiMu_B_mass[selectedmu3])
     #pmet.SetPtEtaPhiE(chain.MET_et[0], 2, chain.MET_phi[0], -chain.MET_et[0])
 
-    pperp = pB.P() * TMath.Sin(TMath.ACos(chain.JpsiMu_B_alpha[selectedjpsi]))
-    JpsiMu_B_mcorr[0] = TMath.Sqrt( (chain.JpsiMu_B_mass[selectedjpsi])**2 + pperp**2 ) + pperp
+    pperp = pB.P() * TMath.Sin(TMath.ACos(chain.JpsiMu_B_alpha[selectedmu3]))
+    JpsiMu_B_mcorr[0] = TMath.Sqrt( (chain.JpsiMu_B_mass[selectedmu3])**2 + pperp**2 ) + pperp
 
     dphi_Jpsi_mu3[0] = pJpsi.DeltaPhi(pmu3)
     dphi_mu1_mu3[0] = pmu1.DeltaPhi(pmu3)
@@ -313,13 +327,10 @@ for evt in xrange(Nentries):
     #cosdphi_Jpsi_MET[0] = TMath.Cos(dphi_Jpsi_MET[0])
     #cosdphi_mu3_MET[0] = TMath.Cos(dphi_mu3_MET[0])
 
-    JpsiMu_mu3_reliso[0] = chain.JpsiMu_mu3_iso[selectedjpsi]/chain.JpsiMu_mu3_pt[selectedjpsi]
-    JpsiMu_mu2_reliso[0] = chain.JpsiMu_mu2_iso[selectedjpsi]/chain.JpsiMu_mu2_pt[selectedjpsi]
-    JpsiMu_mu1_reliso[0] = chain.JpsiMu_mu1_iso[selectedjpsi]/chain.JpsiMu_mu1_pt[selectedjpsi]
-    JpsiMu_B_reliso[0] = chain.JpsiMu_B_iso[selectedjpsi]/chain.JpsiMu_B_pt[selectedjpsi]
-    JpsiMu_mu3_reldbiso[0] = chain.JpsiMu_mu3_dbiso[selectedjpsi]/chain.JpsiMu_mu3_pt[selectedjpsi]
-    JpsiMu_mu2_reldbiso[0] = chain.JpsiMu_mu2_dbiso[selectedjpsi]/chain.JpsiMu_mu2_pt[selectedjpsi]
-    JpsiMu_mu1_reldbiso[0] = chain.JpsiMu_mu1_dbiso[selectedjpsi]/chain.JpsiMu_mu1_pt[selectedjpsi]
+    JpsiMu_B_reliso[0] = chain.JpsiMu_B_iso[selectedmu3]/chain.JpsiMu_B_pt[selectedmu3]
+    JpsiMu_mu3_reldbiso[0] = chain.JpsiMu_mu3_dbiso[selectedmu3]/chain.JpsiMu_mu3_pt[selectedmu3]
+    JpsiMu_mu2_reldbiso[0] = chain.JpsiMu_mu2_dbiso[selectedmu3]/chain.JpsiMu_mu2_pt[selectedmu3]
+    JpsiMu_mu1_reldbiso[0] = chain.JpsiMu_mu1_dbiso[selectedmu3]/chain.JpsiMu_mu1_pt[selectedmu3]
 
 #Gen Level
     if not isData and isGenLevel:
@@ -400,6 +411,56 @@ for evt in xrange(Nentries):
             for iParticle in xrange(len(matchlist2)):
                 drlist += [mindr(matchlist2[iParticle], threshlist[iParticle])]
             return drlist
+
+        def getmotherids(gen_num):
+            pdgid_list = chain.genParticle_mother[gen_num]
+            pt_list = chain.genParticle_mother_pt[gen_num]
+            idlist = []
+            for imom in xrange(len(pdgid_list)):
+                for iGen in xrange(chain.genParticle_pdgId.size()):
+                    if chain.genParticle_status[iGen] != 2: continue
+                    if chain.genParticle_pdgId[iGen] == pdgid_list[imom]:
+                        if chain.genParticle_pt[iGen] == pt_list[imom]:
+                            idlist += [iGen]
+            return idlist
+        def getdaughterids(gen_num, NoIntermediateParticles = True, NoNu = False):
+            pt = chain.genParticle_pt[gen_num]
+            pdgid= chain.genParticle_pdgId[gen_num]
+            daulist = []
+            for iGen in xrange(chain.genParticle_pdgId.size()):
+                if iGen == gen_num: continue
+                if NoNu:
+                    if abs(chain.genParticle_pdgId[iGen]) == 12: continue
+                    if abs(chain.genParticle_pdgId[iGen]) == 14: continue
+                    if abs(chain.genParticle_pdgId[iGen]) == 16: continue
+                if NoIntermediateParticles:
+                    if chain.genParticle_status[iGen] != 1: continue
+                else:
+                    if chain.genParticle_status[iGen] != 2 and chain.genParticle_status[iGen] != 1: continue
+                momlist = chain.genParticle_mother[iGen]
+                momptlist = chain.genParticle_mother_pt[iGen]
+                isdau = False
+                for imom in xrange(len(momlist)):
+                    if momlist[imom] == pdgid and momptlist[imom] == pt:
+                        isdau = True
+                        break
+                if isdau: 
+                    daulist += [iGen]
+            return daulist
+        def getsisterids(gen_num, NoIntermediateParticles = True, NoNu = False):
+            mothers = getmotherids(gen_num)
+            sisters0 = []
+            for mom in mothers:
+                sisters0 += getdaughterids(mom, NoIntermediateParticles, NoNu)
+            # remove duplicates
+            sisters = list(set(sisters0))
+            # make sure the original particle isn't counted as a sister
+            for isis in xrange(len(sisters)):
+                if sisters[isis] == gen_num:
+                    del sisters[isis]
+                    break
+            return sisters
+
         dRthresh_mu1 = 0.1
         dRthresh_mu2 = 0.1
         dRthresh_mu3 = 0.1
@@ -407,20 +468,80 @@ for evt in xrange(Nentries):
         # first we pick out what gen level particle our reco mu3 most likely corresponds to
         matchedparticles = multimindr(genmatch_thresh_list, [pmu1, pmu2, pmu3])
         mu3_gen_num = matchedparticles[2][0]
+        mu3_sisters = getsisterids(mu3_gen_num, False)
         if mu3_gen_num == -1: continue
+        JpsiGen[0] = False
+        iGenJpsi = -1
+        for sis in mu3_sisters:
+            if JpsiGen[0]:
+                break
+            if abs(chain.genParticle_mother_pt[sis]) != 443:
+                continue
+            else:
+                JpsiGen[0] = True
+                iGenJpsi = sis
         isBplusJpsiKplus[0] = False
-        if TMath.Abs(chain.genParticle_pdgId[mu3_gen_num]) == 321:
-            if TMath.Abs(chain.genParticle_mother[mu3_gen_num][0]) == 521:
-                isBplusJpsiKplus[0] = True
+        isBplusJpsiPiplus[0] = False
+        isBplusJpsi3Kplus[0] = False
+        isBplusJpsiKPiPiplus[0] = False
+        isBplusJpsiPhiKplus[0] = False
+        isBplusJpsiK0Piplus[0] = False
+        if not JpsiGen[0]:
+            continue
+        if len(mu3_sisters) == 3: 
+            sis1 = -1
+            sis2 = -1
+            for sis in mu3_sisters:
+                if sis == iGenJpsi: continue
+                elif sis1 == -1:
+                    sis1 = sis
+                elif sis2 == -1:
+                    sis2 = sis
+
+        if TMath.Abs(chain.genParticle_mother[mu3_gen_num][0]) == 521:
+            if TMath.Abs(chain.genParticle_pdgId[mu3_gen_num]) == 321:
+                if len(mu3_sisters) == 1:
+                    isBplusJpsiKplus[0] = True
+                elif len(mu3_sisters) == 2:
+                    for sis in mu3_sisters:
+                        if sis == iGenJpsi: continue
+                        if abs(chain.genParticle_pdgId[sis]) == 333:
+                            isBplusJpsiPhiKplus[0] = True
+                elif len(mu3_sisters) == 3: 
+                    if abs(chain.genParticle_pdgId[sis1]) == 321 and abs(chain.genParticle_pdgId[sis2]) == 321: 
+                        isBplusJpsi3Kplus[0] = True
+                    elif abs(chain.genParticle_pdgId[sis1]) == 321 and abs(chain.genParticle_pdgId[sis1]) == 211:
+                        isBplusJpsiKPiPiplus[0] = True
+                    elif abs(chain.genParticle_pdgId[sis2]) == 321 and abs(chain.genParticle_pdgId[  sis1]) == 211:
+                        isBplusJpsiKPiPiplus[0] = True
+            elif TMath.Abs(chain.genParticle_pdgId[mu3_gen_num]) == 211:
+                if len(mu3_sisters) == 1:
+                    isBplusJpsiPiplus[0] = True
+                elif len(mu3_sisters) == 2:
+                    for sis in mu3_sisters:
+                        if sis == iGenJpsi: continue
+                        if TMath.Abs(chain.genParticle_pdgId[sis]) == 311:
+                            isBplusJpsiK0Piplus[0] = True
+                elif len(mu3_sisters) == 3:
+                    if abs(chain.genParticle_pdgId[sis1]) == 321 and abs(chain.genParticle_pdgId[sis1]) == 211:
+                        isBplusJpsiKPiPiplus[0] = True
+                    elif abs(chain.genParticle_pdgId[sis2]) == 321 and abs(chain.genParticle_pdgId[  sis1]) == 211:
+                        isBplusJpsiKPiPiplus[0] = True
+                
     if not isData and isGenLevel:
         for var in gen_outvars:
-            tmp = getattr(chain,var)[selectedjpsi]
+            tmp = getattr(chain,var)[0]
             getattr(chain,var).clear()
             getattr(chain,var).push_back(tmp)
     for var in outvars:
-        tmp = getattr(chain,var)[selectedjpsi]
-        getattr(chain,var).clear()
-        getattr(chain,var).push_back(tmp)
+        if "_Jpsi_" in var:
+            tmp = getattr(chain,var)[0]
+            getattr(chain,var).clear()
+            getattr(chain,var).push_back(tmp)
+        else:
+            tmp = getattr(chain,var)[selectedmu3]
+            getattr(chain,var).clear()
+            getattr(chain,var).push_back(tmp)
     #for var in met_outvars:
     #    tmp = getattr(chain,var)[0]
     #    getattr(chain,var).clear()
@@ -429,7 +550,7 @@ for evt in xrange(Nentries):
     if not isData:
         cuthist.Fill(2, weight_evt)
         #for var in evt_outvars:
-        #    tmp = getattr(chain,var)[selectedjpsi]
+        #    tmp = getattr(chain,var)[selectedmu3]
         #    getattr(chain,var).clear()
         #    getattr(chain,var).push_back(tmp)
     otree.Fill()

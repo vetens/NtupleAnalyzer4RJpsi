@@ -1,5 +1,5 @@
 #!/bin/bash
-target=${1:-/eos/home-w/wvetens/SkimmedNTuples/}
+target=${1:-/eos/home-w/wvetens/SkimmedNTuples_V1/}
 splitting=${2:-20}
 inlist=${3:-'datasets.txt'}
 prefix1="/store/user"
@@ -21,10 +21,11 @@ writeScript() {
         scriptname=CondorJob_${jobNumber}.sh
     fi
     # Flag for either Data or Monte Carlo
-    if [[ $2 == *"Run"* ]]; then
+    if [[ $2 == *"Charmonium"* ]]; then
         sed -e 's&LISTDIR&'"$3"'&g' \
             -e 's&ISDAT&-d&g' \
             -e 's&ISGEN&&g' \
+            -e 's&ISSIG&&g' \
             -e 's&TARGET&'"$target"'&g' \
             -e 's&WORKDIR&'"$workdir"'&g' \
             -e 's/LISTNUMBER/'"$listNumber"'/g' \
@@ -32,7 +33,6 @@ writeScript() {
             -e 's&RUNTYPE&'"$2"'&g' < $workdir/condor/condor_template.sh > $scriptname 
     elif [[ $2 == *"BcJpsiMu"* ]]; then
         sed -e 's&LISTDIR&'"$3"'&g' \
-            -e 's&ISDAT&-d&g' \
             -e 's&ISGEN&-g&g' \
             -e 's&ISSIG&-s&g' \
             -e 's&TARGET&'"$target"'&g' \
@@ -44,6 +44,7 @@ writeScript() {
         sed -e 's&LISTDIR&'"$3"'&g' \
             -e 's&ISDAT&&g' \
             -e 's&ISGEN&-g&g' \
+            -e 's&ISSIG&&g' \
             -e 's&TARGET&'"$target"'&g' \
             -e 's&WORKDIR&'"$workdir"'&g' \
             -e 's/LISTNUMBER/'"$listNumber"'/g' \
