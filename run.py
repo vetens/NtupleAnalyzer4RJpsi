@@ -153,13 +153,6 @@ otree.Branch('JpsiMu_mu2_reldbiso', JpsiMu_mu2_reldbiso, 'JpsiMu_mu2_reldbiso/D'
 JpsiMu_mu1_reldbiso= num.zeros(1,dtype=float)
 otree.Branch('JpsiMu_mu1_reldbiso', JpsiMu_mu1_reldbiso, 'JpsiMu_mu1_reldbiso/D') 
 
-dphi_Jpsi_mu3 = num.zeros(1,dtype=float)
-otree.Branch('dphi_Jpsi_mu3', dphi_Jpsi_mu3, 'dphi_Jpsi_mu3/D') 
-cosdphi_Jpsi_mu3 = num.zeros(1,dtype=float)
-otree.Branch('cosdphi_Jpsi_mu3', cosdphi_Jpsi_mu3, 'cosdphi_Jpsi_mu3/D') 
-dR_Jpsi_mu3 = num.zeros(1,dtype=float)
-otree.Branch('dR_Jpsi_mu3', dR_Jpsi_mu3, 'dR_Jpsi_mu3/D') 
-
 #dphi_Jpsi_MET = num.zeros(1,dtype=float)
 #otree.Branch('dphi_Jpsi_MET', dphi_Jpsi_MET, 'dphi_Jpsi_MET/D')
 #cosdphi_Jpsi_MET = num.zeros(1,dtype=float)
@@ -294,13 +287,11 @@ for evt in xrange(Nentries):
     evtid += 1
     #print chain.HLT_BPH_isFired[selectedmu3]
     #otree.Fill()
-    pJpsi = TLorentzVector.TLorentzVector()
     pB = TLorentzVector.TLorentzVector()
     pmu1 = TLorentzVector.TLorentzVector()
     pmu2 = TLorentzVector.TLorentzVector()
     pmu3 = TLorentzVector.TLorentzVector()
     #pmet = TLorentzVector.TLorentzVector()
-    pJpsi.SetPtEtaPhiM(chain.JpsiMu_Jpsi_pt[selectedmu3], chain.JpsiMu_Jpsi_eta[selectedmu3], chain.JpsiMu_Jpsi_phi[selectedmu3], MJpsi)
     pmu1.SetPtEtaPhiM(chain.JpsiMu_mu1_pt[selectedmu3], chain.JpsiMu_mu1_eta[selectedmu3], chain.JpsiMu_mu1_phi[selectedmu3], MMu)
     pmu2.SetPtEtaPhiM(chain.JpsiMu_mu2_pt[selectedmu3], chain.JpsiMu_mu2_eta[selectedmu3], chain.JpsiMu_mu2_phi[selectedmu3], MMu)
     pmu3.SetPtEtaPhiM(chain.JpsiMu_mu3_pt[selectedmu3], chain.JpsiMu_mu3_eta[selectedmu3], chain.JpsiMu_mu3_phi[selectedmu3], MMu)
@@ -310,17 +301,14 @@ for evt in xrange(Nentries):
     pperp = pB.P() * TMath.Sin(TMath.ACos(chain.JpsiMu_B_alpha[selectedmu3]))
     JpsiMu_B_mcorr[0] = TMath.Sqrt( (chain.JpsiMu_B_mass[selectedmu3])**2 + pperp**2 ) + pperp
 
-    dphi_Jpsi_mu3[0] = pJpsi.DeltaPhi(pmu3)
     dphi_mu1_mu3[0] = pmu1.DeltaPhi(pmu3)
     dphi_mu1_mu2[0] = pmu1.DeltaPhi(pmu2)
     dphi_mu2_mu3[0] = pmu2.DeltaPhi(pmu3)
     #dphi_Jpsi_MET[0] = pJpsi.DeltaPhi(pmet)
     #dphi_mu3_MET[0] = pmu3.DeltaPhi(pmet)
-    dR_Jpsi_mu3[0] = pJpsi.DeltaR(pmu3)
     dR_mu1_mu3[0] = pmu1.DeltaR(pmu3)
     dR_mu1_mu2[0] = pmu1.DeltaR(pmu2)
     dR_mu2_mu3[0] = pmu2.DeltaR(pmu3)
-    cosdphi_Jpsi_mu3[0] = TMath.Cos(dphi_Jpsi_mu3[0])
     cosdphi_mu1_mu3[0] = TMath.Cos(dphi_mu1_mu3[0])
     cosdphi_mu1_mu2[0] = TMath.Cos(dphi_mu1_mu2[0])
     cosdphi_mu2_mu3[0] = TMath.Cos(dphi_mu2_mu3[0])
@@ -423,7 +411,7 @@ for evt in xrange(Nentries):
                         if chain.genParticle_pt[iGen] == pt_list[imom]:
                             idlist += [iGen]
             return idlist
-        def getdaughterids(gen_num, NoIntermediateParticles = True, NoNu = False):
+        def getdaughterids(gen_num, NoIntermediateParticles = True, NoNu = True):
             pt = chain.genParticle_pt[gen_num]
             pdgid= chain.genParticle_pdgId[gen_num]
             daulist = []
@@ -447,7 +435,7 @@ for evt in xrange(Nentries):
                 if isdau: 
                     daulist += [iGen]
             return daulist
-        def getsisterids(gen_num, NoIntermediateParticles = True, NoNu = False):
+        def getsisterids(gen_num, NoIntermediateParticles = True, NoNu = True):
             mothers = getmotherids(gen_num)
             sisters0 = []
             for mom in mothers:
@@ -474,10 +462,11 @@ for evt in xrange(Nentries):
         iGenJpsi = -1
         for sis in mu3_sisters:
             if JpsiGen[0]:
-                break
-            if abs(chain.genParticle_mother_pt[sis]) != 443:
+                continue
+            if TMath.Abs(chain.genParticle_pdgId[sis]) != 443:
                 continue
             else:
+                #print "Jpsi found", chain.genParticle_pdgId[sis]
                 JpsiGen[0] = True
                 iGenJpsi = sis
         isBplusJpsiKplus[0] = False
@@ -486,7 +475,10 @@ for evt in xrange(Nentries):
         isBplusJpsiKPiPiplus[0] = False
         isBplusJpsiPhiKplus[0] = False
         isBplusJpsiK0Piplus[0] = False
-        if not JpsiGen[0]:
+        #print "Mu3 ID", chain.genParticle_pdgId[mu3_gen_num]
+        #for sis in mu3_sisters:
+        #    print "Sister ID", chain.genParticle_pdgId[sis]
+        if iGenJpsi == -1:
             continue
         if len(mu3_sisters) == 3: 
             sis1 = -1
@@ -501,10 +493,13 @@ for evt in xrange(Nentries):
         if TMath.Abs(chain.genParticle_mother[mu3_gen_num][0]) == 521:
             if TMath.Abs(chain.genParticle_pdgId[mu3_gen_num]) == 321:
                 if len(mu3_sisters) == 1:
+                    #print "sister id (should be a Jpsi)", chain.genParticle_pdgId[mu3_sisters[0]]
                     isBplusJpsiKplus[0] = True
                 elif len(mu3_sisters) == 2:
                     for sis in mu3_sisters:
-                        if sis == iGenJpsi: continue
+                        if sis == iGenJpsi:
+                            #print "sister id (should be a Jpsi)", chain.genParticle_pdgId[sis]
+                            continue
                         if abs(chain.genParticle_pdgId[sis]) == 333:
                             isBplusJpsiPhiKplus[0] = True
                 elif len(mu3_sisters) == 3: 
@@ -516,6 +511,7 @@ for evt in xrange(Nentries):
                         isBplusJpsiKPiPiplus[0] = True
             elif TMath.Abs(chain.genParticle_pdgId[mu3_gen_num]) == 211:
                 if len(mu3_sisters) == 1:
+                    #print "sister id (should be a Jpsi)", chain.genParticle_pdgId[mu3_sisters[0]]
                     isBplusJpsiPiplus[0] = True
                 elif len(mu3_sisters) == 2:
                     for sis in mu3_sisters:
@@ -527,7 +523,14 @@ for evt in xrange(Nentries):
                         isBplusJpsiKPiPiplus[0] = True
                     elif abs(chain.genParticle_pdgId[sis2]) == 321 and abs(chain.genParticle_pdgId[  sis1]) == 211:
                         isBplusJpsiKPiPiplus[0] = True
-                
+
+        #if isBplusJpsiKplus[0]: print "Tag Successful!, It's a:", "B+->JpsiK+"
+        #if isBplusJpsiPiplus[0]: print "Tag Successful!, It's a:", "B+->JpsiPi+"
+        #if isBplusJpsi3Kplus[0]: print "Tag Successful!, It's a:", "B+->Jpsi3K+"
+        #if isBplusJpsiKPiPiplus[0]: print "Tag Successful!, It's a:", "B+->JpsiK+2Pi+"
+        #if isBplusJpsiPhiKplus[0]: print "Tag Successful!, It's a:", "B+->JpsiPhiK+"
+        #if isBplusJpsiK0Piplus[0]: print "Tag Successful!, It's a:", "B+->JpsiK0Pi+"
+        #print "Tagging complete"
     if not isData and isGenLevel:
         for var in gen_outvars:
             tmp = getattr(chain,var)[0]

@@ -20,9 +20,9 @@ parser.add_option("-o", "--cutOpt", default=False, action="store_true", help="Us
 parser.add_option("-n", "--compareNorm", default=False, action="store_true", help="Use this option to compare the histograms Normalized to 1", dest="isNorm")
 parser.add_option("-t", "--twoDHist", default=False, action="store_true", help="Use this option to compare two variables and check for correlations using a two-dimensional histogram", dest="is2DHist")
 parser.add_option("-f", "--rmrf", default=False, action="store_true", help="Forcefully overwrite the output directories to remove old outputs", dest="isrmrf")
-parser.add_option("--outdir", default='/eos/home-w/wvetens/www/BPH_v8/', action="store", help="Output Directory for plots", dest="outdir")
+parser.add_option("--outdir", default='/eos/home-w/wvetens/www/YutaNTuples_cutflowOptimization/', action="store", help="Output Directory for plots", dest="outdir")
 parser.add_option("--precut", default='', action="store", help="List of Cuts to apply before plotting", dest="precut")
-parser.add_option("-g", "--gen", default=False, action="store_true", help="Run on Gen Level Info", dest="isgen")
+#parser.add_option("-g", "--gen", default=False, action="store_true", help="Run on Gen Level Info", dest="isgen")
 
 
 (options, args) = parser.parse_args()
@@ -72,6 +72,7 @@ def sproducer(key, ivar, samplekey, sample,cut0=''):
                 ivar['nbins'], ivar['xmin'], ivar['xmax'])
 
     hist.Sumw2()
+    print samplekey
     if samplekey is "dataC":
         wgt = '1'
     else:
@@ -141,6 +142,41 @@ def sproducer2D(key1, key2, var1, var2, samplekey, sample):
         
     return copy.deepcopy(hist)
 
+def CutEffects(directory, histname, cut='', tag=''):
+    masshists = []
+    titles = []
+    FullDataHist = TH1F(histname, "B mass: " + histname, vardict['JpsiMu_B_mass']['nbins'], vardict['JpsiMu_B_mass']['xmin'], vardict['JpsiMu_B_mass']['xmax'])
+    for samplekey, isample in sampledict.iteritems():
+        weight = WeightCalc(isample['crossxn'], isample['crossxnerr'], isample['file'])
+        if 'OniaAndX' in samplekey:
+            if tag != '' and cut != '':
+                masshist = sproducer('JpsiMu_B_mass', vardict['JpsiMu_B_mass'], samplekey, isample, tag + ' && ' + cut)
+            elif tag != '' and cut == '':
+                masshist = sproducer('JpsiMu_B_mass', vardict['JpsiMu_B_mass'], samplekey, isample, tag)
+            else:
+                masshist = sproducer('JpsiMu_B_mass', vardict['JpsiMu_B_mass'], samplekey, isample, cut)
+            applyHistStyle(masshist, samplekey)
+            titles.append(isample['title'])
+        elif 'Charmonium' in samplekey:
+            masshist = sproducer('JpsiMu_B_mass', vardict['JpsiMu_B_mass'], samplekey, isample, cut)
+            FullDataHist.Add(masshist)
+        else:
+            masshist = sproducer('JpsiMu_B_mass', vardict['JpsiMu_B_mass'], samplekey, isample, cut)
+            titles.append(isample['title'])
+            applyHistStyle(masshist, samplekey)
+        if not 'data' in samplekey:
+            if options.isNorm:
+                if masshist.Integral()!=0:
+                    masshist.Scale(1./masshist.Integral()) 
+            masshists.append(copy.deepcopy(masshist))
+    if options.isNorm:
+        if FullDataHist.Integral()!=0:
+            FullDataHist.Scale(1./FullDataHist.Integral())
+    applyHistStyle(FullDataHist, 'dataC')
+    masshists.append(copy.deepcopy(FullDataHist))
+    titles.append(sampledict['dataC']['title'])
+    comparisonPlots(masshists, titles, ivar['isLog'], ivar['loglowerlimit'], directory+histname+'.pdf', ivar['isRatio'], ivar['isLegended'])
+
 if options.is2DHist:
     tdir = directory+'2dhists/'
     plottdir = tdir+'plots/'
@@ -172,6 +208,7 @@ if options.isCutOpt:
 
 # to add a new variable, add a new entry in 'varsdict.py'. To add a new sample, add a new entry in 'samples.py'.
 GoodCuts = []
+GoodVars = []
 for varkey, ivar in vardict.iteritems():
 
     if ivar['HasStackPlot']: 
@@ -281,6 +318,8 @@ for varkey, ivar in vardict.iteritems():
         optcut1 = coh1.GetBin(optcutbin1)
         optcut1 = optparams['xmin'] + optcutbin1 * split
         cutline1 = TLine.TLine(optcut1, 0, optcut1, coh1.GetMaximum())
+        GoodCuts += [var+optparams['isgl']+str(optcut1)]
+        GoodVars += [var]
         #optcutbin2 = coh2.GetMaximumBin()
         #optcut2 = optparams['xmin'] + optcutbin2 * split
         #cutline2 = TLine.TLine(optcut2, 0, optcut2, coh2.GetMaximum())
@@ -295,79 +334,76 @@ for varkey, ivar in vardict.iteritems():
         #cutline2.SetLineColor(6)
         #cutline3.SetLineColor(6)
         opt_signif = coh1.GetMaximum()
-        #GoodCuts += [var]
         sigh.Scale(histscale * coh1.Integral()/sigh.Integral())
         bckgh.Scale(histscale * coh1.Integral()/bckgh.Integral())
         comparisonPlots([coh1, sigh, bckgh, cutline1], ['#frac{s}{#sqrt{s+b}}', 'B_{c}->J/#psi+#mu+#nu Signal', 'pp->J/#psi+X Background', 'Optimal Cut: ' + var +' '+optparams['isgl']+' '+str(optcut1)+'. #frac{s}{#sqrt{s+b}} = '+str(coh1.GetMaximum())+' vs no cuts: '+str(s0/TMath.Sqrt(s0+b0))], False, False, plotodir+var+'_cutopt1'+'.pdf', False, True, True)
 
-        masshists = []
-        mcorrhists = []
-        kplusmasshists = []
-        kplusmcorrhists = []
-        titles = []
-        for samplekey, isample in sampledict.iteritems():
-            if samplekey != 'dataC':
-                masshist = sproducer('JpsiMu_B_mass', vardict['JpsiMu_B_mass'], samplekey, isample, '!isBplusJpsiKplus && '+var+optparams['isgl']+str(optcut1))
-                applyHistStyle(masshist, samplekey)
-                mcorrhist = sproducer('JpsiMu_B_mcorr', vardict['JpsiMu_B_mcorr'], samplekey, isample, '!isBplusJpsiKplus && '+var+optparams['isgl']+str(optcut1))
-                applyHistStyle(mcorrhist, samplekey)
-                kplusmasshist = sproducer('JpsiMu_B_mass', vardict['JpsiMu_B_mass'], samplekey, isample, 'isBplusJpsiKplus && '+var+optparams['isgl']+str(optcut1))
-                applyHistStyle(kplusmasshist, samplekey)
-                kplusmcorrhist = sproducer('JpsiMu_B_mcorr', vardict['JpsiMu_B_mcorr'], samplekey, isample, 'isBplusJpsiKplus && '+var+optparams['isgl']+str(optcut1))
-                applyHistStyle(kplusmcorrhist, samplekey)
-            else:
-                masshist = sproducer('JpsiMu_B_mass', vardict['JpsiMu_B_mass'], samplekey, isample, var+optparams['isgl']+str(optcut1))
-                applyHistStyle(masshist, samplekey)
-                mcorrhist = sproducer('JpsiMu_B_mcorr', vardict['JpsiMu_B_mcorr'], samplekey, isample, var+optparams['isgl']+str(optcut1))
-                applyHistStyle(mcorrhist, samplekey)
-                kplusmasshist = sproducer('JpsiMu_B_mass', vardict['JpsiMu_B_mass'], samplekey, isample, var+optparams['isgl']+str(optcut1))
-                applyHistStyle(kplusmasshist, samplekey)
-                kplusmcorrhist = sproducer('JpsiMu_B_mcorr', vardict['JpsiMu_B_mcorr'], samplekey, isample, var+optparams['isgl']+str(optcut1))
-                applyHistStyle(kplusmcorrhist, samplekey)
-            weight = WeightCalc(isample['crossxn'], isample['crossxnerr'], isample['file'])
-            # add histogram to stack hist if it isn't data and normalize histograms
-            if options.isNorm:
-                if masshist.Integral()!=0:
-                    masshist.Scale(1./masshist.Integral()) 
-                if mcorrhist.Integral()!=0:
-                    mcorrhist.Scale(1./mcorrhist.Integral()) 
-                if kplusmasshist.Integral()!=0:
-                    kplusmasshist.Scale(1./kplusmasshist.Integral()) 
-                if kplusmcorrhist.Integral()!=0:
-                    kplusmcorrhist.Scale(1./kplusmcorrhist.Integral()) 
-            masshists.append(copy.deepcopy(masshist))
-            mcorrhists.append(copy.deepcopy(mcorrhist))
-            kplusmasshists.append(copy.deepcopy(kplusmasshist))
-            kplusmcorrhists.append(copy.deepcopy(kplusmcorrhist))
-            titles.append(isample['title'])
+if options.isOpt:
+    ptcut = 'JpsiMu_mu3_pt > 15'
+    tags = ['isBplusJpsiKplus', 'isBplusJpsiPiPlus', 'isBplusJpsi3Kplus', 'isBplusJpsiKPiPiplus', 'isBplusJpsiPhiKplus', 'isBplusJpsiK0Piplus']
+    allcuts = ''
+# no optimized cuts no tags
+    CutEffects(plotodir, 'NoCuts')
+    CutEffects(plotodir, 'pT15_only', ptcut)
+# no optimized cuts with tags
+    for tag in tags: 
+        CutEffects(plotodir, tag+'_NoCuts', '', tag)
+        CutEffects(plotodir, tag+'_pT15_only', ptcut, tag)
+# now going over optimized cuts, applying one, two, and three cuts
+    for icut in xrange(len(GoodCuts)):
+        if icut == 0:
+            allcuts += GoodCuts[icut]
+        else:
+            allcuts += ' && ' + GoodCuts[icut]
+# One optimized cut no tags
+        CutEffects(plotodir, GoodVars[icut]+'_nopT', GoodCuts[icut])
+        CutEffects(plotodir, GoodVars[icut]+'_pT15', GoodCuts[icut]+' && '+ptcut)
+# one optimized cut with tags
+        for tag in tags:
+            CutEffects(plotodir, tag+'_'+GoodVars[icut]+'_nopT', GoodCuts[icut], tag)
+            CutEffects(plotodir, tag+'_'+GoodVars[icut]+'_pT15', GoodCuts[icut]+' && '+ptcut, tag)
+        Twocut_i = GoodCuts[icut]
+        Threecut_i = GoodCuts[icut]
+        for icut2 in xrange(len(GoodCuts)):
+            if icut2 <= icut: continue
+            Twocut_i += ' && ' + GoodCuts[icut2]
+            Threecut_i += ' && ' + GoodCuts[icut2]
+# Two optimized cuts no tags
+            CutEffects(plotodir, GoodVars[icut]+'_'+GoodVars[icut2]+'_nopT', Twocut_i)
+            CutEffects(plotodir, GoodVars[icut]+'_'+GoodVars[icut2]+'_pT15', Twocut_i+' && '+ptcut)
+# Two optimized cuts with tags
+            for tag in tags:
+                CutEffects(plotodir, tag+'_'+GoodVars[icut]+'_'+GoodVars[icut2]+'_nopT', Twocut_i, tag)
+                CutEffects(plotodir, tag+'_'+GoodVars[icut]+'_'+GoodVars[icut2]+'_pT15', Twocut_i+' && '+ptcut, tag)
+            for icut3 in xrange(len(GoodCuts)):
+                if icut3 <= icut2: continue
+                Threecut_i += ' && ' + GoodCuts[icut3]
+# Three optimized cuts no tags
+                CutEffects(plotodir, GoodVars[icut]+'_'+GoodVars[icut2]+'_'+GoodVars[icut3]+'_nopT', Threecut_i)
+                CutEffects(plotodir, GoodVars[icut]+'_'+GoodVars[icut2]+'_'+GoodVars[icut3]+'_pT15', Threecut_i+' && '+ptcut)
+# Three optimized cuts with tags
+                for tag in tags:
+                    CutEffects(plotodir, tag+'_'+GoodVars[icut]+'_'+GoodVars[icut2]+'_'+GoodVars[icut3]+'_nopT', Twocut_i, tag)
+                    CutEffects(plotodir, tag+'_'+GoodVars[icut]+'_'+GoodVars[icut2]+'_'+GoodVars[icut3]+'_pT15', Twocut_i+' && '+ptcut, tag)
+            
+    CutEffects(plotodir, 'AllCuts_nopT', allcuts)
+    CutEffects(plotodir, 'AllCuts_pT15', allcuts + ' && ' + ptcut)
+    for tag in tags: 
+        CutEffects(plotodir, tag+'_AllCuts_nopT', allcuts, tag)
+        CutEffects(plotodir, tag+'_AllCuts_pT15', allcuts + ' && ' + ptcut, tag)
+        
+            #sigh.Scale(histscale * coh2.Integral()/sigh.Integral())
+            #bckgh.Scale(histscale * coh2.Integral()/bckgh.Integral())
+            #comparisonPlots([coh2, sigh, bckgh, cutline2], ['#frac{s}{#sqrt{b}}', 'B_{c}->J/#psi+#mu+#nu Signal', 'pp->J/#psi+X Background', 'Cut: ' + var+' '+optparams['isgl']+' '+str(optcut2)+'.#frac{s}{#sqrt{b}} = '+str(round(coh2.GetMaximum(), 4))+' : '+str(round(s0/TMath.Sqrt(b0), 4))], False, False, plotodir+var+'_cutopt2'+'.pdf', False, True, True)
     
-        comparisonPlots(masshists, titles, ivar['isLog'], ivar['loglowerlimit'], plotodir+var+'_mass.pdf', ivar['isRatio'], ivar['isLegended'])
-        comparisonPlots(mcorrhists, titles, ivar['isLog'], ivar['loglowerlimit'], plotodir+var+'_mcorr.pdf', ivar['isRatio'], ivar['isLegended'])
-        comparisonPlots(kplusmasshists, titles, ivar['isLog'], ivar['loglowerlimit'], plotodir+var+'_kplusmass.pdf', ivar['isRatio'], ivar['isLegended'])
-        comparisonPlots(kplusmcorrhists, titles, ivar['isLog'], ivar['loglowerlimit'], plotodir+var+'_kplusmcorr.pdf', ivar['isRatio'], ivar['isLegended'])
-        #sigh.Scale(histscale * coh2.Integral()/sigh.Integral())
-        #bckgh.Scale(histscale * coh2.Integral()/bckgh.Integral())
-        #comparisonPlots([coh2, sigh, bckgh, cutline2], ['#frac{s}{#sqrt{b}}', 'B_{c}->J/#psi+#mu+#nu Signal', 'pp->J/#psi+X Background', 'Cut: ' + var+' '+optparams['isgl']+' '+str(optcut2)+'.#frac{s}{#sqrt{b}} = '+str(round(coh2.GetMaximum(), 4))+' : '+str(round(s0/TMath.Sqrt(b0), 4))], False, False, plotodir+var+'_cutopt2'+'.pdf', False, True, True)
-
-        #sigh.Scale(histscale * coh3.Integral()/sigh.Integral())
-        #bckgh.Scale(histscale * coh3.Integral()/bckgh.Integral())
-        #comparisonPlots([coh3, sigh, bckgh, cutline3], ['#frac{s}{b}', 'B_{c}->J/#psi+#mu+#nu Signal', 'pp->J/#psi+X Background', 'Cut: ' + var+' '+optparams['isgl']+' '+str(optcut3)+'.#frac{s}{b} = '+str(round(coh3.GetMaximum(), 8))+' : '+str(round(s0/b0, 8))], False, False, plotodir+var+'_cutopt3'+'.pdf', False, True, True)
+            #sigh.Scale(histscale * coh3.Integral()/sigh.Integral())
+            #bckgh.Scale(histscale * coh3.Integral()/bckgh.Integral())
+            #comparisonPlots([coh3, sigh, bckgh, cutline3], ['#frac{s}{b}', 'B_{c}->J/#psi+#mu+#nu Signal', 'pp->J/#psi+X Background', 'Cut: ' + var+' '+optparams['isgl']+' '+str(optcut3)+'.#frac{s}{b} = '+str(round(coh3.GetMaximum(), 8))+' : '+str(round(s0/b0, 8))], False, False, plotodir+var+'_cutopt3'+'.pdf', False, True, True)
+    
 
 if options.is2DHist:
     gStyle.SetOptTitle(1)
     gStyle.SetTitleX(.5)
-   # if options.isCutOpt:
-   #     nGoodCuts = len(GoodCuts)
-   #     for i in range(nGoodCuts):
-   #         for j in range(nGoodCuts):
-   #             if j>i:
-   #                 mmhist1 = sproducer2D(GoodCuts[i], GoodCuts[j], vardict[GoodCuts[i]], vardict[GoodCuts[j]], 'bg_JpsiX_MuMu_J', sampledict['bg_JpsiX_MuMu_J']);
-   #                 mmhist2 = sproducer2D(GoodCuts[i], GoodCuts[j], vardict[GoodCuts[i]], vardict[GoodCuts[j]], 'signal_BcJpsiMuNu', sampledict['signal_BcJpsiMuNu']);
-   #                 mmhist3 = sproducer2D(GoodCuts[i], GoodCuts[j], vardict[GoodCuts[i]], vardict[GoodCuts[j]], 'dataC', sampledict['dataC']);
-   #                 comparisonPlots([mmhist1], [""], False, False, plottdir+GoodCuts[i]+'_'+GoodCuts[j]+'_'+'bg''.pdf', False, False, False, True)
-   #                 comparisonPlots([mmhist2], [""], False, False, plottdir+GoodCuts[i]+'_'+GoodCuts[j]+'_'+'signal'+'.pdf', False, False, False, True)
-   #                 comparisonPlots([mmhist3], [""], False, False, plottdir+GoodCuts[i]+'_'+GoodCuts[j]+'_'+'data'+'.pdf', False, False, False, True)
-   #                 
     for item in corrpairs:
         mmhist1 = sproducer2D(item[0], item[1], vardict[item[0]], vardict[item[1]], 'bg_JpsiX_MuMu_J', sampledict['bg_JpsiX_MuMu_J']);
         mmhist2 = sproducer2D(item[0], item[1], vardict[item[0]], vardict[item[1]], 'signal_BcJpsiMuNu', sampledict['signal_BcJpsiMuNu']);
@@ -378,10 +414,10 @@ if options.is2DHist:
             
 # This writes to a webpage so you can more easily view all the plots you've created in a web browser, which will display them simultaneously.
 # This is optional, you can comment it out if you want to ...
-#if options.is2DHist:
-#    writeHTML(tdir, "2-D Histograms")
-#if options.isCompare:
-#    writeHTML(cdir, "Comparison Plots")
-#if options.isCutOpt:
-#    writeHTML(odir, "Cut Optimization")
-#    writeHTML(odir2, "Cut Optimization pt 2")
+if options.is2DHist:
+    writeHTML(tdir, "2-D Histograms")
+if options.isCompare:
+    writeHTML(cdir, "Comparison Plots")
+if options.isCutOpt:
+    writeHTML(odir, "Cut Optimization")
+    writeHTML(odir2, "Cut Optimization pt 2")

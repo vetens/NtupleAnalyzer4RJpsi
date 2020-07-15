@@ -81,29 +81,10 @@ vardict['JpsiMu_mu3_isTight'] = {'xtitle': 'is #mu_{3} Tight?', 'nbins': 2, 'xmi
 
 to_optimize = collections.OrderedDict()
 
-to_optimize['JpsiMu_mu3_doca2mu2'] = {'var': vardict['JpsiMu_mu3_doca2mu2'], 'isgl': '<', 'granularity': 100.0, 'histscale': 0.14, 'xmax': 0.05, 'xmin': 0}
-to_optimize['JpsiMu_mu3_doca2mu1'] = {'var': vardict['JpsiMu_mu3_doca2mu1'], 'isgl': '<', 'granularity': 100.0, 'histscale': 0.14, 'xmax': 0.05, 'xmin': 0}
-to_optimize['JpsiMu_B_fls3d'] = {'var': vardict['JpsiMu_B_fls3d'], 'isgl': '<', 'granularity': 100.0, 'histscale': 0.13, 'xmax': 30, 'xmin': 0}
-to_optimize['JpsiMu_Jpsi_fls3d'] = {'var': vardict['JpsiMu_Jpsi_fls3d'], 'isgl': '<', 'granularity': 100.0, 'histscale': 0.13, 'xmax': 30, 'xmin': 0}
-to_optimize['JpsiMu_mu3_reliso'] = {'var': vardict['JpsiMu_mu3_reliso'], 'isgl': '<', 'granularity': 100.0, 'histscale': 0.1, 'xmax': 2, 'xmin': 0.0}
 to_optimize['JpsiMu_mu3_reldbiso'] = {'var': vardict['JpsiMu_mu3_reldbiso'], 'isgl': '<', 'granularity': 100.0, 'histscale': 0.1, 'xmax': 2, 'xmin': 0.0}
 to_optimize['JpsiMu_B_reliso'] = {'var': vardict['JpsiMu_B_reliso'], 'isgl': '<', 'granularity': 100.0, 'histscale': 0.08, 'xmax': 2, 'xmin': 0.0}
-to_optimize['JpsiMu_B_alpha'] = {'var': vardict['JpsiMu_B_alpha'], 'isgl': '>', 'granularity': 100.0, 'histscale': 0.05, 'xmax': 1, 'xmin': 0.8}
 to_optimize['JpsiMu_B_pvips'] = {'var': vardict['JpsiMu_B_pvips'], 'isgl': '<', 'granularity': 100.0, 'histscale': 0.2, 'xmax': 7, 'xmin': 0}
-to_optimize['JpsiMu_B_lips'] = {'var': vardict['JpsiMu_B_lips'], 'isgl': '<', 'granularity': 100.0, 'histscale': 0.13, 'xmax': 7, 'xmin': 0}
-to_optimize['JpsiMu_B_maxdoca'] = {'var': vardict['JpsiMu_B_maxdoca'], 'isgl': '<', 'granularity': 100.0, 'histscale': 0.07, 'xmax': 0.05, 'xmin': 0}
-to_optimize['JpsiMu_B_mindoca'] = {'var': vardict['JpsiMu_B_mindoca'], 'isgl': '>', 'granularity': 100.0, 'histscale': 0.13, 'xmax': 0.015, 'xmin': 0}
 to_optimize['JpsiMu_B_iso_mindoca'] = {'var': vardict['JpsiMu_B_iso_mindoca'], 'isgl': '>', 'granularity': 100.0, 'histscale': 0.11, 'xmax': 0.2, 'xmin': 0}
-to_optimize['JpsiMu_B_vprob'] = {'var': vardict['JpsiMu_B_vprob'], 'isgl': '>', 'granularity': 100.0, 'histscale': 0.2, 'xmax': 0.3, 'xmin': 0}
-to_optimize['JpsiMu_mu3_pt'] = {'var': vardict['JpsiMu_mu3_pt'], 'isgl': '>', 'granularity': 100.0, 'histscale': 0.2, 'xmax': 20, 'xmin': 4}
-to_optimize['JpsiMu_B_pt'] = {'var': vardict['JpsiMu_B_pt'], 'isgl': '>', 'granularity': 100.0, 'histscale': 0.2, 'xmax': 30, 'xmin': 6}
-#to_optimize['MET_sumEt'] = {'var': vardict['MET_sumEt'], 'isgl': '<', 'granularity': 100.0, 'histscale': 0.13, 'xmax': 3000, 'xmin': 0}
-to_optimize['cosdphi_mu1_mu3'] = {'var': vardict['cosdphi_mu1_mu3'], 'isgl': '>', 'granularity': 100.0, 'histscale': 0.05, 'xmax': 1, 'xmin': 0.5}
-to_optimize['cosdphi_mu2_mu3'] = {'var': vardict['cosdphi_mu2_mu3'], 'isgl': '>', 'granularity': 100.0, 'histscale': 0.05, 'xmax': 1, 'xmin': 0.5}
-to_optimize['cosdphi_Jpsi_mu3'] = {'var': vardict['cosdphi_Jpsi_mu3'], 'isgl': '>', 'granularity': 100.0, 'histscale': 0.05, 'xmax': 1, 'xmin': 0.5}
-to_optimize['JpsiMu_B_iso_ntracks'] = {'var': vardict['JpsiMu_B_iso_ntracks'], 'isgl': '>', 'granularity': 15.0, 'histscale': 0.12, 'xmax': 15, 'xmin': 0}
-to_optimize['JpsiMu_B_mass'] = {'var': vardict['JpsiMu_B_mass'], 'isgl': '<', 'granularity': 36.0, 'histscale': 0.12, 'xmax': 9, 'xmin': 3}
-to_optimize['JpsiMu_B_mcorr'] = {'var': vardict['JpsiMu_B_mcorr'], 'isgl': '>', 'granularity': 36.0, 'histscale': 0.12, 'xmax': 14, 'xmin': 3.5}
 
 # Pairs to plot as 2D histograms for correlation checks
 
