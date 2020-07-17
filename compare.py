@@ -33,6 +33,13 @@ gStyle.SetOptStat(0)
 
 directory = options.outdir
 cut0 = options.precut
+
+datacuttitle = sampledict['dataC']['title']
+NDatEvts = 0
+for samplekey, isample in sampledict.iteritems():
+    if 'data' in samplekey:
+        NDatEvts += isample['file'].Get('cuthist').GetBinContent(1)
+datacuttitle += ' ['+str(round(NDatEvts))+':'
 #colours = [1, 2, 4, 6, 8, 13, 15]
 #styles = [1, 2, 4, 3, 5, 1, 1]
 #widths = [3,3,3,3]
@@ -57,23 +64,22 @@ def WeightCalc(crossxn, crossxnerr, Tfile):
     wgterr = lumi * crossxnerr / nevts
     return [wgt, wgterr, nevts]
 
-def comparisonPlots(hists, titles, isLog=False, LogRange=0, pname='sync.pdf', isRatio=True, isLegend=True, isOpt=False, is2D=False):
+def comparisonPlots(hists, titles, isLog=False, LogRange=0, pname='sync.pdf', isRatio=True, isLegend=True, isCutOpt=False, is2D=False):
 
-    display = DisplayManager(pname, isLog, isRatio, LogRange, 0.2, 0.7, isOpt, is2D)
+    display = DisplayManager(pname, isLog, isRatio, LogRange, 0.2, 0.7, isCutOpt, is2D)
     display.draw_legend = isLegend
 
-    display.Draw(hists, titles, isOpt, is2D)
+    display.Draw(hists, titles, isCutOpt, is2D)
 
 
-def sproducer(key, ivar, samplekey, sample,cut0=''):
+def sproducer(key, ivar, samplekey, sample,cut0='', Xtitled=False, Xtitle=''):
 
     hist = TH1F('h_' + key, 
                 'h_' + key, 
                 ivar['nbins'], ivar['xmin'], ivar['xmax'])
 
     hist.Sumw2()
-    print samplekey
-    if samplekey is "dataC":
+    if "data" in samplekey:
         wgt = '1'
     else:
         wgt = str(WeightCalc(sample['crossxn'],sample['crossxnerr'],sample['file'])[0]) 
@@ -85,11 +91,14 @@ def sproducer(key, ivar, samplekey, sample,cut0=''):
         
     tree = rootfile.Get('tree')
 
-    if samplekey is "dataC":
+    if "data" in samplekey:
         tree.Draw(key + ' >> ' + hist.GetName(), exp)
     else:
         tree.Draw(key + ' >> ' + hist.GetName(), 'weight_pu[0]*'+exp)
-    hist.GetXaxis().SetTitle(ivar['xtitle'])
+    if Xtitled:
+        hist.GetXaxis().SetTitle(Xtitle)
+    else:
+        hist.GetXaxis().SetTitle(ivar['xtitle'])
     hist.GetYaxis().SetTitle(ivar['ytitle'])
         
     return copy.deepcopy(hist)
@@ -119,7 +128,7 @@ def sproducer2D(key1, key2, var1, var2, samplekey, sample):
                 var2['nbins'], var2['xmin'], var2['xmax'])
 
     hist.Sumw2()
-    if samplekey is "dataC":
+    if "data" in samplekey:
         wgt = '1'
     else:
         wgt = str(WeightCalc(sample['crossxn'],sample['crossxnerr'],sample['file'])[0]) 
@@ -131,7 +140,7 @@ def sproducer2D(key1, key2, var1, var2, samplekey, sample):
         
     tree = rootfile.Get('tree')
 
-    if samplekey is "dataC":
+    if "data" in samplekey:
         tree.Draw(key2 + ':' + key1 + ' >> ' + hist.GetName(), exp)
     else:
         tree.Draw(key2 + ':' + key1  + ' >> ' + hist.GetName(), "weight_pu[0]*"+exp)
@@ -145,37 +154,38 @@ def sproducer2D(key1, key2, var1, var2, samplekey, sample):
 def CutEffects(directory, histname, cut='', tag=''):
     masshists = []
     titles = []
-    FullDataHist = TH1F(histname, "B mass: " + histname, vardict['JpsiMu_B_mass']['nbins'], vardict['JpsiMu_B_mass']['xmin'], vardict['JpsiMu_B_mass']['xmax'])
+    FullDataHist = TH1F("FullDat"+histname, "FullDat" + histname, vardict['JpsiMu_B_mass']['nbins'], vardict['JpsiMu_B_mass']['xmin'], vardict['JpsiMu_B_mass']['xmax'])
     for samplekey, isample in sampledict.iteritems():
         weight = WeightCalc(isample['crossxn'], isample['crossxnerr'], isample['file'])
         if 'OniaAndX' in samplekey:
             if tag != '' and cut != '':
-                masshist = sproducer('JpsiMu_B_mass', vardict['JpsiMu_B_mass'], samplekey, isample, tag + ' && ' + cut)
+                masshist = sproducer('JpsiMu_B_mass', vardict['JpsiMu_B_mass'], samplekey, isample, tag + ' && ' + cut, True, histname)
             elif tag != '' and cut == '':
-                masshist = sproducer('JpsiMu_B_mass', vardict['JpsiMu_B_mass'], samplekey, isample, tag)
+                masshist = sproducer('JpsiMu_B_mass', vardict['JpsiMu_B_mass'], samplekey, isample, tag, True, histname)
             else:
-                masshist = sproducer('JpsiMu_B_mass', vardict['JpsiMu_B_mass'], samplekey, isample, cut)
+                masshist = sproducer('JpsiMu_B_mass', vardict['JpsiMu_B_mass'], samplekey, isample, cut, True, histname)
             applyHistStyle(masshist, samplekey)
-            titles.append(isample['title'])
-        elif 'Charmonium' in samplekey:
-            masshist = sproducer('JpsiMu_B_mass', vardict['JpsiMu_B_mass'], samplekey, isample, cut)
+        elif 'data' in samplekey:
+            masshist = sproducer('JpsiMu_B_mass', vardict['JpsiMu_B_mass'], samplekey, isample, cut, True, histname)
             FullDataHist.Add(masshist)
         else:
-            masshist = sproducer('JpsiMu_B_mass', vardict['JpsiMu_B_mass'], samplekey, isample, cut)
-            titles.append(isample['title'])
+            masshist = sproducer('JpsiMu_B_mass', vardict['JpsiMu_B_mass'], samplekey, isample, cut, True, histname)
             applyHistStyle(masshist, samplekey)
         if not 'data' in samplekey:
+            ititle = isample['title'] + ' ['+str(round(isample['file'].Get('cuthist').GetBinContent(1)))+':'+ str(round(masshist.GetBinContent(0) + masshist.Integral() + masshist.GetBinContent(vardict['JpsiMu_B_mass']['nbins']), isample['digits']))+']'
             if options.isNorm:
                 if masshist.Integral()!=0:
                     masshist.Scale(1./masshist.Integral()) 
             masshists.append(copy.deepcopy(masshist))
+            titles.append(ititle)
+    dattitle = datacuttitle + str(round(FullDataHist.GetBinContent(0) + FullDataHist.Integral() + FullDataHist.GetBinContent(vardict['JpsiMu_B_mass']['nbins']), 0))+']'
+    titles.append(dattitle)
     if options.isNorm:
         if FullDataHist.Integral()!=0:
             FullDataHist.Scale(1./FullDataHist.Integral())
     applyHistStyle(FullDataHist, 'dataC')
     masshists.append(copy.deepcopy(FullDataHist))
-    titles.append(sampledict['dataC']['title'])
-    comparisonPlots(masshists, titles, ivar['isLog'], ivar['loglowerlimit'], directory+histname+'.pdf', ivar['isRatio'], ivar['isLegended'])
+    comparisonPlots(masshists, titles, vardict['JpsiMu_B_mass']['isLog'], vardict['JpsiMu_B_mass']['loglowerlimit'], directory+histname+'.pdf', vardict['JpsiMu_B_mass']['isRatio'], vardict['JpsiMu_B_mass']['isLegended'])
 
 if options.is2DHist:
     tdir = directory+'2dhists/'
@@ -217,6 +227,7 @@ for varkey, ivar in vardict.iteritems():
     titles = []
     
     var = varkey
+    FullDatHist = TH1F('h_dat_'+var, 'h_dat_'+var, ivar['nbins'], ivar['xmin'], ivar['xmax'])
     #print ivar
  
     if var == list(vardict.items()[0])[0]:
@@ -235,20 +246,25 @@ for varkey, ivar in vardict.iteritems():
             applyHistStyle(hist, samplekey)
             weight = WeightCalc(isample['crossxn'], isample['crossxnerr'], isample['file'])
             # Add number of initial and final events to title (only want to do this once)
-            if var == list(vardict.items()[0])[0]:
-                if samplekey == 'dataC':
-                    isample['title'] += ' ['+str(round(isample['file'].Get('cuthist').GetBinContent(1)))+':'+str(round(hist.Integral()))+']'
-                else:
-                    isample['title'] += ' ['+str(round(isample['file'].Get('cuthist').GetBinContent(1)))+':'+str(round(hist.Integral(), isample['digits']))+']'
             # add histogram to stack hist if it isn't data and normalize histograms
-            if options.isNorm:
+            if 'data' in samplekey:
+                FullDatHist.Add(hist)
+            else:
+                titles.append(isample['title'] + ' ['+str(round(isample['file'].Get('cuthist').GetBinContent(1)))+':'+ str(round(hist.GetBinContent(0) + hist.Integral() + hist.GetBinContent(ivar['nbins']), isample['digits']))+']')
+            if options.isNorm and 'data' not in samplekey:
                 if hist.Integral()!=0:
                     hist.Scale(1./hist.Integral()) 
-            if samplekey != 'dataC':
+            if 'data' not in samplekey:
                 if ivar['HasStackPlot']:
                     stackhist.Add(copy.deepcopy(hist))
-            hists.append(copy.deepcopy(hist))
-            titles.append(isample['title'])
+                else:
+                    hists.append(copy.deepcopy(hist))
+        datatitle = datacuttitle + str(round(FullDatHist.GetBinContent(0) + FullDatHist.Integral() + FullDatHist.GetBinContent(ivar['nbins']), 0))+']'
+        titles.append(datatitle)
+        if options.isNorm:
+            if FullDatHist.Integral()!=0:
+                FullDatHist.Scale(1./FullDatHist.Integral())
+        hists.append(copy.deepcopy(FullDatHist))
     
         if ivar['HasStackPlot']:
             hists.append(stackhist)
@@ -285,13 +301,13 @@ for varkey, ivar in vardict.iteritems():
         bckgh = TH1F(bckgname, "b", igran, optparams['xmin'], optparams['xmax'])
         if cut0 == '':
             signal_BcJpsiMuNu.Get('tree').Draw(var+'>>'+signame)
-            bg_JpsiX_MuMu_J.Get('tree').Draw(var+'>>'+bckgname)
-            bh0 = optsproducer('JpsiMu_B_mass', vardict['JpsiMu_B_mass'], samplekey, sampledict['bg_JpsiX_MuMu_J'], '')
+            bg_OniaAndX_MuMu_J.Get('tree').Draw(var+'>>'+bckgname)
+            bh0 = optsproducer('JpsiMu_B_mass', vardict['JpsiMu_B_mass'], samplekey, sampledict['bg_OniaAndX_MuMu_J'], '')
             sh0 = optsproducer('JpsiMu_B_mass', vardict['JpsiMu_B_mass'], samplekey, sampledict['signal_BcJpsiMuNu'], '')
         else:
             signal_BcJpsiMuNu.Get('tree').Draw(var+'>>'+signame, '('+cut0+')')
-            bg_JpsiX_MuMu_J.Get('tree').Draw(var+'>>'+bckgname, '('+cut0+')')
-            bh0 = optsproducer('JpsiMu_B_mass', vardict['JpsiMu_B_mass'], samplekey, sampledict['bg_JpsiX_MuMu_J'], '('+cut0+')')
+            bg_OniaAndX_MuMu_J.Get('tree').Draw(var+'>>'+bckgname, '('+cut0+')')
+            bh0 = optsproducer('JpsiMu_B_mass', vardict['JpsiMu_B_mass'], samplekey, sampledict['bg_OniaAndX_MuMu_J'], '('+cut0+')')
             sh0 = optsproducer('JpsiMu_B_mass', vardict['JpsiMu_B_mass'], samplekey, sampledict['signal_BcJpsiMuNu'], '('+cut0+')')
         b0 = bh0.Integral()
         s0 = sh0.Integral()
@@ -302,7 +318,7 @@ for varkey, ivar in vardict.iteritems():
         for x in range(1,igran):
             xparam = optparams['xmin']+split*x
             tcut = '('+var+optparams['isgl']+str(xparam)+icut+')'
-            bh = optsproducer('JpsiMu_B_mass', vardict['JpsiMu_B_mass'], samplekey, sampledict['bg_JpsiX_MuMu_J'], tcut)
+            bh = optsproducer('JpsiMu_B_mass', vardict['JpsiMu_B_mass'], samplekey, sampledict['bg_OniaAndX_MuMu_J'], tcut)
             sh = optsproducer('JpsiMu_B_mass', vardict['JpsiMu_B_mass'], samplekey, sampledict['signal_BcJpsiMuNu'], tcut)
             b = bh.Integral()
             s = sh.Integral()
@@ -338,9 +354,9 @@ for varkey, ivar in vardict.iteritems():
         bckgh.Scale(histscale * coh1.Integral()/bckgh.Integral())
         comparisonPlots([coh1, sigh, bckgh, cutline1], ['#frac{s}{#sqrt{s+b}}', 'B_{c}->J/#psi+#mu+#nu Signal', 'pp->J/#psi+X Background', 'Optimal Cut: ' + var +' '+optparams['isgl']+' '+str(optcut1)+'. #frac{s}{#sqrt{s+b}} = '+str(coh1.GetMaximum())+' vs no cuts: '+str(s0/TMath.Sqrt(s0+b0))], False, False, plotodir+var+'_cutopt1'+'.pdf', False, True, True)
 
-if options.isOpt:
+if options.isCutOpt:
     ptcut = 'JpsiMu_mu3_pt > 15'
-    tags = ['isBplusJpsiKplus', 'isBplusJpsiPiPlus', 'isBplusJpsi3Kplus', 'isBplusJpsiKPiPiplus', 'isBplusJpsiPhiKplus', 'isBplusJpsiK0Piplus']
+    tags = ['isBplusJpsiKplus', 'isBplusJpsiPiplus', 'isBplusJpsi3Kplus', 'isBplusJpsiKPiPiplus', 'isBplusJpsiPhiKplus', 'isBplusJpsiK0Piplus']
     allcuts = ''
 # no optimized cuts no tags
     CutEffects(plotodir, 'NoCuts')
@@ -405,7 +421,7 @@ if options.is2DHist:
     gStyle.SetOptTitle(1)
     gStyle.SetTitleX(.5)
     for item in corrpairs:
-        mmhist1 = sproducer2D(item[0], item[1], vardict[item[0]], vardict[item[1]], 'bg_JpsiX_MuMu_J', sampledict['bg_JpsiX_MuMu_J']);
+        mmhist1 = sproducer2D(item[0], item[1], vardict[item[0]], vardict[item[1]], 'bg_OniaAndX_MuMu_J', sampledict['bg_OniaAndX_MuMu_J']);
         mmhist2 = sproducer2D(item[0], item[1], vardict[item[0]], vardict[item[1]], 'signal_BcJpsiMuNu', sampledict['signal_BcJpsiMuNu']);
         mmhist3 = sproducer2D(item[0], item[1], vardict[item[0]], vardict[item[1]], 'dataC', sampledict['dataC']);
         comparisonPlots([mmhist1], [""], False, False, plottdir+item[0]+'_'+item[1]+'_'+'bg''.pdf', False, False, False, True)
@@ -420,4 +436,3 @@ if options.isCompare:
     writeHTML(cdir, "Comparison Plots")
 if options.isCutOpt:
     writeHTML(odir, "Cut Optimization")
-    writeHTML(odir2, "Cut Optimization pt 2")
