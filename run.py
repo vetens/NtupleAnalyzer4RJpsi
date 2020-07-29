@@ -269,16 +269,20 @@ for evt in xrange(Nentries):
         continue
     if chain.JpsiMu_Jpsi_pt < 8: continue
 
-    mu3ptcut = 10
+    mu3ptcut = 4
+    #mu3ptcut = 10
+    #mu3ptcut = 15
     selectedmu3 = -1
     for iMu3 in xrange(chain.JpsiMu_mu3_pt.size()):
-        if chain.JpsiMu_B_vprob[iMu3] < 0.1: continue
-        if chain.JpsiMu_B_mass[iMu3] > 9: continue
+        if chain.JpsiMu_B_vprob[iMu3] < 10**(-4): continue
+        #if chain.JpsiMu_B_vprob[iMu3] < 0.1: continue
+        #if chain.JpsiMu_B_mass[iMu3] > 9: continue
         if chain.JpsiMu_mu1_pt[iMu3] < 4: continue
         if chain.JpsiMu_mu2_pt[iMu3] < 4: continue
         if not chain.JpsiMu_mu1_isSoft[iMu3]: continue
         if not chain.JpsiMu_mu2_isSoft[iMu3]: continue
-        if not chain.JpsiMu_mu3_isTight[iMu3]: continue
+        #if not chain.JpsiMu_mu3_isTight[iMu3]: continue
+        #if not chain.JpsiMu_mu3_isSoft[iMu3]: continue
         if chain.JpsiMu_mu3_pt[iMu3] < mu3ptcut: continue
         mu3ptcut = chain.JpsiMu_mu3_pt[iMu3]
         selectedmu3 = iMu3

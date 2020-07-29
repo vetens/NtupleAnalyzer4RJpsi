@@ -1,5 +1,5 @@
 #!/bin/bash
-target=${1:-/eos/home-w/wvetens/SkimmedNTuples_V1/}
+target=${1:-/eos/home-w/wvetens/SkimmedNTuples_V2/}
 splitting=${2:-20}
 inlist=${3:-'datasets.txt'}
 prefix1="/store/user"

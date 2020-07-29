@@ -98,14 +98,27 @@ class DisplayManager(object):
                     else:
                         self.Legend.AddEntry(h, title, 'lep')
                         #self.Legend.AddEntry(h, title + ': ' + '{0:.1f}'.format(h.Integral()), 'lep')
+                    if len(titles) > len(histos) and i == len(histos)-1:
+                        j = i + 1
+                        while j < len(titles):
+                            self.Legend.AddEntry(0, '', '')
+                            self.Legend.AddEntry(0, titles[j], '')
+                            j += 1
                     ymax = max(h.GetMaximum() for h in self.histos)
                     ymin = min(h.GetMinimum() for h in self.histos)
+                        
                     if i == 0:
                         h.Draw('HIST E')
                     else:
                         h.Draw('SAME HIST E')
                 else: 
                     self.Legend.AddEntry(h, title, 'l')
+                    if len(titles) > len(histos) and i == len(histos)-1:
+                        j = i + 1
+                        while j < len(titles):
+                            self.Legend.AddEntry(0, '', '')
+                            self.Legend.AddEntry(0, titles[j], '')
+                            j += 1
                     ymax = histos[0].GetMaximum()
                     ymin = histos[0].GetMinimum()
                     if i == 0:

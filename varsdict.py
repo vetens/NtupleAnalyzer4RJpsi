@@ -62,17 +62,22 @@ to_optimize['JpsiMu_mu3_reldbiso'] = {'var': vardict['JpsiMu_mu3_reldbiso'], 'is
 to_optimize['JpsiMu_B_reliso'] = {'var': vardict['JpsiMu_B_reliso'], 'isgl': '<', 'granularity': 100.0, 'histscale': 0.08, 'xmax': 2, 'xmin': 0.0}
 to_optimize['JpsiMu_B_pvips'] = {'var': vardict['JpsiMu_B_pvips'], 'isgl': '<', 'granularity': 100.0, 'histscale': 0.2, 'xmax': 7, 'xmin': 0}
 to_optimize['JpsiMu_B_iso_mindoca'] = {'var': vardict['JpsiMu_B_iso_mindoca'], 'isgl': '>', 'granularity': 100.0, 'histscale': 0.11, 'xmax': 0.2, 'xmin': 0}
+to_optimize['JpsiMu_mu3_pt'] = {'var': vardict['JpsiMu_mu3_pt'], 'isgl': '>', 'granularity': 100.0, 'histscale': 0.5, 'xmax': 20.0, 'xmin': 4.0}
+to_optimize['JpsiMu_B_pt'] = {'var': vardict['JpsiMu_B_pt'], 'isgl': '>', 'granularity': 100.0, 'histscale': 0.5, 'xmax': 30.0, 'xmin': 8.0}
 
 # Pairs to plot as 2D histograms for correlation checks
 
 corrpairs = [
 
-    ['JpsiMu_B_mcorr', 'JpsiMu_B_mass'],
-    ['JpsiMu_mu3_pt', 'JpsiMu_B_mass'],
-    ['JpsiMu_mu3_pt', 'JpsiMu_mu3_doca2mu1'],
-    ['JpsiMu_mu3_pt', 'JpsiMu_mu3_doca2mu2'],
-    ['JpsiMu_mu3_pt', 'cosdphi_Jpsi_mu3'],
-    ['JpsiMu_mu3_pt', 'JpsiMu_B_vprob'],
-    ['JpsiMu_mu3_pt', 'JpsiMu_Jpsi_fls3d'],
+    ['JpsiMu_mu3_reldbiso', 'JpsiMu_B_reliso'],
+    ['JpsiMu_B_iso_mindoca', 'JpsiMu_B_reliso'],
+    ['JpsiMu_B_iso_mindoca', 'JpsiMu_mu3_reldbiso'],
+    ['JpsiMu_B_iso_mindoca', 'JpsiMu_B_pvips'],
+    ['JpsiMu_mu3_reldbiso', 'JpsiMu_B_pvips'],
+    ['JpsiMu_B_reliso', 'JpsiMu_B_pvips'],
+    ['JpsiMu_mu3_pt', 'JpsiMu_B_pvips'],
+    ['JpsiMu_mu3_pt', 'JpsiMu_B_reliso'],
+    ['JpsiMu_mu3_pt', 'JpsiMu_mu3_reldbiso'],
+    ['JpsiMu_mu3_pt', 'JpsiMu_B_iso_mindoca'],
 
 ]
