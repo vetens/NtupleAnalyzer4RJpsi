@@ -14,6 +14,7 @@ from varsdict import *
 from optparse import OptionParser, OptionValueError
 
 usage = "usage: python compare.py [--compare: True, False (default: False)] [--CutOpt: True, False (default: False)] [--compareNorm: True, False (default: False)] [--twoDHist: True, False (default: False)] [--rmrf: True, False (default: False)] [--outdir: <Directory For Outgoing Files> (default: /eos/home-w/wvetens/www/BPH_v8/)] [--precut: <Precuts in TCut string format> (default: '')]"
+
 parser = OptionParser(usage)
 parser.add_option("-c", "--compare", default=False, action="store_true", help="Use this option to generate comparison plots between signal and background", dest="isCompare")
 parser.add_option("-o", "--cutOpt", default=False, action="store_true", help="Use this option to generate scans for cut optimization", dest="isCutOpt")
@@ -21,7 +22,7 @@ parser.add_option("-2", "--cutOpt2", default=False, action="store_true", help="U
 parser.add_option("-n", "--compareNorm", default=False, action="store_true", help="Use this option to compare the histograms Normalized to 1", dest="isNorm")
 parser.add_option("-t", "--twoDHist", default=False, action="store_true", help="Use this option to compare two variables and check for correlations using a two-dimensional histogram", dest="is2DHist")
 parser.add_option("-f", "--rmrf", default=False, action="store_true", help="Forcefully overwrite the output directories to remove old outputs", dest="isrmrf")
-parser.add_option("--outdir", default='B_pT_comparisons/', action="store", help="Output Directory for plots, /eos/home-w/wvetens/www/<outdir>, where <outdir> is specified location, by default, change this within line 36 of compare.py", dest="outdir")
+parser.add_option("--outdir", default='B_pT_comparisons/', action="store", help="Output Directory for plots, /eos/home-w/wvetens/www/<outdir>, where <outdir> is specified location, by default, change this within line 37 of compare.py", dest="outdir")
 parser.add_option("--precut", default='', action="store", help="List of Cuts to apply before plotting", dest="precut")
 parser.add_option("--checkErr", default=False, action="store_true", help="To Check the Errors", dest="checkerr")
 #parser.add_option("-g", "--gen", default=False, action="store_true", help="Run on Gen Level Info", dest="isgen")
