@@ -21,8 +21,9 @@ parser.add_option("-2", "--cutOpt2", default=False, action="store_true", help="U
 parser.add_option("-n", "--compareNorm", default=False, action="store_true", help="Use this option to compare the histograms Normalized to 1", dest="isNorm")
 parser.add_option("-t", "--twoDHist", default=False, action="store_true", help="Use this option to compare two variables and check for correlations using a two-dimensional histogram", dest="is2DHist")
 parser.add_option("-f", "--rmrf", default=False, action="store_true", help="Forcefully overwrite the output directories to remove old outputs", dest="isrmrf")
-parser.add_option("--outdir", default='/eos/home-w/wvetens/www/YutaNTuples_cutflowOptimization_V2/', action="store", help="Output Directory for plots", dest="outdir")
+parser.add_option("--outdir", default='B_pT_comparisons/', action="store", help="Output Directory for plots, /eos/home-w/wvetens/www/<outdir>, where <outdir> is specified location, by default, change this within line 36 of compare.py", dest="outdir")
 parser.add_option("--precut", default='', action="store", help="List of Cuts to apply before plotting", dest="precut")
+parser.add_option("--checkErr", default=False, action="store_true", help="To Check the Errors", dest="checkerr")
 #parser.add_option("-g", "--gen", default=False, action="store_true", help="Run on Gen Level Info", dest="isgen")
 
 
@@ -32,14 +33,19 @@ gROOT.SetBatch(True)
 officialStyle(gStyle)
 gStyle.SetOptStat(0)
 
-directory = options.outdir
+directory ='/eos/home-w/wvetens/www/' + options.outdir
 cut0 = options.precut
 
-datacuttitle = sampledict['DatFull']['title']
+#datacuttitle = sampledict['DatFull']['title']
+datacuttitle = sampledict['signal_BcJpsiMuNu']['title']
 NDatEvts = 0
+flatsamps = open('flatsamples.py')
+for line in flatsamps.readlines():
+    exec(line)
+flatsamps.close()
 for samplekey, isample in sampledict.iteritems():
     if 'Dat' in samplekey:
-        NDatEvts += isample['file'].Get('cuthist').GetBinContent(1)
+        NDatEvts += isample['file'].Get('cuthist').GetEntries()
 datacuttitle += ' ['+str(round(NDatEvts))+':'
 #colours = [1, 2, 4, 6, 8, 13, 15]
 #styles = [1, 2, 4, 3, 5, 1, 1]
@@ -59,11 +65,11 @@ def ensureDir(directory):
     if not os.path.exists(directory):
         os.makedirs(directory)
 
-def WeightCalc(crossxn, crossxnerr, Tfile):
-    nevts = Tfile.Get('cuthist').GetBinContent(1)
-    wgt = lumi * crossxn / nevts
-    wgterr = lumi * crossxnerr / nevts
-    return [wgt, wgterr, nevts]
+#def WeightCalc(crossxn, crossxnerr, Tfile):
+#    nevts = Tfile.Get('cuthist').GetBinContent(1)
+#    wgt = lumi * crossxn / nevts
+#    wgterr = lumi * crossxnerr / nevts
+#    return [wgt, wgterr, nevts]
 
 def comparisonPlots(hists, titles, isLog=False, LogRange=0, pname='sync.pdf', isRatio=True, isLegend=True, isCutOpt=False, is2D=False):
 
@@ -73,29 +79,34 @@ def comparisonPlots(hists, titles, isLog=False, LogRange=0, pname='sync.pdf', is
     display.Draw(hists, titles, isCutOpt, is2D)
 
 
-def sproducer(key, ivar, samplekey, sample,cut0='', Xtitled=False, Xtitle=''):
+def sproducer(key, ivar, samplekey, sample,cut0='', Xtitled=False, Xtitle='', isUp=False, isDown=False):
 
     hist = TH1F('h_' + key, 
                 'h_' + key, 
                 ivar['nbins'], ivar['xmin'], ivar['xmax'])
 
     hist.Sumw2()
-    if "data" in samplekey or "Dat" in samplekey:
-        wgt = '1'
-    else:
-        wgt = str(WeightCalc(sample['crossxn'],sample['crossxnerr'],sample['file'])[0]) 
+    #if "data" in samplekey or "Dat" in samplekey:
+    #    wgt = '1'
+    #else:
+    #    wgt = str(WeightCalc(sample['crossxn'],sample['crossxnerr'],sample['file'])[0]) 
     if cut0 == '':
-        exp = '('+wgt+')'
+        exp = '(1)'
     else:
-        exp = wgt+'*(' + cut0 + ')'
-    rootfile = sample['file']
+        exp = '(' + cut0 + ')'
+    rootfile = sample['flatfile']
         
     tree = rootfile.Get('tree')
 
     if "data" in samplekey or "Dat" in samplekey:
         tree.Draw(key + ' >> ' + hist.GetName(), exp)
     else:
-        tree.Draw(key + ' >> ' + hist.GetName(), 'weight_pu[0]*'+exp)
+        if isUp:
+            tree.Draw(key + ' >> ' + hist.GetName(), 'weight_total_up[0]*'+exp, "hist c")
+        elif isDown:
+            tree.Draw(key + ' >> ' + hist.GetName(), 'weight_total_down[0]*'+exp, "hist c")
+        else:
+            tree.Draw(key + ' >> ' + hist.GetName(), 'weight_total[0]*'+exp, "hist c")
     if Xtitled:
         hist.GetXaxis().SetTitle(Xtitle)
     else:
@@ -109,17 +120,17 @@ def optsproducer(key, ivar, samplekey, sample, tcut):
                 'h_' + key, 
                 ivar['nbins'], ivar['xmin'], ivar['xmax'])
 
-    wgt =  str(WeightCalc(sample['crossxn'], sample['crossxnerr'], sample['file'])[0])
-    rootfile = sample['file']
+    #wgt =  str(WeightCalc(sample['crossxn'], sample['crossxnerr'], sample['file'])[0])
+    rootfile = sample['flatfile']
         
     tree = rootfile.Get('tree')
     hist.GetYaxis().SetTitleOffset(2.5)
 
     if "Dat" not in samplekey:
         if tcut == '':
-            tree.Draw(key + ' >> ' + hist.GetName(), '('+'weight_pu[0]*'+wgt+')')
+            tree.Draw(key + ' >> ' + hist.GetName(), '('+'weight_total[0])')
         else:
-            tree.Draw(key + ' >> ' + hist.GetName(), 'weight_pu[0]*'+wgt+'*'+tcut)
+            tree.Draw(key + ' >> ' + hist.GetName(), 'weight_total[0]*'+tcut)
     else:
         if tcut == '':
             tree.Draw(key + ' >> ' + hist.GetName())
@@ -135,22 +146,22 @@ def sproducer2D(key1, key2, var1, var2, samplekey, sample):
                 var2['nbins'], var2['xmin'], var2['xmax'])
 
     hist.Sumw2()
-    if "data" in samplekey:
-        wgt = '1'
-    else:
-        wgt = str(WeightCalc(sample['crossxn'],sample['crossxnerr'],sample['file'])[0]) 
+    #if "data" in samplekey:
+    #    wgt = '1'
+    #else:
+    #    wgt = str(WeightCalc(sample['crossxn'],sample['crossxnerr'],sample['file'])[0]) 
     if cut0 == '':
-        exp = '('+wgt+')'
+        exp = '(1)'
     else:
-        exp = wgt+'*(' + cut0 + ')'
-    rootfile = sample['file']
+        exp = '(' + cut0 + ')'
+    rootfile = sample['flatfile']
         
     tree = rootfile.Get('tree')
 
     if "data" in samplekey or "Dat" in samplekey:
         tree.Draw(key2 + ':' + key1 + ' >> ' + hist.GetName(), exp)
     else:
-        tree.Draw(key2 + ':' + key1  + ' >> ' + hist.GetName(), "weight_pu[0]*"+exp)
+        tree.Draw(key2 + ':' + key1  + ' >> ' + hist.GetName(), "weight_total[0]*"+exp)
     hist.GetXaxis().SetTitleOffset(1)
     hist.GetYaxis().SetTitleOffset(1.7)
     hist.GetZaxis().SetTitleOffset(1.7)
@@ -249,9 +260,25 @@ for varkey, ivar in vardict.iteritems():
         for samplekey, isample in sampledict.iteritems():
             if not options.isNorm:
                 print samplekey
-                print "Non-PU Weight = ", WeightCalc(isample['crossxn'],0,isample['file'])[0], " +/- ", WeightCalc(0, isample['crossxnerr'], isample['file'])[1]
+                #print "Non-PU Weight = ", WeightCalc(isample['crossxn'],0,isample['file'])[0], " +/- ", WeightCalc(0, isample['crossxnerr'], isample['file'])[1]
     #print "Weighted Bc->J/psi+mu+nu evts: ", signal_BcJpsiMuNu.Get('cuthist').GetBinContent(3)*WeightCalc(90,0,signal_BcJpsiMuNu)[0]
     #print "Weighted Bc->J/psi+tau+nu evts: ", bg_BcJpsiTauNu.Get('cuthist').GetBinContent(3)*WeightCalc(90,0,bg_BcJpsiTauNu)[0]
+
+#sproducer(key, ivar, samplekey, sample,cut0='', Xtitled=False, Xtitle='', isUp=False, isDown=False):
+    if options.checkerr:
+        gStyle.SetOptTitle(0)
+        for samplekey, isample in sampledict.iteritems():
+            if 'data' not in samplekey and 'Dat' not in samplekey:
+                if var == 'JpsiMu_mu3_pt' or var == 'JpsiMu_B_mass':
+                    histmean = sproducer(var, ivar, samplekey, isample, '', False, '', False, False)
+                    applyHistStyle(histmean, 'DatFull')
+                    histup = sproducer(var, ivar, samplekey, isample, '', False, '', True, False)
+                    applyHistStyle(histup, 'bg_OniaAndX_MuMu_J')
+                    histdown = sproducer(var, ivar, samplekey, isample, '', False, '', False, True)
+                    applyHistStyle(histdown, 'signal_BcJpsiMuNu')
+                    errtitles = [samplekey+' '+ str(round(histmean.Integral(),2)), samplekey+' up '+ str(round(histup.Integral(), 2)), samplekey+' down '+ str(round(histdown.Integral(), 2))]
+                    errhists = [histmean, histup, histdown]
+                    comparisonPlots(errhists, errtitles, ivar['isLog'], ivar['loglowerlimit'], plotcdir+var+'_Errs_'+samplekey+'.pdf', ivar['isRatio'], ivar['isLegended'])
     if options.isCompare:
         gStyle.SetOptTitle(0)
         if ivar['HasStackPlot']:
@@ -259,12 +286,11 @@ for varkey, ivar in vardict.iteritems():
         for samplekey, isample in sampledict.iteritems():
             hist = sproducer(var, ivar, samplekey, isample)
             applyHistStyle(hist, samplekey)
-            weight = WeightCalc(isample['crossxn'], isample['crossxnerr'], isample['file'])
             # Add number of initial and final events to title (only want to do this once)
             # add histogram to stack hist if it isn't data and normalize histograms
             if 'data' not in samplekey and 'Dat' not in samplekey:
                 nweight=hist.GetBinContent(0) + hist.Integral() + hist.GetBinContent(ivar['nbins'])
-                titles.append(isample['title'] + ' ['+str(round(isample['file'].Get('cuthist').GetBinContent(1)))+':'+ str(round(nweight/weight[0], 0)) + ':'+ str(round(nweight, isample['digits']))+']')
+                titles.append(isample['title'] + ' ['+str(round(isample['file'].Get('cuthist').GetBinContent(1)))+':'+ str(round(nweight, isample['digits']))+']')
             if 'Dat' in samplekey:
                 datatitle = datacuttitle + str(round(hist.GetBinContent(0) +hist.Integral() +hist.GetBinContent(ivar['nbins']), 0))+']'
                 titles.append(datatitle)
@@ -408,12 +434,11 @@ if options.isCutOpt2:
                                 for samplekey, isample in sampledict.iteritems():
                                     hist = sproducer('JpsiMu_B_mass', vardict['JpsiMu_B_mass'], samplekey, isample, cutstr)
                                     applyHistStyle(hist, samplekey)
-                                    weight = WeightCalc(isample['crossxn'], isample['crossxnerr'], isample['file'])
                                     # Add number of initial and final events to title (only want to do this once)
                                     # add histogram to stack hist if it isn't data and normalize histograms
                                     if 'data' not in samplekey and 'Dat' not in samplekey:
                                         nweight=hist.GetBinContent(0) + hist.Integral() + hist.GetBinContent(ivar['nbins'])
-                                        titles.append(isample['title'] + ' ['+str(round(isample['file'].Get('cuthist').GetBinContent(1)))+':'+ str(round(nweight/weight[0], 0)) + ':'+ str(round(nweight, isample['digits']))+']')
+                                        titles.append(isample['title'] + ' ['+str(round(isample['file'].Get('cuthist').GetBinContent(1)))+':'+ str(round(nweight, isample['digits']))+']')
                                         if 'signal' in samplekey:
                                             s += hist.Integral()
                                         elif 'OniaAndX' in samplekey:

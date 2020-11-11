@@ -206,6 +206,9 @@ if isGenLevel:
     JpsiGen = num.zeros(1,dtype=bool)
     otree.Branch('JpsiGen', JpsiGen, 'JpsiGen/B')
 
+    genBc_pt= num.zeros(1,dtype=float)
+    otree.Branch('genBc_pt',genBc_pt, 'genBc_pt/D')
+
     #JpsiGoodMatch= num.zeros(1,dtype=bool)
     #otree.Branch('JpsiGoodMatch', JpsiGoodMatch, 'JpsiGoodMatch/B')
 
@@ -226,7 +229,7 @@ for evt in xrange(Nentries):
     chain.GetEntry(evt)
 
     if evt%100000==0: print '{0:.2f}'.format(Double(evt)/Double(Nentries)*100.), '% processed'
-  #  if evt>100: break
+    #if evt>100: break
 
 
     # if you want to put some cuts, you can do followings
@@ -494,6 +497,12 @@ for evt in xrange(Nentries):
                 elif sis2 == -1:
                     sis2 = sis
 
+        if TMath.Abs(chain.genParticle_mother[mu3_gen_num][0]) == 541:
+        # checking for BcJpsiMuNu - the only vis sister should be jpsi (jpsi already confirmed above) so just need to confirm only 1 vis sister and the id of the matched muon as a mu
+            if len(mu3_sisters) == 1 and TMath.Abs(chain.genParticle_pdgId[mu3_gen_num]):
+                genBc_pt[0] = chain.genParticle_mother_pt[mu3_gen_num][0]
+        #for iGen in xrange(len(chain.genParticle_pt)):
+        #    print "Gen Particle pT: ", chain.genParticle_pt[iGen]
         if TMath.Abs(chain.genParticle_mother[mu3_gen_num][0]) == 521:
             if TMath.Abs(chain.genParticle_pdgId[mu3_gen_num]) == 321:
                 if len(mu3_sisters) == 1:
@@ -537,9 +546,12 @@ for evt in xrange(Nentries):
         #print "Tagging complete"
     if not isData and isGenLevel:
         for var in gen_outvars:
-            tmp = getattr(chain,var)[0]
+            tmpvec = []
+            for iGen in xrange(len(chain.genParticle_pt)):
+                tmpvec += [getattr(chain,var)[iGen]]
             getattr(chain,var).clear()
-            getattr(chain,var).push_back(tmp)
+            for iGen in xrange(len(tmpvec)):
+                getattr(chain,var).push_back(tmpvec[iGen])
     for var in outvars:
         if "_Jpsi_" in var:
             tmp = getattr(chain,var)[0]

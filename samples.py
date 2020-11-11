@@ -11,8 +11,8 @@ lumi = 59832.475339
 #styles ={"dataC":1, "bg_BOniaAndX_MuMu":2, "bg_BcChic1MuNu":4, "bg_BcJpsiTauNu":3, "bg_BcPsi2STauNu":5, "bg_BOniaAndX_MuMu_J": 7, "bg_OniaAndX_MuMu_J":8, "bg_BcPsi2SMuNu":10, "signal_BcJpsiMuNu":1}
 #widths = {"dataC":3, "bg_BOniaAndX_MuMu":3, "bg_BcChic1MuNu":3, "bg_BcJpsiTauNu":3, "bg_BcPsi2STauNu":3, "bg_BOniaAndX_MuMu_J": 3, "bg_OniaAndX_MuMu_J":3, "bg_BcPsi2SMuNu":3, "signal_BcJpsiMuNu":3}
 
-colours = {"DatFull":1, "dataA":1, "dataB":1, "dataC":1, "dataD":1, "bg_BcJpsiTauNu":4, "bg_BcPsi2STauNu":5, "bg_OniaAndX_MuMu_J":2, "bg_BcPsi2SMuNu":8, "signal_BcJpsiMuNu":3}
-styles ={"DatFull":1, "dataA":1, "dataB":1, "dataC":1, "dataD":1, "bg_BcJpsiTauNu":3, "bg_BcPsi2STauNu":5, "bg_OniaAndX_MuMu_J":2, "bg_BcPsi2SMuNu":10, "signal_BcJpsiMuNu":4}
+colours = {"DatFull":1, "dataA":1, "dataB":1, "dataC":1, "dataD":1, "bg_BcJpsiTauNu":4, "bg_BcPsi2STauNu":5, "bg_OniaAndX_MuMu_J":2, "bg_BcPsi2SMuNu":8, "signal_BcJpsiMuNu":1}
+styles ={"DatFull":1, "dataA":1, "dataB":1, "dataC":1, "dataD":1, "bg_BcJpsiTauNu":3, "bg_BcPsi2STauNu":5, "bg_OniaAndX_MuMu_J":2, "bg_BcPsi2SMuNu":10, "signal_BcJpsiMuNu":1}
 widths = {"DatFull":3, "dataA":3, "dataB":3, "dataC":3, "dataD":3, "bg_BcJpsiTauNu":3, "bg_BcPsi2STauNu":3, "bg_OniaAndX_MuMu_J":3, "bg_BcPsi2SMuNu":3, "signal_BcJpsiMuNu":3}
 
 ##TFiles
@@ -31,13 +31,13 @@ widths = {"DatFull":3, "dataA":3, "dataB":3, "dataC":3, "dataD":3, "bg_BcJpsiTau
 #
 #datfileD = TFile('/eos/home-w/wvetens/SkimmedNTuples_V1/Charmonium_2020-06-28-110131_20200628110130_Data_2018UL_muon_channel/Charmonium/Charmonium_Run2018D-12Nov2019_UL2018-v1_20200628110130_Data_2018UL_muon_channel/Btrimu.root')
 
-DataFull= TFile('/eos/home-w/wvetens/SkimmedNTuples_V2/Charmonium_All.root')
+#DataFull= TFile('/eos/home-w/wvetens/SkimmedNTuples_V2/Charmonium_All.root')
+#
+#bg_OniaAndX_MuMu_J = TFile('/eos/home-w/wvetens/SkimmedNTuples_V2/OniaAndX_ToMuMu_MuFilter_SoftQCDnonD_TuneCP5_13TeV-pythia8-evtgen_2020-06-29-135159_20200629135158_BcJpsiX_den_2018/OniaAndX_ToMuMu_MuFilter_SoftQCDnonD_TuneCP5_13TeV-pythia8-evtgen/OniaAndX_ToMuMu_MuFilter_SoftQCDnonD_TuneCP5_13TeV-pythia8-evtgen_20200629135158_BcJpsiX_den_2018/Btrimu.root')
+#
+#bg_BcJpsiTauNu = TFile('/eos/home-w/wvetens/SkimmedNTuples_V2/BcToJPsiTauNu_TuneCP5_13TeV-bcvegpy2-pythia8-evtgen_2020-07-02-130640_20200702130640_BcJpsiTaulep_MC_2018/BcToJPsiTauNu_TuneCP5_13TeV-bcvegpy2-pythia8-evtgen/BcToJPsiTauNu_TuneCP5_13TeV-bcvegpy2-pythia8-evtgen_20200702130640_BcJpsiTaulep_MC_2018/Btrimu.root')
 
-bg_OniaAndX_MuMu_J = TFile('/eos/home-w/wvetens/SkimmedNTuples_V2/OniaAndX_ToMuMu_MuFilter_SoftQCDnonD_TuneCP5_13TeV-pythia8-evtgen_2020-06-29-135159_20200629135158_BcJpsiX_den_2018/OniaAndX_ToMuMu_MuFilter_SoftQCDnonD_TuneCP5_13TeV-pythia8-evtgen/OniaAndX_ToMuMu_MuFilter_SoftQCDnonD_TuneCP5_13TeV-pythia8-evtgen_20200629135158_BcJpsiX_den_2018/Btrimu.root')
-
-bg_BcJpsiTauNu = TFile('/eos/home-w/wvetens/SkimmedNTuples_V2/BcToJPsiTauNu_TuneCP5_13TeV-bcvegpy2-pythia8-evtgen_2020-07-02-130640_20200702130640_BcJpsiTaulep_MC_2018/BcToJPsiTauNu_TuneCP5_13TeV-bcvegpy2-pythia8-evtgen/BcToJPsiTauNu_TuneCP5_13TeV-bcvegpy2-pythia8-evtgen_20200702130640_BcJpsiTaulep_MC_2018/Btrimu.root')
-
-signal_BcJpsiMuNu = TFile('/eos/home-w/wvetens/SkimmedNTuples_V2/BcToJPsiMuNu_TuneCUEP8M1_13TeV-bcvegpy2-pythia8-evtgen_2020-07-01-094709_20200701094433_BcJpsiMu_MC_2018/BcToJPsiMuNu_TuneCUEP8M1_13TeV-bcvegpy2-pythia8-evtgen/BcToJPsiMuNu_TuneCUEP8M1_13TeV-bcvegpy2-pythia8-evtgen_20200701094433_BcJpsiMu_MC_2018/Btrimu.root')
+signal_BcJpsiMuNu = TFile('~/eos_storage/10-26-2020-GenBcPt/BcToJPsiMuNu_denominator_mc_2016/BtrimuFinal.root')
 
 #signal_BcJpsiMuNu_old = TFile('/eos/home-w/wvetens/SkimmedNTuples/Ntuple_BPH_v5_multipleCand/BcJpsiMuNu_020519/BcJpsiMuNu_020519/Btrimu.root')
 #
@@ -68,11 +68,11 @@ sampledict = collections.OrderedDict()
 #sampledict['dataB'] = {'file':datfileB, 'title':'Data (Charmonium Run2018)', 'digits':0, 'crossxn': 1, 'crossxnerr': 0}
 #sampledict['dataC'] = {'file':datfileC, 'title':'Data (Charmonium Run2018)', 'digits':0, 'crossxn': 1, 'crossxnerr': 0}
 #sampledict['dataD'] = {'file':datfileD, 'title':'Data (Charmonium Run2018)', 'digits':0, 'crossxn': 1, 'crossxnerr': 0}
-sampledict['DatFull'] = {'file':DataFull, 'title':'Data (Charmonium Run2018)', 'digits':0, 'crossxn': 1, 'crossxnerr': 0}
-#sampledict['bg_BcChic1MuNu'] = {'file':bg_BcChic1MuNu,  'title':'B_{c}->#chi_{c}^{1} + #mu + #nu', 'digits':1, 'crossxn': 1, 'crossxnerr': 0}
-sampledict['bg_BcJpsiTauNu'] = {'file':bg_BcJpsiTauNu,  'title':'B_{c}->J/#psi + #tau + #nu', 'digits':3, 'crossxn': 8.2 * 10 ** 1, 'crossxnerr': 0}
-#sampledict['bg_BcPsi2STauNu'] = {'file':bg_BcPsi2STauNu,  'title':'B_{c}->#psi(2S) + #tau + #nu', 'digits':1, 'crossxn': 1, 'crossxnerr': 0}
-sampledict['bg_OniaAndX_MuMu_J'] = {'file':bg_OniaAndX_MuMu_J,  'title':'Onia and X BG', 'digits':3, 'crossxn': 1.384 * 10**6, 'crossxnerr': 1.957 * 10**5}
+#sampledict['DatFull'] = {'file':DataFull, 'title':'Data (Charmonium Run2018)', 'digits':0, 'crossxn': 1, 'crossxnerr': 0}
+##sampledict['bg_BcChic1MuNu'] = {'file':bg_BcChic1MuNu,  'title':'B_{c}->#chi_{c}^{1} + #mu + #nu', 'digits':1, 'crossxn': 1, 'crossxnerr': 0}
+#sampledict['bg_BcJpsiTauNu'] = {'file':bg_BcJpsiTauNu,  'title':'B_{c}->J/#psi + #tau + #nu', 'digits':3, 'crossxn': 8.2 * 10 ** 1, 'crossxnerr': 0}
+##sampledict['bg_BcPsi2STauNu'] = {'file':bg_BcPsi2STauNu,  'title':'B_{c}->#psi(2S) + #tau + #nu', 'digits':1, 'crossxn': 1, 'crossxnerr': 0}
+#sampledict['bg_OniaAndX_MuMu_J'] = {'file':bg_OniaAndX_MuMu_J,  'title':'Onia and X BG', 'digits':3, 'crossxn': 1.384 * 10**6, 'crossxnerr': 1.957 * 10**5}
 #sampledict['bg_OniaAndX_MuMu_J_old'] = {'file':bg_OniaAndX_MuMu_J_old,  'title':'old pp->J/#psi+X', 'digits':1, 'crossxn': 1.384*10**9, 'crossxnerr': 1.957*10**8}
 #sampledict['bg_BcPsi2SMuNu'] = {'file':bg_BcPsi2SMuNu,  'title':'B_{c}->#psi(2S) + #mu + #nu', 'digits':1, 'crossxn': 2.612*10**10, 'crossxnerr': 2.347*10**5}
 sampledict['signal_BcJpsiMuNu'] = {'file':signal_BcJpsiMuNu, 'title':'B_{c}->J/#psi + #mu + #nu', 'digits':3, 'crossxn': 8.2 * 10 ** 1, 'crossxnerr': 0}

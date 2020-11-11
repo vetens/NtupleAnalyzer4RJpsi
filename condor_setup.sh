@@ -1,5 +1,5 @@
 #!/bin/bash
-target=${1:-/eos/home-w/wvetens/SkimmedNTuples_V2/}
+target=${1:-/eos/home-w/wvetens/10-26-2020-GenBcPt/}
 splitting=${2:-20}
 inlist=${3:-'datasets.txt'}
 prefix1="/store/user"
@@ -33,7 +33,8 @@ writeScript() {
             -e 's&RUNTYPE&'"$2"'&g' < $workdir/condor/condor_template.sh > $scriptname 
     elif [[ $2 == *"BcJpsiMu"* ]]; then
         sed -e 's&LISTDIR&'"$3"'&g' \
-            -e 's&ISGEN&&g' \
+            -e 's&ISDAT&&g' \
+            -e 's&ISGEN&-g&g' \
             -e 's&ISSIG&-s&g' \
             -e 's&TARGET&'"$target"'&g' \
             -e 's&WORKDIR&'"$workdir"'&g' \
@@ -53,7 +54,7 @@ writeScript() {
     else 
         sed -e 's&LISTDIR&'"$3"'&g' \
             -e 's&ISDAT&&g' \
-            -e 's&ISGEN&&g' \
+            -e 's&ISGEN&-g&g' \
             -e 's&ISSIG&&g' \
             -e 's&TARGET&'"$target"'&g' \
             -e 's&WORKDIR&'"$workdir"'&g' \
